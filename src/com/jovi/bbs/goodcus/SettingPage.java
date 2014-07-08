@@ -14,7 +14,9 @@ import com.google.android.gms.plus.model.people.Person;
 import com.jovi.bbs.goodcus.net.Api;
 import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
 
+import android.R.bool;
 import android.app.Activity;
+import android.app.AlertDialog.Builder;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -39,16 +41,16 @@ public class SettingPage extends Activity
 	private ImageView m_loginIcon = null;
 	private Recv m_recv = null;
 	private ProgressDialog pd = null;
-	private PlusClient mPlusClient;
+	Api api;
+
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.setting_page);
+		api = Api.getInstance();
 		
-		
-		mPlusClient = Api.getInstance().getGooglePlusClient();
 		m_version = (TextView)this.findViewById(R.id.settingAppVersion);
 		PackageInfo pinfo = null;
 		try
@@ -71,20 +73,21 @@ public class SettingPage extends Activity
 		this.registerReceiver(m_recv, filter);
 	}
 	
+	
+	
 	public void onLoginItemClick(View v)
 	{
-		if(!mPlusClient.isConnected())
+		if(!api.getGooglePlusClient().isConnected())
 		{
 			pd = ProgressDialog.show(SettingPage.this, null, "登录中，请稍后……", true, true);
-			mPlusClient.connect();
+			api.connectToGooglePlus();
 		}
 		
 		else
 		{
 			pd = ProgressDialog.show(SettingPage.this, null, "登出中，请稍后……", true, true);
-			mPlusClient.clearDefaultAccount();
-			mPlusClient.disconnect();
-			sendBroadcast(new Intent(App.LOGIN_STATE_CHANGE_ACTION));
+			api.getGooglePlusClient().clearDefaultAccount();
+			api.disconnectFromGooglePlus();
 		}
 	}
 	
@@ -109,22 +112,31 @@ public class SettingPage extends Activity
 		@Override
 		public void onReceive(Context context, Intent intent)
 		{
-			if (mPlusClient.isConnected())
+			boolean isConnecting = intent.getExtras().getBoolean("isConnecting");
+			if (api.getGooglePlusClient().isConnected())
 			{
 				onLoginState();
 			}
-			else 
+			else if(isConnecting) 
+			{
+				Builder builder = new Builder(SettingPage.this);
+				builder.setMessage("登陆失败，请稍候再试");
+				builder.setPositiveButton("确定", null);
+				builder.create().show();
+			}
+			else
 			{
 				onLogoutState();
 			}
+			
 		}
 		
 		public void onLoginState()
 		{
 
-			if (mPlusClient.getCurrentPerson() != null)
+			if (api.getGooglePlusClient().getCurrentPerson() != null)
 			{
-				Person currUser = mPlusClient.getCurrentPerson();
+				Person currUser = api.getGooglePlusClient().getCurrentPerson();
 				String url = currUser.getImage().getUrl();
 				try
 				{

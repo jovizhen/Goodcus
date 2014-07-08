@@ -2,6 +2,7 @@ package com.jovi.bbs.goodcus;
 
 
 import com.jovi.bbs.goodcus.net.Api;
+import com.jovi.bbs.goodcus.util.HttpUtil;
 
 import android.os.Bundle;
 import android.app.TabActivity;
@@ -36,6 +37,8 @@ public class MainActivity extends TabActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		Api.getInstance().setActivity(this);
+		HttpUtil.getInstance().setContext(this);
+		
 		TabHost tabHost = getTabHost();
 		
 		for (int i = 0; i < this.m_tabTitle.length; i++)

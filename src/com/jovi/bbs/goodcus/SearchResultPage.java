@@ -15,6 +15,7 @@ import org.scribe.model.Response;
 import com.google.gson.Gson;
 import com.jovi.bbs.goodcus.model.SearchResult;
 import com.jovi.bbs.goodcus.model.YelpFilter;
+import com.jovi.bbs.goodcus.net.Api;
 import com.jovi.bbs.goodcus.net.Yelp;
 import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
 import com.jovi.bbs.goodcus.widgets.RefreshActionBtn;
@@ -23,6 +24,12 @@ import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
 
 import android.R.integer;
 import android.app.Activity;
+import android.app.AlertDialog.Builder;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.IntentFilter;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -49,6 +56,7 @@ OnItemClickListener
 	private ArrayList<SearchResult> m_model = new ArrayList<SearchResult>();
 	private YelpFilter yelpFilter;
 	private int status;
+	private Recv m_recv = null;
 
 	private Handler m_handler = new Handler()
 	{
@@ -116,6 +124,11 @@ OnItemClickListener
 		yelpFilter =  new YelpFilter.FilterBuilder("Resturant").build();
 		yelpFilter.setLatitude(30.361471);
 		yelpFilter.setLongitude(-87.164326);
+		
+		m_recv = new Recv();
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(App.LOGIN_STATE_CHANGE_ACTION);
+		this.registerReceiver(m_recv, filter);
 		loadModel(m_currentPage++);
 	}
 	
@@ -130,17 +143,32 @@ OnItemClickListener
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View v, int position, long id)
 	{
-		if(position<1)
+		if (position < 1)
 			return;
-		
-		SearchResult result = m_model.get(position-1);
-		Gson gson = new Gson();
-		String jsonResult = gson.toJson(result);
-		Bundle data = new Bundle();
-		data.putSerializable("searchResult", jsonResult);
-		Intent intent = new Intent(this, SearchDetailsPage.class);
-		intent.putExtras(data);
-		this.startActivity(intent);
+
+		Builder builder = new Builder(this);
+		builder.setMessage("需要登陆，才能继续浏览");
+		builder.setPositiveButton("确定", new OnClickListener()
+		{
+			@Override
+			public void onClick(DialogInterface dialog, int which)
+			{
+				Api.getInstance().connectToGooglePlus();
+			}
+		}).setNegativeButton("取消", null);
+		builder.create().show();
+
+		if (Api.getInstance().getGooglePlusClient().isConnected())
+		{
+			SearchResult result = m_model.get(position - 1);
+			Gson gson = new Gson();
+			String jsonResult = gson.toJson(result);
+			Bundle data = new Bundle();
+			data.putSerializable("searchResult", jsonResult);
+			Intent intent = new Intent(this, SearchDetailsPage.class);
+			intent.putExtras(data);
+			this.startActivity(intent);
+		}
 	}
 	
 	public void forceRefresh()
@@ -217,7 +245,7 @@ OnItemClickListener
 			}
 			
 			TextView name = (TextView) convertView.findViewById(R.id.business_name);
-			ImageView rating_image  = (ImageView) convertView.findViewById(R.id.rating_image);
+			ImageViewWithCache rating_image  = (ImageViewWithCache) convertView.findViewById(R.id.rating_image);
 			ImageViewWithCache  img = (ImageViewWithCache ) convertView.findViewById(R.id.headImgDetail);
 			
 			name.setText(m_model.get(position).getName());
@@ -226,10 +254,10 @@ OnItemClickListener
 				try
 				{
 					img.setImageUrl(new URL(m_model.get(position).getImage_url()));
+					rating_image.setImageUrl(new URL(m_model.get(position).getRating_img_url_small()));
 				}
 				catch (MalformedURLException e)
 				{
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -273,7 +301,6 @@ OnItemClickListener
 			}
 			catch (JSONException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			return responseString;
@@ -300,5 +327,28 @@ OnItemClickListener
 		
 	}
 	
+	private class Recv extends BroadcastReceiver
+	{
 
+		@Override
+		public void onReceive(Context context, Intent intent)
+		{
+			boolean isConnecting = intent.getExtras().getBoolean("isConnecting");
+			if(isConnecting)
+			{
+				Builder builder = new Builder(SearchResultPage.this);
+				builder.setMessage("登陆失败， 再试一次？");
+				builder.setPositiveButton("确定", new OnClickListener()
+				{
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which)
+					{
+						Api.getInstance().connectToGooglePlus();
+					}
+				}).setNegativeButton("取消", null);
+				builder.create().show();
+			}
+		}
+	}
 }

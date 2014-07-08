@@ -1,9 +1,6 @@
 package com.jovi.bbs.goodcus.net;
 
-import android.R.integer;
 import android.app.Activity;
-import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
@@ -17,16 +14,15 @@ import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailed
 import com.google.android.gms.plus.PlusClient;
 import com.google.android.gms.plus.PlusClient.Builder;
 import com.jovi.bbs.goodcus.App;
-import com.jovi.bbs.goodcus.SettingPage;
 
-public class Api  implements ConnectionCallbacks, OnConnectionFailedListener
+public class Api  implements ConnectionCallbacks, OnConnectionFailedListener, DisconnectCallbacks
 {
 	private static final int INVALID_REQUEST_CODE = -1;
 	private PlusClient googlePlusClient;
 	Activity mActivity;
 	ConnectionResult mLastConnectionResult;
 	int mRequestCode;
-	
+	private boolean isConnecting = false;
 	
 	public void setActivity(Activity activity)
 	{
@@ -56,6 +52,7 @@ public class Api  implements ConnectionCallbacks, OnConnectionFailedListener
 	@Override
 	public void onConnectionFailed(ConnectionResult result)
 	{
+		isConnecting = true;
 		mLastConnectionResult = result;
 		mRequestCode = result.getErrorCode();
 
@@ -72,8 +69,12 @@ public class Api  implements ConnectionCallbacks, OnConnectionFailedListener
         Toast.makeText(mActivity, "please try again",
 				Toast.LENGTH_SHORT).show();
         
-        mActivity.sendBroadcast(new Intent(App.LOGIN_STATE_CHANGE_ACTION));
-		
+
+		Intent intent = new Intent(App.LOGIN_STATE_CHANGE_ACTION);
+		Bundle data = new Bundle();
+		data.putBoolean("isConnecting", isConnecting);
+		intent.putExtras(data);
+		mActivity.sendBroadcast(intent);
 	}
 
 	private void resolveLastResult()
@@ -106,14 +107,41 @@ public class Api  implements ConnectionCallbacks, OnConnectionFailedListener
 	@Override
 	public void onConnected(Bundle connectionHint)
 	{
-		mActivity.sendBroadcast(new Intent(App.LOGIN_STATE_CHANGE_ACTION));
-		
+		isConnecting = false;
+		Intent intent = new Intent(App.LOGIN_STATE_CHANGE_ACTION);
+		Bundle data = new Bundle();
+		data.putBoolean("isConnecting", isConnecting);
+		intent.putExtras(data);
+		mActivity.sendBroadcast(intent);
 	}
 
+	public void connectToGooglePlus()
+	{
+		googlePlusClient.connect();
+	}
+	
+	public void disconnectFromGooglePlus()
+	{
+		googlePlusClient.disconnect();
+		onServiceDisconnected();
+	}
+	
 	@Override
 	public void onDisconnected()
 	{
 		
 	}
+
+	@Override
+	public void onServiceDisconnected()
+	{
+		isConnecting = false;
+		Intent intent = new Intent(App.LOGIN_STATE_CHANGE_ACTION);
+		Bundle data = new Bundle();
+		data.putBoolean("isConnecting", isConnecting);
+		intent.putExtras(data);
+		mActivity.sendBroadcast(intent);
+	}
+	
 	
 }

@@ -82,6 +82,20 @@
                 android:layout_height="146dp" >
             </com.jovi.bbs.goodcus.widgets.SearchDetailsView>
 
+            <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="fitXY"
+                android:src="@drawable/list_divider_seprator" />
+
+            <TextView
+                android:id="@+id/warnMsg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="7.36"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
             <com.jovi.bbs.goodcus.widgets.XListView
                 android:id="@+id/commentsList"
                 android:layout_width="fill_parent"
@@ -93,13 +107,6 @@
                 android:fastScrollEnabled="true"
                 android:listSelector="@color/white" >
             </com.jovi.bbs.goodcus.widgets.XListView>
-
-            <ImageView
-                android:id="@+id/imageView1"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:scaleType="fitXY"
-                android:src="@drawable/list_divider_seprator" />
 
             <LinearLayout
                 android:id="@+id/showThreadReplyBar"
