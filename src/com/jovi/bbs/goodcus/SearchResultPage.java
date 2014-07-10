@@ -22,7 +22,6 @@ import com.jovi.bbs.goodcus.widgets.RefreshActionBtn;
 import com.jovi.bbs.goodcus.widgets.XListView;
 import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
 
-import android.R.integer;
 import android.app.Activity;
 import android.app.AlertDialog.Builder;
 import android.content.BroadcastReceiver;
@@ -39,7 +38,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TextView;
@@ -57,6 +55,7 @@ OnItemClickListener
 	private YelpFilter yelpFilter;
 	private int status;
 	private Recv m_recv = null;
+//	private ProgressDialog pd = null;
 
 	private Handler m_handler = new Handler()
 	{
@@ -154,6 +153,7 @@ OnItemClickListener
 			public void onClick(DialogInterface dialog, int which)
 			{
 				Api.getInstance().connectToGooglePlus();
+//				pd = ProgressDialog.show(SearchResultPage.this, null, "登录中，请稍后……", true, true);
 			}
 		}).setNegativeButton("取消", null);
 		builder.create().show();
@@ -297,7 +297,6 @@ OnItemClickListener
 					status = Yelp.NET_TIMEOUT;
 				}
 				
-				
 			}
 			catch (JSONException e)
 			{
@@ -333,22 +332,29 @@ OnItemClickListener
 		@Override
 		public void onReceive(Context context, Intent intent)
 		{
-			boolean isConnecting = intent.getExtras().getBoolean("isConnecting");
-			if(isConnecting)
-			{
-				Builder builder = new Builder(SearchResultPage.this);
-				builder.setMessage("登陆失败， 再试一次？");
-				builder.setPositiveButton("确定", new OnClickListener()
-				{
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which)
-					{
-						Api.getInstance().connectToGooglePlus();
-					}
-				}).setNegativeButton("取消", null);
-				builder.create().show();
-			}
+//			boolean isConnecting = intent.getExtras().getBoolean("isConnecting");
+//			if(isConnecting)
+//			{
+//				Builder builder = new Builder(SearchResultPage.this);
+//				builder.setMessage("登陆失败， 再试一次？");
+//				builder.setPositiveButton("确定", new OnClickListener()
+//				{
+//					
+//					@Override
+//					public void onClick(DialogInterface dialog, int which)
+//					{
+//						Api.getInstance().connectToGooglePlus();
+//					}
+//				}).setNegativeButton("取消", null);
+//				builder.create().show();
+//			}
+//			if(Api.getInstance().getGooglePlusClient().isConnected())
+//			{
+//				if(pd!=null)
+//				{
+//					pd.dismiss();
+//				}
+//			}
 		}
 	}
 }

@@ -40,7 +40,6 @@ public class SettingPage extends Activity
 	private TextView m_loginUserName = null;
 	private ImageView m_loginIcon = null;
 	private Recv m_recv = null;
-	private ProgressDialog pd = null;
 	Api api;
 
 	
@@ -79,13 +78,11 @@ public class SettingPage extends Activity
 	{
 		if(!api.getGooglePlusClient().isConnected())
 		{
-			pd = ProgressDialog.show(SettingPage.this, null, "登录中，请稍后……", true, true);
 			api.connectToGooglePlus();
 		}
 		
 		else
 		{
-			pd = ProgressDialog.show(SettingPage.this, null, "登出中，请稍后……", true, true);
 			api.getGooglePlusClient().clearDefaultAccount();
 			api.disconnectFromGooglePlus();
 		}
@@ -117,23 +114,22 @@ public class SettingPage extends Activity
 			{
 				onLoginState();
 			}
-			else if(isConnecting) 
-			{
-				Builder builder = new Builder(SettingPage.this);
-				builder.setMessage("登陆失败，请稍候再试");
-				builder.setPositiveButton("确定", null);
-				builder.create().show();
-			}
+//			else if(isConnecting) 
+//			{
+//				Builder builder = new Builder(SettingPage.this);
+//				builder.setMessage("登陆失败，请稍候再试");
+//				builder.setPositiveButton("确定", null);
+//				builder.create().show();
+//				onLogoutState();
+//			}
 			else
 			{
 				onLogoutState();
 			}
-			
 		}
 		
 		public void onLoginState()
 		{
-
 			if (api.getGooglePlusClient().getCurrentPerson() != null)
 			{
 				Person currUser = api.getGooglePlusClient().getCurrentPerson();
@@ -150,10 +146,6 @@ public class SettingPage extends Activity
 				m_loginIcon.setImageResource(R.drawable.logout_dark);
 				m_loginUserName.setText(currUser.getName().toString());
 			}
-			if (pd != null && pd.isShowing())
-			{
-				pd.dismiss();
-			}
 		}
 		
 		public void onLogoutState()
@@ -161,10 +153,6 @@ public class SettingPage extends Activity
 			m_loginUserHeadImg.setImageResource(R.drawable.default_user_head_img);
 			m_loginUserName.setText("游客");
 			m_loginIcon.setImageResource(R.drawable.social_add_person_dark);
-			if(pd!=null && pd.isShowing())
-			{
-				pd.dismiss();
-			}
 		}
 	}
 

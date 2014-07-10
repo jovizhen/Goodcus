@@ -26,30 +26,21 @@ import com.jovi.bbs.goodcus.model.SearchResult;
 import com.jovi.bbs.goodcus.net.Api;
 import com.jovi.bbs.goodcus.util.HttpUtil;
 import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
-import com.jovi.bbs.goodcus.widgets.RefreshActionBtn;
 import com.jovi.bbs.goodcus.widgets.SearchDetailsView;
-import com.jovi.bbs.goodcus.widgets.ThreadItemFooter;
 import com.jovi.bbs.goodcus.widgets.XListView;
 import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
-
-import android.R.integer;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Contacts.People;
-import android.text.Html;
-import android.text.Spanned;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,14 +50,46 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 	protected static final String TAG = "Search Details Page";
 	private XListView m_listView;
 	SearchDetailsView detailsView;
+	TextView warnMsg;
 	private ArrayList<ReviewRecord> m_model = new ArrayList<ReviewRecord>();
 	ShowCommentAdapter m_adapter;
 	private ProgressDialog m_pd;
 	private ProgressBar m_pBar;
-	private int m_id;
+	private String business_id;
+	private String user_id;
 	private int m_currentPage = 1;
 	private RequestQueue requestQueue;
 	private HashMap<String, Person> hPersons = new HashMap<String, Person>();
+	
+	private Handler m_handler = new Handler()
+	{
+		public void handleMessage(Message msg) 
+		{
+			if(m_model.size()==0)
+			{
+				warnMsg.setText("暂无评论");
+			}
+			
+			else
+			{
+				warnMsg.setText("");
+			}
+
+			if (m_listView.getPullLoading())
+			{
+				// 加载到最后一页时禁用pull load
+				m_listView.stopLoadMore();
+			}
+
+			if (m_listView.getPullRefreshing())
+			{
+				m_listView.stopRefresh();
+			}
+			
+			m_pBar.setVisibility(View.GONE);
+
+		}
+	};
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -90,20 +113,23 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 			e.printStackTrace();
 		}
 		
+		warnMsg = (TextView) findViewById(R.id.warnMsg);
+		
 		m_listView = (XListView) findViewById(R.id.commentsList);
 		m_listView.setPullLoadEnable(false);
 		m_listView.setPullRefreshEnable(true);
 		m_listView.setXListViewListener(this);
-//		m_listView.setOnItemClickListener(this);
-//		m_adapter = new ShowCommentAdapter();
-//		m_listView.setAdapter(m_adapter);
-//		m_listView.requestFocus();
+		m_listView.setOnItemClickListener(this);
+		m_adapter = new ShowCommentAdapter();
+		m_listView.setAdapter(m_adapter);
+		m_listView.requestFocus();
 
 		m_pBar = (ProgressBar)this.findViewById(R.id.showThreadProgressBar);
 
 		Bundle data = this.getIntent().getExtras();
-		m_id = data.getInt("id");
-//		loadModel(m_currentPage++);
+		business_id = data.getString("id");
+		user_id = Api.getInstance().getGooglePlusClient().getCurrentPerson().getId();
+		loadModel(m_currentPage++);
 	}
 	
 	public void onReplyBtnClick(View v)
@@ -127,7 +153,11 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 		}
 
 		this.m_pd = ProgressDialog.show(this, "提示", "回帖中，请稍后……", true, true);
+		
 		ReviewRecord record = new ReviewRecord();
+		record.setReview(replyTextView.getText().toString());
+		record.setBusinessId(business_id);
+		record.setGooglePlusUserId(user_id);
 		try
 		{
 			postReview(record);
@@ -199,7 +229,7 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 		JSONObject j = new JSONObject();
 		try
 		{
-			j.put("business_id", m_id);
+			j.put("business_id", business_id);
 		}
 		catch (JSONException e1)
 		{
@@ -215,6 +245,14 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 				ReviewRecordListResponse response = gson.fromJson(json.toString(), ReviewRecordListResponse.class);
 				m_model.addAll(response.getRecordList());
 				m_adapter.notifyDataSetChanged();
+				ArrayList<String> idList = new ArrayList<String>();
+				for (ReviewRecord record : m_model)
+				{
+					idList.add(record.getGooglePlusUserId());
+				}
+				Api.getInstance().getGooglePlusClient().loadPeople(SearchDetailsPage.this, idList);
+				
+				m_handler.sendEmptyMessage(0);
 			}
 		}, new ErrorListener()
 		{
@@ -269,11 +307,9 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 			TextView posttime = (TextView) convertView.findViewById(R.id.showthreadPosttime);
 			final TextView msg = (TextView) convertView.findViewById(R.id.showthreadMsg);
 			ImageViewWithCache img = (ImageViewWithCache) convertView.findViewById(R.id.showthreadHeadImg);
-			ThreadItemFooter itemFooter = (ThreadItemFooter) convertView.findViewById(R.id.showthreadLoadTip);
 
 			final ReviewRecord record = m_model.get(position);
 			Person person = hPersons.get(record.getGooglePlusUserId());
-			Api.getInstance().getGooglePlusClient().loadPeople((OnPeopleLoadedListener) this, new String[]{"id"});
 			username.setText(person.getDisplayName());
 			posttime.setText("not imp");
 			if (person.getImage() != null)
@@ -286,10 +322,12 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 				{
 					e.printStackTrace();
 				}
-			} else
+			} 
+			else
 			{
 				img.setImageResource(R.drawable.default_user_head_img);
 			}
+			msg.setText(record.getReview());
 
 			return convertView;
 		}
