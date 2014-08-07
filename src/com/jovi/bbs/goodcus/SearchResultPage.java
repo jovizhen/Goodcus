@@ -13,9 +13,9 @@ import org.json.JSONObject;
 import org.scribe.model.Response;
 
 import com.google.gson.Gson;
+import com.jovi.bbs.goodcus.fragment.SearchFilterFragment;
 import com.jovi.bbs.goodcus.model.SearchResult;
 import com.jovi.bbs.goodcus.model.YelpFilter;
-import com.jovi.bbs.goodcus.net.Api;
 import com.jovi.bbs.goodcus.net.Yelp;
 import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
 import com.jovi.bbs.goodcus.widgets.RefreshActionBtn;
@@ -23,12 +23,8 @@ import com.jovi.bbs.goodcus.widgets.XListView;
 import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
 
 import android.app.Activity;
-import android.app.AlertDialog.Builder;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
+import android.app.Fragment;
 import android.content.IntentFilter;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -46,6 +42,7 @@ import android.widget.Toast;
 public class SearchResultPage extends Activity implements IXListViewListener,
 OnItemClickListener
 {
+	private static final String SEARCH_FILTER_FRAGMENT_TAG = "search_filter_fragment";
 	private int m_currentPage = 1;
 	private XListView m_listView;
 	private SearchResultListAdapter m_adapter;
@@ -54,8 +51,6 @@ OnItemClickListener
 	private ArrayList<SearchResult> m_model = new ArrayList<SearchResult>();
 	private YelpFilter yelpFilter;
 	private int status;
-	private Recv m_recv = null;
-//	private ProgressDialog pd = null;
 
 	private Handler m_handler = new Handler()
 	{
@@ -65,7 +60,7 @@ OnItemClickListener
 			{
 				case Yelp.NET_SUCCESS:
 					m_adapter.notifyDataSetChanged();
-					// 只在listview中有数据之后才启用pull load
+					// 只在 listview 中有数据之后才启用pull load
 					break;
 				case Yelp.NET_TIMEOUT:
 					Toast.makeText(SearchResultPage.this, R.string.net_timeout,
@@ -124,10 +119,8 @@ OnItemClickListener
 		yelpFilter.setLatitude(30.361471);
 		yelpFilter.setLongitude(-87.164326);
 		
-		m_recv = new Recv();
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(App.LOGIN_STATE_CHANGE_ACTION);
-		this.registerReceiver(m_recv, filter);
 		loadModel(m_currentPage++);
 	}
 	
@@ -144,31 +137,14 @@ OnItemClickListener
 	{
 		if (position < 1)
 			return;
-
-		Builder builder = new Builder(this);
-		builder.setMessage("需要登陆，才能继续浏览");
-		builder.setPositiveButton("确定", new OnClickListener()
-		{
-			@Override
-			public void onClick(DialogInterface dialog, int which)
-			{
-				Api.getInstance().connectToGooglePlus();
-//				pd = ProgressDialog.show(SearchResultPage.this, null, "登录中，请稍后……", true, true);
-			}
-		}).setNegativeButton("取消", null);
-		builder.create().show();
-
-		if (Api.getInstance().getGooglePlusClient().isConnected())
-		{
-			SearchResult result = m_model.get(position - 1);
-			Gson gson = new Gson();
-			String jsonResult = gson.toJson(result);
-			Bundle data = new Bundle();
-			data.putSerializable("searchResult", jsonResult);
-			Intent intent = new Intent(this, SearchDetailsPage.class);
-			intent.putExtras(data);
-			this.startActivity(intent);
-		}
+		SearchResult result = m_model.get(position - 1);
+		Gson gson = new Gson();
+		String jsonResult = gson.toJson(result);
+		Bundle data = new Bundle();
+		data.putSerializable("searchResult", jsonResult);
+		Intent intent = new Intent(this, SearchDetailsPage.class);
+		intent.putExtras(data);
+		this.startActivity(intent);
 	}
 	
 	public void forceRefresh()
@@ -193,6 +169,24 @@ OnItemClickListener
 	{
 		// 滑动listView到顶端
 		m_listView.setSelection(0);
+	}
+	
+	public void toggleFilterPanel(View v)
+	{
+		Fragment f = getFragmentManager().findFragmentByTag(SEARCH_FILTER_FRAGMENT_TAG);
+        if (f != null) {
+            getFragmentManager().popBackStack();
+        } else {
+            getFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.animator.slide_up,
+                            R.animator.slide_down,
+                            R.animator.slide_up,
+                            R.animator.slide_down)
+                    .add(R.id.list_fragment_container, SearchFilterFragment
+                                    .instantiate(this, SearchFilterFragment.class.getName()),
+                                    SEARCH_FILTER_FRAGMENT_TAG
+                    ).addToBackStack(null).commit();
+        }
 	}
 	
 	public void onRefreshBtnClick(View v)
@@ -326,35 +320,5 @@ OnItemClickListener
 		
 	}
 	
-	private class Recv extends BroadcastReceiver
-	{
-
-		@Override
-		public void onReceive(Context context, Intent intent)
-		{
-//			boolean isConnecting = intent.getExtras().getBoolean("isConnecting");
-//			if(isConnecting)
-//			{
-//				Builder builder = new Builder(SearchResultPage.this);
-//				builder.setMessage("登陆失败， 再试一次？");
-//				builder.setPositiveButton("确定", new OnClickListener()
-//				{
-//					
-//					@Override
-//					public void onClick(DialogInterface dialog, int which)
-//					{
-//						Api.getInstance().connectToGooglePlus();
-//					}
-//				}).setNegativeButton("取消", null);
-//				builder.create().show();
-//			}
-//			if(Api.getInstance().getGooglePlusClient().isConnected())
-//			{
-//				if(pd!=null)
-//				{
-//					pd.dismiss();
-//				}
-//			}
-		}
-	}
+	
 }

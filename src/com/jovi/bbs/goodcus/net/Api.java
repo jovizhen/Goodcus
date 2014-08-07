@@ -17,11 +17,7 @@ import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallback
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 import com.google.android.gms.plus.PlusClient;
 import com.google.android.gms.plus.PlusClient.Builder;
-
-import android.app.AlertDialog;
-
 import com.jovi.bbs.goodcus.App;
-import com.jovi.bbs.goodcus.SettingPage;
 
 public class Api  implements ConnectionCallbacks, OnConnectionFailedListener, DisconnectCallbacks
 {
@@ -63,7 +59,7 @@ public class Api  implements ConnectionCallbacks, OnConnectionFailedListener, Di
         	Toast.makeText(mActivity, "Invalid request",
 					Toast.LENGTH_SHORT).show();
         }
-        
+        pd.dismiss();
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
 		builder.setMessage("登陆失败， 再试一次？");
 		builder.setPositiveButton("确定", new OnClickListener()
@@ -152,6 +148,7 @@ public class Api  implements ConnectionCallbacks, OnConnectionFailedListener, Di
 		data.putBoolean("isConnecting", isConnecting);
 		intent.putExtras(data);
 		mActivity.sendBroadcast(intent);
+		pd.dismiss();
 	}
 	
 	private static Api instance;

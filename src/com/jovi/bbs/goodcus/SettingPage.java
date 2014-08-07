@@ -144,7 +144,7 @@ public class SettingPage extends Activity
 				}
 
 				m_loginIcon.setImageResource(R.drawable.logout_dark);
-				m_loginUserName.setText(currUser.getName().toString());
+				m_loginUserName.setText(currUser.getDisplayName());
 			}
 		}
 		

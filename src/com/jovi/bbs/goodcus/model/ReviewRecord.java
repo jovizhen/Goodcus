@@ -1,10 +1,12 @@
 package com.jovi.bbs.goodcus.model;
 
+
 public class ReviewRecord
 {
 	private String review;
 	private String businessId;
 	private String googlePlusUserId;
+	private ApplicationUser user;
 	
 	public String getReview()
 	{
@@ -35,4 +37,16 @@ public class ReviewRecord
 	{
 		this.googlePlusUserId = googlePlusUserId;
 	}
+
+	public ApplicationUser getUser()
+	{
+		return user;
+	}
+
+	public void setUser(ApplicationUser user)
+	{
+		this.user = user;
+	}
+
+	
 }

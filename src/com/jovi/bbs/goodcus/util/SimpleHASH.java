@@ -34,11 +34,9 @@ public class SimpleHASH {
 				return null;
 			md.update(input.getBytes("iso-8859-1"), 0, input.length());
 		} catch (NoSuchAlgorithmException e) {
-			// TODO è‡ªåŠ¨ç”Ÿæˆ?çš„ catch å?—
 			e.printStackTrace();
 			return null;
 		} catch (UnsupportedEncodingException e) {
-			// TODO è‡ªåŠ¨ç”Ÿæˆ?çš„ catch å?—
 			e.printStackTrace();
 			return null;
 		}

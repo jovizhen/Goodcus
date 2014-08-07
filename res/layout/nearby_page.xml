@@ -1,14 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res/com.jovi.bbs.goodcus"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        android:background="@color/title_header_color"
+        android:clickable="true"
+        android:onClick="onPageTitleClick" >
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Nearby"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        <TextView
+            android:id="@+id/title_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:text="分类"
+            android:textColor="@color/white"
+            android:textSize="18sp" />
+		<LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true" >
+            
+            <com.jovi.bbs.goodcus.widgets.RefreshActionBtn
+                android:id="@+id/showThreadRefreshBtn_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/normal_action_btn"
+                android:onClick="onRefreshBtnClick"
+                android:padding="10dp"
+                android:src="@drawable/navigation_refresh" />
+
+        </LinearLayout>
+    </RelativeLayout>
+    
+	<com.jovi.bbs.goodcus.widgets.PagerSlidingTabStrip
+        android:id="@+id/tabs"
+        android:layout_width="match_parent"
+        android:layout_height="48dip"
+        android:background="@drawable/background_tabs"
+        custom:pstsUnderlineColor="@color/slide_tab_underline_color" 
+        custom:pstsIndicatorColor="@color/slide_tab_indicator_color"/>
+    
+    <android.support.v4.view.ViewPager
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+
+</android.support.v4.view.ViewPager>
 
 </LinearLayout>

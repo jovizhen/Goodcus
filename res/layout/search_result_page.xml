@@ -68,7 +68,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:background="@drawable/normal_action_btn"
-                android:onClick="onNewThreadBtnClick"
+                android:onClick="toggleFilterPanel"
                 android:padding="10dp"
                 android:src="@drawable/edit" />
 
@@ -85,6 +85,7 @@
             </com.jovi.bbs.goodcus.widgets.RefreshActionBtn>
 
         </LinearLayout>
+
     </RelativeLayout>
 
     <RelativeLayout
@@ -110,6 +111,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true" />
+
+        <FrameLayout
+            android:id="@+id/list_fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+        </FrameLayout>
 
     </RelativeLayout>
 

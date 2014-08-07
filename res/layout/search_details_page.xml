@@ -36,7 +36,7 @@
                 android:src="@drawable/segmentation" />
 
             <TextView
-                android:id="@+id/textView1"
+                android:id="@+id/title_category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -56,7 +56,7 @@
             android:layout_centerVertical="true" >
             
             <com.jovi.bbs.goodcus.widgets.RefreshActionBtn
-                    android:id="@+id/showThreadRefreshBtn"
+                    android:id="@+id/showThreadRefreshBtn_category"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/normal_action_btn"
@@ -81,7 +81,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="146dp" >
             </com.jovi.bbs.goodcus.widgets.SearchDetailsView>
-
+			
+			<LinearLayout
+        		android:layout_width="match_parent"
+        		android:layout_height="wrap_content"
+        		android:orientation="vertical" 
+        		android:background="@drawable/forum_item">
+            <fragment
+                    android:id="@+id/business_map"
+                    android:name="com.google.android.gms.maps.MapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp" />
+            </LinearLayout>
+            
             <ImageView
                 android:id="@+id/imageView1"
                 android:layout_width="fill_parent"

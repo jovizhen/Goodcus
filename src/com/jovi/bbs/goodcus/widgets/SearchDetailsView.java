@@ -1,6 +1,5 @@
 package com.jovi.bbs.goodcus.widgets;
 
-import java.util.zip.Inflater;
 
 import com.jovi.bbs.goodcus.R;
 

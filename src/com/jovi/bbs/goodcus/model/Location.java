@@ -7,6 +7,7 @@ public class Location
 	String city;
 	String postal_code;
 	String state_code;
+	Coordinate coordinate;
 	
 	public Location()
 	{
@@ -61,7 +62,14 @@ public class Location
 	{
 		this.state_code = state_code;
 	}
-	
-	
 
+	public Coordinate getCoordinate()
+	{
+		return coordinate;
+	}
+
+	public void setCoordinate(Coordinate coordinate)
+	{
+		this.coordinate = coordinate;
+	}
 }

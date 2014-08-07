@@ -1,9 +1,5 @@
 package com.jovi.bbs.goodcus.model;
 
-import android.R.integer;
-
-
-
 public class SearchResult 
 {
 	String name;
@@ -89,16 +85,16 @@ public class SearchResult
 	{
 		this.location = location;
 	}
-	
+
 	public String getLocationLabel()
 	{
 		String outputLabel = "";
 		String[] address = location.getAddress();
-		for(int i = 0 ; i<address.length;i++)
+		for (int i = 0; i < address.length; i++)
 		{
-			outputLabel += address[i]+" ";
+			outputLabel += address[i] + " ";
 		}
-		outputLabel+=location.city;
+		outputLabel += ", " + location.city + ", " + location.getState_code() + " " + location.getPostal_code();
 		return outputLabel;
 	}
 	
