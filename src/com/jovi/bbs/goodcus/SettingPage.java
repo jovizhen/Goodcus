@@ -4,25 +4,15 @@ package com.jovi.bbs.goodcus;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
-import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.Scopes;
-import com.google.android.gms.plus.PlusClient;
 import com.google.android.gms.plus.model.people.Person;
 import com.jovi.bbs.goodcus.net.Api;
 import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
 
-import android.R.bool;
 import android.app.Activity;
-import android.app.AlertDialog.Builder;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentSender.SendIntentException;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -30,7 +20,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class SettingPage extends Activity 
 {
@@ -83,7 +72,7 @@ public class SettingPage extends Activity
 		
 		else
 		{
-			api.getGooglePlusClient().clearDefaultAccount();
+//			api.getGooglePlusClient().clearDefaultAccount();
 			api.disconnectFromGooglePlus();
 		}
 	}
@@ -109,7 +98,6 @@ public class SettingPage extends Activity
 		@Override
 		public void onReceive(Context context, Intent intent)
 		{
-			boolean isConnecting = intent.getExtras().getBoolean("isConnecting");
 			if (api.getGooglePlusClient().isConnected())
 			{
 				onLoginState();

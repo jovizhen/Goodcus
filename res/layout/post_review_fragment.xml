@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:isScrollContainer="false" 
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        android:background="@color/title_header_color"
+        android:paddingTop="2dp" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true" >
+		<ImageView
+		    android:id="@+id/post_comment_canceled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/normal_action_btn"
+            android:clickable="true"
+            android:onClick="onCancelCommentBtnClick"
+            android:padding="10dp"
+            android:src="@drawable/ic_action_cancel" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true" >
+
+		<ImageView
+		    android:id="@+id/post_comment_confirm"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_gravity="center_vertical"
+		    android:background="@drawable/normal_action_btn"
+		    android:onClick="onConfirmedBtnClick"
+		    android:padding="10dp"
+		    android:src="@drawable/ic_action_accept" />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <EditText
+            android:id="@+id/comment_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:gravity="top|left"
+            android:inputType="textMultiLine"
+            android:minLines="30"
+            android:scrollbars="vertical" >
+
+            <requestFocus />
+        </EditText>
+
+    </RelativeLayout>
+
+</LinearLayout>

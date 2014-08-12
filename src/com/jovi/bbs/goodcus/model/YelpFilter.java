@@ -1,18 +1,30 @@
 package com.jovi.bbs.goodcus.model;
 
+
 public class YelpFilter
 {
+	public static final int SORT_BEST_MATCH = 0;
+	public static final int SORT_DISTANCE = 1;
+	public static final int SORT_HIGHEST_RATE = 3;
+	
+	
 	String term;
 	Double latitude;
 	Double longitude;
 	Integer limit;
-
+	Integer offset;
+	Double radius;
+	Integer sort;
+	
 	public static class FilterBuilder
 	{
 		String term;
 		Double latitude;
 		Double longitude;
 		Integer limit;
+		Integer offset;
+		Double radius;
+		Integer sort;
 
 		public FilterBuilder(String term)
 		{
@@ -36,6 +48,24 @@ public class YelpFilter
 			this.limit = limit;
 			return this;
 		}
+		
+		public FilterBuilder setOffset(Integer offset)
+		{
+			this.offset = offset;
+			return this;
+		}
+		
+		public FilterBuilder setRadius(Double radius)
+		{
+			this.radius = radius;
+			return this;
+		}
+		
+		public FilterBuilder setSort(Integer sort)
+		{
+			this.sort = sort;
+			return this;
+		}
 
 		public YelpFilter build()
 		{
@@ -48,6 +78,9 @@ public class YelpFilter
 		this.term = builder.term;
 		this.latitude = builder.latitude;
 		this.longitude = builder.longitude;
+		this.limit = builder.limit;
+		this.radius = builder.radius;
+		this.sort = builder.sort;
 	}
 
 	public String getTerm()
@@ -88,5 +121,35 @@ public class YelpFilter
 	public void setLimit(Integer limit)
 	{
 		this.limit = limit;
+	}
+
+	public Integer getOffset()
+	{
+		return offset;
+	}
+
+	public void setOffset(Integer offset)
+	{
+		this.offset = offset;
+	}
+
+	public Double getRadius()
+	{
+		return radius;
+	}
+
+	public void setRadius(Double radius)
+	{
+		this.radius = radius;
+	}
+
+	public Integer getSort()
+	{
+		return sort;
+	}
+
+	public void setSort(Integer sort)
+	{
+		this.sort = sort;
 	}
 }

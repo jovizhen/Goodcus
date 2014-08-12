@@ -65,6 +65,18 @@ public class Yelp
 		{
 			request.addQuerystringParameter("limit", filter.getLimit().toString());
 		}
+		if(filter.getRadius()!=null)
+		{
+			request.addQuerystringParameter("radius_filter", filter.getRadius().toString());
+		}
+		if(filter.getOffset()!=null)
+		{
+			request.addQuerystringParameter("offset", filter.getOffset().toString());
+		}
+		if(filter.getSort()!=null)
+		{
+			request.addQuerystringParameter("sort", filter.getSort().toString());
+		}
 		this.service.signRequest(this.accessToken, request);
 		Response response = request.send();
 		return response;

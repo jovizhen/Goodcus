@@ -47,6 +47,7 @@ public class XListViewHeader extends LinearLayout{
 		initView(context);
 	}
 
+	@SuppressWarnings("deprecation")
 	private void initView(Context context) {
 		// �?始情况，设置下拉刷新view高度为0
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(

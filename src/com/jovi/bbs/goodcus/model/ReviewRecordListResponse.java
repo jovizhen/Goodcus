@@ -11,7 +11,7 @@ public class ReviewRecordListResponse
 		return recordList;
 	}
 	
-	public void setRecordList(Vector list)
+	public void setRecordList(Vector<ReviewRecord> list)
 	{
 		this.recordList = list;
 	}

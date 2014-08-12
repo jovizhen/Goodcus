@@ -26,7 +26,7 @@ public class MainActivity extends TabActivity
 	{ NearbyPage.class, SearchResultPage.class, SettingPage.class };
 	
 	private int[] m_tabIcon = new int[]
-	{ R.drawable.collections_view_as_grid, R.drawable.collections_view_as_list, R.drawable.action_settings };
+	{ R.drawable.collections_view_as_grid, R.drawable.ic_action_search, R.drawable.action_settings };
 
 	private Bundle[] m_data = new Bundle[]
 	{ createBundle("附近"), createBundle("搜索"), createBundle("设置") };

@@ -117,7 +117,10 @@ public class Api  implements ConnectionCallbacks, OnConnectionFailedListener, Di
 		data.putBoolean("isConnecting", isConnecting);
 		intent.putExtras(data);
 		mActivity.sendBroadcast(intent);
-		pd.dismiss();
+		if(pd != null)
+		{
+			pd.dismiss();
+		}
 	}
 
 	public void connectToGooglePlus()

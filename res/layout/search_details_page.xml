@@ -6,6 +6,7 @@
     android:orientation="vertical" >
 
     <RelativeLayout
+        android:id="@+id/pagedetail_header"
         android:layout_width="fill_parent"
         android:layout_height="48dp"
         android:background="@color/title_header_color"
@@ -54,6 +55,14 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true" >
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/normal_action_btn"
+                android:onClick="toggleReplyPanel"
+                android:padding="10dp"
+                android:src="@drawable/edit" />
             
             <com.jovi.bbs.goodcus.widgets.RefreshActionBtn
                     android:id="@+id/showThreadRefreshBtn_category"
@@ -66,7 +75,9 @@
 
         </LinearLayout>
     </RelativeLayout>
-
+	<ScrollView
+    	android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" >
@@ -79,7 +90,7 @@
             <com.jovi.bbs.goodcus.widgets.SearchDetailsView
                 android:id="@+id/searchDetailsFrag"
                 android:layout_width="match_parent"
-                android:layout_height="146dp" >
+                android:layout_height="200dp" >
             </com.jovi.bbs.goodcus.widgets.SearchDetailsView>
 			
 			<LinearLayout
@@ -87,7 +98,7 @@
         		android:layout_height="wrap_content"
         		android:orientation="vertical" 
         		android:background="@drawable/forum_item">
-            <fragment
+            	<fragment
                     android:id="@+id/business_map"
                     android:name="com.google.android.gms.maps.MapFragment"
                     android:layout_width="match_parent"
@@ -101,64 +112,87 @@
                 android:scaleType="fitXY"
                 android:src="@drawable/list_divider_seprator" />
 
-            <TextView
-                android:id="@+id/warnMsg"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="7.36"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <com.jovi.bbs.goodcus.widgets.XListView
-                android:id="@+id/commentsList"
-                android:layout_width="fill_parent"
-                android:layout_height="220dp"
-                android:layout_weight="1.12"
-                android:divider="@null"
-                android:dividerHeight="5dp"
-                android:fadingEdge="none"
-                android:fastScrollEnabled="true"
-                android:listSelector="@color/white" >
-            </com.jovi.bbs.goodcus.widgets.XListView>
-
             <LinearLayout
-                android:id="@+id/showThreadReplyBar"
-                android:layout_width="fill_parent"
-                android:layout_height="48dp"
-                android:layout_marginLeft="10dp"
-                android:visibility="visible" >
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/forum_item"
+                android:onClick="onDirectionClick"
+                android:orientation="horizontal" >
 
-                <EditText
-                    android:id="@+id/showThreadReplyText"
+                <ImageView
+                    android:id="@+id/imageView21"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_action_directions" />
+
+                <TextView
+                    android:id="@+id/textView1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1"
-                    android:background="@drawable/edit_text_holo_light"
-                    android:ems="10"
-                    android:hint="回复此贴(6字符以上)" >
-
-                    <requestFocus />
-                </EditText>
-
-                <ImageButton
-                    android:id="@+id/showThreadReplyBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:background="@drawable/quick_reply_btn"
-                    android:onClick="onReplyBtnClick"
-                    android:padding="10dp"
-                    android:src="@drawable/social_send_now_dark" />
+                    android:paddingLeft="10dp"
+                    android:text="地图导航"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            	
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/forum_item"
+                android:onClick="onBrowseReviewClick"
+                android:orientation="horizontal" >
+
+                <ImageView
+                    android:id="@+id/imageView22"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_action_copy" />
+
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:text="阅读评论"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            	
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/forum_item"
+                android:onClick="onPhoneClick"
+                android:orientation="horizontal" >
+
+                <ImageView
+                    android:id="@+id/imageView23"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_action_call" />
+
+                <TextView
+                    android:id="@+id/phone_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:text="电话"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            	
+            </LinearLayout>    
+            
         </LinearLayout>
 
-        <ProgressBar
-            android:id="@+id/showThreadProgressBar"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
+        <FrameLayout
+            android:id="@+id/review_fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent" >
 
+        </FrameLayout>
     </RelativeLayout>
-
+</ScrollView>
 </LinearLayout>

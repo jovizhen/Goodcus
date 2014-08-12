@@ -1,16 +1,9 @@
 package com.jovi.bbs.goodcus;
 
+import com.jovi.bbs.goodcus.fragment.SearchResultFragmentFactory;
 import com.jovi.bbs.goodcus.widgets.PagerSlidingTabStrip;
 
-import android.app.ActionBar;
-import android.app.ActionBar.Tab;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.TransitionDrawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -23,7 +16,7 @@ public class NearbyPage extends FragmentActivity
 	CollectionPagerAdapter mCollectionPagerAdapter;
     ViewPager mViewPager;
     private PagerSlidingTabStrip tabs;
-    
+    private Fragment currentFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -39,6 +32,11 @@ public class NearbyPage extends FragmentActivity
 		tabs.setViewPager(mViewPager);
 	}
 	
+	public Fragment getCurrentFragment()
+	{
+		return currentFragment;
+	}
+	
 	public class CollectionPagerAdapter extends FragmentStatePagerAdapter
 	{
 
@@ -50,24 +48,26 @@ public class NearbyPage extends FragmentActivity
 		@Override
 		public Fragment getItem(int index)
 		{
-			Fragment fragment = new DemoFragment();
-//	        Bundle args = new Bundle();
-//	        // Our object is just an integer :-P
-//	        args.putInt(DemoObjectFragment.ARG_OBJECT, i + 1);
-//	        fragment.setArguments(args);
-//	        return fragment;
+
+			Fragment fragment = SearchResultFragmentFactory.buildFragment(SearchResultFragmentFactory.navigation_menu[index].getKey());
+			// Bundle args = new Bundle();
+			// // Our object is just an integer :-P
+			// args.putInt(DemoObjectFragment.ARG_OBJECT, i + 1);
+			// fragment.setArguments(args);
+			// return fragment;
+			currentFragment = fragment;
 			return fragment;
 		}
 
 		@Override
 		public int getCount()
 		{
-			return 50;
+			return SearchResultFragmentFactory.navigation_menu.length;
 		}
 		
 		public CharSequence getPageTitle(int position) 
 		{
-	        return "OBJECT " + (position + 1);
+	        return SearchResultFragmentFactory.navigation_menu[position].getName();
 	    }
 	}
 }

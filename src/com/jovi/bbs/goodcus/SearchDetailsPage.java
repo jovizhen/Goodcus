@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.plus.model.people.Person;
 import com.google.gson.Gson;
+import com.jovi.bbs.goodcus.fragment.PostReviewFragment;
 import com.jovi.bbs.goodcus.model.ApplicationUser;
 import com.jovi.bbs.goodcus.model.Coordinate;
 import com.jovi.bbs.goodcus.model.ResponseMessage;
@@ -35,7 +36,9 @@ import com.jovi.bbs.goodcus.widgets.SearchDetailsView;
 import com.jovi.bbs.goodcus.widgets.XListView;
 import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
@@ -48,22 +51,25 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class SearchDetailsPage extends Activity implements IXListViewListener, OnItemClickListener
 {
 	protected static final String TAG = "Search Details Page";
+	private static final String POST_REVIEW_FRAGMENT = "post_review_fragment";
 	private XListView m_listView;
 	SearchDetailsView detailsView;
 	TextView warnMsg;
 	private ArrayList<ReviewRecord> m_model = new ArrayList<ReviewRecord>();
-	ShowCommentAdapter m_adapter;
+	
 	private ProgressDialog m_pd;
 	private ProgressBar m_pBar;
 	private String business_id;
@@ -73,8 +79,8 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 	EditText replyTextView;
 	private GoogleMap mMap;
 	private SearchResult result;
-	
-	private Handler m_handler = new Handler()
+	private RelativeLayout pageHeader;
+	@SuppressLint("HandlerLeak") private Handler m_handler = new Handler()
 	{
 		public void handleMessage(Message msg) 
 		{
@@ -86,7 +92,6 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 			else
 			{
 				warnMsg.setVisibility(View.GONE);
-				m_adapter.notifyDataSetChanged();
 			}
 
 			if (m_listView.getPullLoading())
@@ -127,21 +132,10 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 			e.printStackTrace();
 		}
 		setUpMapIfNeeded();
-		warnMsg = (TextView) findViewById(R.id.warnMsg);
 		
-		m_listView = (XListView) findViewById(R.id.commentsList);
-		m_listView.setPullLoadEnable(false);
-		m_listView.setPullRefreshEnable(true);
-		m_listView.setXListViewListener(this);
-		m_listView.setOnItemClickListener(this);
-		m_adapter = new ShowCommentAdapter();
-		m_listView.setAdapter(m_adapter);
-		m_listView.requestFocus();
-
-		m_pBar = (ProgressBar)this.findViewById(R.id.showThreadProgressBar);
 
 		business_id = result.getId();
-		
+		pageHeader = (RelativeLayout) findViewById(R.id.pagedetail_header);
 		try
 		{
 			loadModel(m_currentPage++);
@@ -151,6 +145,51 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void toggleReplyPanel(View v)
+	{
+		Fragment f = getFragmentManager().findFragmentByTag(POST_REVIEW_FRAGMENT);
+        if (f != null) 
+        {
+            getFragmentManager().popBackStack();
+            pageHeader.setVisibility(View.VISIBLE);
+        } 
+        else 
+        {
+            getFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.animator.slide_up,
+                            R.animator.slide_down,
+                            R.animator.slide_up,
+                            R.animator.slide_down)
+                    .add(R.id.review_fragment_container, PostReviewFragment
+                                    .instantiate(this, PostReviewFragment.class.getName()),
+                                    POST_REVIEW_FRAGMENT
+                    ).addToBackStack(null).commit();
+            pageHeader.setVisibility(View.GONE);
+        }
+	}
+	
+	public void onCancelCommentBtnClick(View v)
+	{
+		InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+		toggleReplyPanel(v);
+	}
+	
+	public void onDirectionClick(View v)
+	{
+		
+	}
+	
+	public void onBrowseReviewClick(View v)
+	{
+		
+	}
+	
+	public void onPhoneClick(View v)
+	{
+		
 	}
 	
 	public void onBackBtnClick(View v)
@@ -177,7 +216,6 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 		else 
 		{
 			user_id = Api.getInstance().getGooglePlusClient().getCurrentPerson().getId();
-			replyTextView = (EditText) this.findViewById(R.id.showThreadReplyText);
 			if (replyTextView.length() == 0)
 			{
 				Toast.makeText(SearchDetailsPage.this, "回帖内容不能为空", Toast.LENGTH_SHORT).show();
@@ -299,11 +337,6 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
-	{
-	}
-
-	@Override
 	public void onRefresh()
 	{
 		
@@ -348,69 +381,12 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 		requestQueue.add(jr);
 	}
 
-	private class ShowCommentAdapter extends BaseAdapter
+	
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
 	{
-
-		public ShowCommentAdapter()
-		{
-			super();
-		}
-
-		@Override
-		public int getCount()
-		{
-			return (m_model == null) ? 0 : m_model.size();
-		}
-
-		@Override
-		public Object getItem(int position)
-		{
-			return null;
-		}
-
-		@Override
-		public long getItemId(int position)
-		{
-			return 0;
-		}
-
-		@Override
-		public View getView(final int position, View convertView, ViewGroup parent)
-		{
-			if (convertView == null)
-			{
-				convertView = getLayoutInflater().inflate(R.layout.show_thread_item, null);
-			}
-
-			TextView username = (TextView) convertView.findViewById(R.id.showthreadUsername);
-			TextView floorNum = (TextView) convertView.findViewById(R.id.showThreadFloorNum);
-			floorNum.setText((position + 1) + "#");
-			TextView posttime = (TextView) convertView.findViewById(R.id.showthreadPosttime);
-			final TextView msg = (TextView) convertView.findViewById(R.id.showthreadMsg);
-			ImageViewWithCache img = (ImageViewWithCache) convertView.findViewById(R.id.showthreadHeadImg);
-
-			final ReviewRecord record = m_model.get(position);
-			username.setText(record.getUser().getDisplayName());
-			posttime.setText("not imp");
-			if (record.getUser().getImgUrl() != null)
-			{
-				try
-				{
-					img.setImageUrl(new URL(record.getUser().getImgUrl()));
-				}
-				catch (MalformedURLException e)
-				{
-					e.printStackTrace();
-				}
-			} 
-			else
-			{
-				img.setImageResource(R.drawable.default_user_head_img);
-			}
-			msg.setText(record.getReview());
-
-			return convertView;
-		}
+		// TODO Auto-generated method stub
+		
 	}
 
 }

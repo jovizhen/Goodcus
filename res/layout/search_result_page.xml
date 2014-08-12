@@ -70,7 +70,7 @@
                 android:background="@drawable/normal_action_btn"
                 android:onClick="toggleFilterPanel"
                 android:padding="10dp"
-                android:src="@drawable/edit" />
+                android:src="@drawable/ic_action_location_found" />
 
             <com.jovi.bbs.goodcus.widgets.RefreshActionBtn
                 android:id="@+id/forumDisplayRefreshBtn"
@@ -86,6 +86,14 @@
 
         </LinearLayout>
 
+        <FrameLayout
+            android:id="@+id/list_fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:foregroundGravity="fill_vertical" >
+
+        </FrameLayout>
+
     </RelativeLayout>
 
     <RelativeLayout
@@ -94,7 +102,7 @@
         android:layout_weight="1" >
 
         <com.jovi.bbs.goodcus.widgets.XListView
-            android:id="@+id/forumDisplayListView"
+            android:id="@+id/result_list"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:divider="@null"
@@ -112,11 +120,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true" />
 
-        <FrameLayout
-            android:id="@+id/list_fragment_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-        </FrameLayout>
+        
 
     </RelativeLayout>
 

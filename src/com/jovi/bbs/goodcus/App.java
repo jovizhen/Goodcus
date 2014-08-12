@@ -3,7 +3,6 @@ package com.jovi.bbs.goodcus;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import com.jovi.bbs.goodcus.net.Api;
 import android.app.Application;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;

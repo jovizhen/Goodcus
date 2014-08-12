@@ -5,13 +5,11 @@ package com.jovi.bbs.goodcus;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.scribe.model.Response;
-
 import com.google.gson.Gson;
 import com.jovi.bbs.goodcus.fragment.SearchFilterFragment;
 import com.jovi.bbs.goodcus.model.SearchResult;
@@ -21,7 +19,7 @@ import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
 import com.jovi.bbs.goodcus.widgets.RefreshActionBtn;
 import com.jovi.bbs.goodcus.widgets.XListView;
 import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.IntentFilter;
@@ -52,7 +50,7 @@ OnItemClickListener
 	private YelpFilter yelpFilter;
 	private int status;
 
-	private Handler m_handler = new Handler()
+	@SuppressLint("HandlerLeak") private Handler m_handler = new Handler()
 	{
 		public void handleMessage(Message msg) 
 		{
@@ -99,7 +97,7 @@ OnItemClickListener
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.search_result_page);
 		
-		m_listView = (XListView) this.findViewById(R.id.forumDisplayListView);
+		m_listView = (XListView) this.findViewById(R.id.result_list);
 		m_listView.setPullLoadEnable(false);
 		m_listView.setPullRefreshEnable(true);
 		m_listView.setXListViewListener(this);
