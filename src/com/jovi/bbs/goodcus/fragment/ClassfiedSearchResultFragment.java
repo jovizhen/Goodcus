@@ -3,11 +3,13 @@ package com.jovi.bbs.goodcus.fragment;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.scribe.model.Response;
+
 import com.google.gson.Gson;
 import com.jovi.bbs.goodcus.R;
 import com.jovi.bbs.goodcus.SearchDetailsPage;
@@ -17,11 +19,13 @@ import com.jovi.bbs.goodcus.net.Yelp;
 import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
 import com.jovi.bbs.goodcus.widgets.XListView;
 import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -38,7 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class ClassfiedSearchResultFragment extends Fragment implements IXListViewListener, OnItemClickListener
+public class ClassfiedSearchResultFragment extends Fragment implements IXListViewListener, OnItemClickListener, LocationListener
 {
 	private int m_currentPage = 1;
 	private XListView m_listView;
@@ -161,10 +165,44 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 	{
 
 		getActivity();
-		LocationManager mlocManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+		LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 		Criteria criteria = new Criteria();
-		String bestProvider = mlocManager.getBestProvider(criteria, false);
-		return mlocManager.getLastKnownLocation(bestProvider);
+		String bestProvider = locationManager.getBestProvider(criteria, false);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
+	            new LocationListener()
+				{
+					
+					@Override
+					public void onStatusChanged(String arg0, int arg1, Bundle arg2)
+					{
+						// TODO Auto-generated method stub
+						
+					}
+					
+					@Override
+					public void onProviderEnabled(String arg0)
+					{
+						// TODO Auto-generated method stub
+						
+					}
+					
+					@Override
+					public void onProviderDisabled(String provider)
+					{
+						// TODO Auto-generated method stub
+						
+					}
+					
+					@Override
+					public void onLocationChanged(Location loc)
+					{
+						loc.getLatitude();
+						loc.getLongitude();
+						
+					}
+				});
+
+		return locationManager.getLastKnownLocation(bestProvider);
 	}
 
 	public void loadModel(int numOfPages)
@@ -305,6 +343,34 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 		ClassfiedSearchResultFragment instance = new ClassfiedSearchResultFragment();
 		instance.searchTerm = searchTerm;
 		return instance;
+	}
+
+	@Override
+	public void onLocationChanged(Location location)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderDisabled(String provider)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderEnabled(String provider)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }
 

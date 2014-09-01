@@ -22,7 +22,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.plus.model.people.Person;
 import com.google.gson.Gson;
+import com.jovi.bbs.goodcus.fragment.MapDirectionFragment;
 import com.jovi.bbs.goodcus.fragment.PostReviewFragment;
+import com.jovi.bbs.goodcus.fragment.ReviewListFragment;
 import com.jovi.bbs.goodcus.model.ApplicationUser;
 import com.jovi.bbs.goodcus.model.Coordinate;
 import com.jovi.bbs.goodcus.model.ResponseMessage;
@@ -39,6 +41,7 @@ import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
@@ -64,7 +67,10 @@ import android.widget.Toast;
 public class SearchDetailsPage extends Activity implements IXListViewListener, OnItemClickListener
 {
 	protected static final String TAG = "Search Details Page";
-	private static final String POST_REVIEW_FRAGMENT = "post_review_fragment";
+	private static final String POST_REVIEW_FRAGMENT    = "post_review_fragment";
+	private static final String REVIEW_LIST_FRAGMENT    = "review_list_fragment";
+	private static final String MAP_DIRECTION_FRAGMENT  = "map_direction_fragment";
+	
 	private XListView m_listView;
 	SearchDetailsView detailsView;
 	TextView warnMsg;
@@ -88,7 +94,6 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 			{
 				warnMsg.setText("暂无评论");
 			}
-			
 			else
 			{
 				warnMsg.setVisibility(View.GONE);
@@ -104,9 +109,7 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 			{
 				m_listView.stopRefresh();
 			}
-			
 			m_pBar.setVisibility(View.GONE);
-
 		}
 	};
 	
@@ -133,7 +136,6 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 		}
 		setUpMapIfNeeded();
 		
-
 		business_id = result.getId();
 		pageHeader = (RelativeLayout) findViewById(R.id.pagedetail_header);
 		try
@@ -179,12 +181,63 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 	
 	public void onDirectionClick(View v)
 	{
-		
+		Fragment f = getFragmentManager().findFragmentByTag(MAP_DIRECTION_FRAGMENT);
+		if(f!=null)
+		{
+			getFragmentManager().popBackStack();
+            pageHeader.setVisibility(View.VISIBLE);
+            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+            fragmentTransaction.remove(((MapDirectionFragment)f).getMap());
+            fragmentTransaction.commit();
+            
+		}
+		else
+		{
+			Gson gson = new Gson();
+			String jsonResult = gson.toJson(result);
+			Bundle data = new Bundle();
+			data.putSerializable("searchResult", jsonResult);
+			getFragmentManager().beginTransaction().
+			setCustomAnimations(R.animator.slide_from_right, 
+					R.animator.slide_to_right, 
+					R.animator.slide_from_right, 
+					R.animator.slide_to_right)
+				.add(R.id.review_fragment_container, MapDirectionFragment
+						.instantiate(this, MapDirectionFragment.class.getName(), data)
+						,MAP_DIRECTION_FRAGMENT).addToBackStack(null).commit();
+			pageHeader.setVisibility(View.GONE);
+		}
+	}
+	
+	public void onDirectionBackBtnClick(View v)
+	{
+		onDirectionClick(v); 
 	}
 	
 	public void onBrowseReviewClick(View v)
 	{
-		
+		Fragment f = getFragmentManager().findFragmentByTag(MAP_DIRECTION_FRAGMENT);
+		if(f!=null)
+		{
+			getFragmentManager().popBackStack();
+            pageHeader.setVisibility(View.VISIBLE);
+		}
+		else 
+		{
+			Gson gson = new Gson();
+			String jsonResult = gson.toJson(result);
+			Bundle data = new Bundle();
+			data.putSerializable("searchResult", jsonResult);
+			getFragmentManager().beginTransaction().
+			setCustomAnimations(R.animator.slide_from_right, 
+					R.animator.slide_to_right, 
+					R.animator.slide_from_right, 
+					R.animator.slide_to_right)
+				.add(R.id.review_fragment_container, ReviewListFragment
+						.instantiate(this, ReviewListFragment.class.getName(), data)
+						,MAP_DIRECTION_FRAGMENT).addToBackStack(null).commit();
+			pageHeader.setVisibility(View.GONE);
+		}
 	}
 	
 	public void onPhoneClick(View v)
@@ -248,7 +301,6 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 				e.printStackTrace();
 			}
 		}
-		
 	}
 	
 	private void setUpMapIfNeeded()
@@ -281,20 +333,14 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 						Marker mMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lont)).title("You are here!"));
 						mMarker.setDraggable(true);
 						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lont), 14.00f));
-						
 					}
-					
 				}
-				
 			}
 			catch (Exception e)
 			{
 				e.printStackTrace();
 			}
 		}
-		
-		
-		
 	} 
 	
 	public void postReview(ReviewRecord record) throws JSONException

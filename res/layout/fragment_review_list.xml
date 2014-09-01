@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="1000dp"
+    android:background="@color/white"
+    android:orientation="vertical" >
+ <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        android:background="@color/title_header_color"
+        android:clickable="true">
+       
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true">
+
+
+            <ImageButton
+                android:id="@+id/reivewDisplayBackBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/normal_action_btn"
+                android:onClick="onBackBtnClick"
+                android:padding="10dp"
+                android:src="@drawable/navigation_back" />
+
+            <ImageView
+                android:id="@+id/forumDisplaySeg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/segmentation" />
+
+            <TextView
+                android:id="@+id/reviewDisplayPageTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true" >
+
+            <ImageButton
+                android:id="@+id/reviewDisplayNewReviewBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/normal_action_btn"
+                android:onClick="toggleReplyPanel"
+                android:padding="10dp"
+                android:src="@drawable/edit" />
+
+            <com.jovi.bbs.goodcus.widgets.RefreshActionBtn
+                android:id="@+id/reviewDisplayRefreshBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/normal_action_btn"
+                android:onClick="onRefreshBtnClick"
+                android:padding="10dp"
+                android:src="@drawable/navigation_refresh" >
+
+            </com.jovi.bbs.goodcus.widgets.RefreshActionBtn>
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/new_review_fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:foregroundGravity="fill_vertical" >
+
+        </FrameLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1" >
+
+        <com.jovi.bbs.goodcus.widgets.XListView
+            android:id="@+id/review_list"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:divider="@null"
+            android:dividerHeight="5dp"
+            android:fadingEdge="none"
+            android:fastScrollEnabled="true"
+            android:listSelector="@color/white" >
+
+        </com.jovi.bbs.goodcus.widgets.XListView>
+
+        <ProgressBar
+            android:id="@+id/reviewDisplayProgressBar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+
+        
+
+    </RelativeLayout>   
+
+</LinearLayout>

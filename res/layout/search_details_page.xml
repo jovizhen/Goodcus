@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/white"
@@ -27,7 +27,8 @@
                 android:clickable="true"
                 android:onClick="onBackBtnClick"
                 android:padding="10dp"
-                android:src="@drawable/navigation_back" />
+                android:src="@drawable/navigation_back" 
+                android:contentDescription="Return to search result page"/>
 
             <ImageView
                 android:id="@+id/imageView2"
@@ -75,9 +76,12 @@
 
         </LinearLayout>
     </RelativeLayout>
+
 	<ScrollView
-    	android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:layout_below="@+id/pagedetail_header" >
+
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" >
@@ -190,9 +194,9 @@
         <FrameLayout
             android:id="@+id/review_fragment_container"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent" >
+            android:layout_height="match_parent" >
 
         </FrameLayout>
     </RelativeLayout>
 </ScrollView>
-</LinearLayout>
+</RelativeLayout>
