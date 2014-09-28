@@ -18,7 +18,6 @@ import com.google.gson.Gson;
 import com.jovi.bbs.goodcus.R;
 import com.jovi.bbs.goodcus.model.ReviewRecord;
 import com.jovi.bbs.goodcus.model.ReviewRecordListResponse;
-import com.jovi.bbs.goodcus.model.SearchResult;
 import com.jovi.bbs.goodcus.util.HttpUtil;
 import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
 import com.jovi.bbs.goodcus.widgets.XListView;
@@ -47,7 +46,6 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 	private XListView m_listView;
 	private int m_currentPage = 1;
 	private RequestQueue requestQueue;
-	private SearchResult result;
 	private String business_id;
 	EditText replyTextView;
 	private ArrayList<ReviewRecord> m_model = new ArrayList<ReviewRecord>();
@@ -107,11 +105,8 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 		m_adapter = new ShowCommentAdapter();
 		m_listView.setAdapter(m_adapter);
 		m_pBar = (ProgressBar) view.findViewById(R.id.reviewDisplayProgressBar);
-		Gson gson = new Gson();
-		String jsonResult =getArguments().getString("searchResult");  
-		result =  gson.fromJson(jsonResult, SearchResult.class);
+		business_id =getArguments().getString("place_id");  
 		requestQueue = HttpUtil.getInstance().getRequestQueue();
-		business_id = result.getId();
 		
 		try
 		{

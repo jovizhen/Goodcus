@@ -2,28 +2,30 @@ package com.jovi.bbs.goodcus;
 
 
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import org.apache.http.HttpStatus;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.scribe.model.Response;
+import java.util.List;
+
 import com.google.gson.Gson;
 import com.jovi.bbs.goodcus.fragment.SearchFilterFragment;
-import com.jovi.bbs.goodcus.model.SearchResult;
-import com.jovi.bbs.goodcus.model.YelpFilter;
-import com.jovi.bbs.goodcus.net.Yelp;
+import com.jovi.bbs.goodcus.net.googlePlacesApi.CustomGooglePlaces;
+import com.jovi.bbs.goodcus.net.googlePlacesApi.GooglePlaceFilter;
+import com.jovi.bbs.goodcus.net.googlePlacesApi.Place;
+import com.jovi.bbs.goodcus.util.GoogleImageLoader;
 import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
 import com.jovi.bbs.goodcus.widgets.RefreshActionBtn;
 import com.jovi.bbs.goodcus.widgets.XListView;
 import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.IntentFilter;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,6 +36,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ProgressBar;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,28 +49,32 @@ OnItemClickListener
 	private SearchResultListAdapter m_adapter;
 	private ProgressBar m_pBar;
 	private RefreshActionBtn m_refreshBtn;
-	private ArrayList<SearchResult> m_model = new ArrayList<SearchResult>();
-	private YelpFilter yelpFilter;
+	private ArrayList<Place> m_model = new ArrayList<Place>();
+	private ArrayList<Place> dummy_model = new ArrayList<Place>();
+//	private YelpFilter yelpFilter;
+	private GooglePlaceFilter googlePlaceFilter;
+	private CustomGooglePlaces googlePalcesClient;
 	private int status;
+	private Location currentLocation;
 
 	@SuppressLint("HandlerLeak") private Handler m_handler = new Handler()
 	{
-		public void handleMessage(Message msg) 
+		public void handleMessage(Message msg)
 		{
-			switch (msg.what) 
+			switch (msg.what)
 			{
-				case Yelp.NET_SUCCESS:
-					m_adapter.notifyDataSetChanged();
-					// 只在 listview 中有数据之后才启用pull load
+				case CustomGooglePlaces.STATUS_CODE_OK:
+					notifyModelDataChanged();
 					break;
-				case Yelp.NET_TIMEOUT:
-					Toast.makeText(SearchResultPage.this, R.string.net_timeout,
-							Toast.LENGTH_SHORT).show();
+
+				case CustomGooglePlaces.STATUS_CODE_REQUEST_DENIED:
+					Toast.makeText(SearchResultPage.this, R.string.net_timeout, Toast.LENGTH_SHORT).show();
 					break;
+				
 				default:
 					break;
 			}
-			
+
 			if (m_refreshBtn.isRefreshing())
 			{
 				m_listView.setSelection(1);
@@ -113,16 +120,69 @@ OnItemClickListener
 		TextView tv = (TextView) this.findViewById(R.id.forumDisplayPageTitle);
 		tv.setText(data.getString("title"));
 		
-		yelpFilter =  new YelpFilter.FilterBuilder("Resturant").build();
-		yelpFilter.setLatitude(30.361471);
-		yelpFilter.setLongitude(-87.164326);
+//		yelpFilter =  new YelpFilter.FilterBuilder("Resturant").build();
+//		yelpFilter.setLatitude(30.361471);
+//		yelpFilter.setLongitude(-87.164326);
+		currentLocation = getCurrentLocation();
+		googlePlaceFilter = new GooglePlaceFilter();
+		googlePlaceFilter.setKeyword("Szechuan");
+		googlePlaceFilter.setLanguage("zh-TW");
+		
+		googlePalcesClient = new CustomGooglePlaces();
 		
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(App.LOGIN_STATE_CHANGE_ACTION);
 		loadModel(m_currentPage++);
 	}
 	
+	public Location getCurrentLocation()
+	{
+		LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+		Criteria criteria = new Criteria();
+		String bestProvider = locationManager.getBestProvider(criteria, false);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
+	            new LocationListener()
+				{
+					
+					@Override
+					public void onStatusChanged(String arg0, int arg1, Bundle arg2)
+					{
+						// TODO Auto-generated method stub
+						
+					}
+					
+					@Override
+					public void onProviderEnabled(String arg0)
+					{
+						// TODO Auto-generated method stub
+						
+					}
+					
+					@Override
+					public void onProviderDisabled(String provider)
+					{
+						// TODO Auto-generated method stub
+						
+					}
+					
+					@Override
+					public void onLocationChanged(Location loc)
+					{
+						loc.getLatitude();
+						loc.getLongitude();
+						
+					}
+				});
+
+		return locationManager.getLastKnownLocation(bestProvider);
+	}
+
 	
+	public void notifyModelDataChanged()
+	{
+		m_model.addAll(dummy_model);
+		m_adapter.notifyDataSetChanged();
+	}
 
 	public void loadModel(int numOfPages)
 	{
@@ -133,13 +193,27 @@ OnItemClickListener
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View v, int position, long id)
 	{
-		if (position < 1)
+//		if (position < 1)
+//			return;
+//		SearchResult result = m_model.get(position - 1);
+//		Gson gson = new Gson();
+//		String jsonResult = gson.toJson(result);
+//		Bundle data = new Bundle();
+//		data.putSerializable("searchResult", jsonResult);
+//		Intent intent = new Intent(this, SearchDetailsPage.class);
+//		intent.putExtras(data);
+//		this.startActivity(intent);
+		if(position < 1)
 			return;
-		SearchResult result = m_model.get(position - 1);
-		Gson gson = new Gson();
-		String jsonResult = gson.toJson(result);
+		Place selectPlace = m_model.get(position -1);
 		Bundle data = new Bundle();
-		data.putSerializable("searchResult", jsonResult);
+		data.putString("placeId", selectPlace.getPlaceId());
+		Location location = new Location("");
+		location.setLatitude(selectPlace.getLatitude());
+		location.setLongitude(selectPlace.getLongitude());
+		Gson gson = new Gson();
+		String jsonLocation = gson.toJson(location);
+		data.putSerializable("location",  jsonLocation);
 		Intent intent = new Intent(this, SearchDetailsPage.class);
 		intent.putExtras(data);
 		this.startActivity(intent);
@@ -209,6 +283,7 @@ OnItemClickListener
 	class SearchResultListAdapter extends BaseAdapter
 	{
 
+		GoogleImageLoader imageLoader = new GoogleImageLoader(getApplicationContext());
 		@Override
 		public int getCount()
 		{
@@ -237,24 +312,15 @@ OnItemClickListener
 			}
 			
 			TextView name = (TextView) convertView.findViewById(R.id.business_name);
-			ImageViewWithCache rating_image  = (ImageViewWithCache) convertView.findViewById(R.id.rating_image);
+			RatingBar ratingbar  =  (RatingBar) convertView.findViewById(R.id.MyRating);
 			ImageViewWithCache  img = (ImageViewWithCache ) convertView.findViewById(R.id.headImgDetail);
 			
 			name.setText(m_model.get(position).getName());
-			if(m_model.get(position).getImage_url()!=null)
+			if(m_model.get(position).getPhotos().size()>0)
 			{
-				try
-				{
-					img.setImageUrl(new URL(m_model.get(position).getImage_url()));
-					rating_image.setImageUrl(new URL(m_model.get(position).getRating_img_url_small()));
-				}
-				catch (MalformedURLException e)
-				{
-					e.printStackTrace();
-				}
+				imageLoader.DisplayImage(googlePalcesClient.buildPhotoUrl(m_model.get(position).getPhotos().get(0)), img);
 			}
-			else 
-				img.setImageResource(R.drawable.default_user_head_img);
+			ratingbar.setRating((float) m_model.get(position).getRating());
 			
 			return convertView;
 		}
@@ -262,42 +328,23 @@ OnItemClickListener
 
 	class SearchResultTask extends AsyncTask<String, Void, String>
 	{
-
 		@Override
 		protected String doInBackground(String... urls)
 		{
-			Response response = Yelp.getInstance().search(yelpFilter);
-			String responseString = response.getBody();
-			int responseCode = response.getCode();
-			m_model.clear();
-			
 			try
 			{
-				if(responseCode == HttpStatus.SC_OK)
-				{
-					JSONObject obj = new JSONObject(responseString);
-					JSONArray arr  = obj.getJSONArray("businesses");
-					for(int i=0; i<arr.length();i++)
-					{
-						m_model.add(parseToSearchResult(arr.getJSONObject(i)));
-					}
-					status=Yelp.NET_SUCCESS;
-				}
-				
-				if(responseCode == HttpStatus.SC_GATEWAY_TIMEOUT)
-				{
-					status = Yelp.NET_TIMEOUT;
-				}
-				
+				List<Place> placeList = googlePalcesClient.getNearbyPlaces(currentLocation.getLatitude(), 
+						currentLocation.getLongitude(), 10000, googlePlaceFilter);
+				dummy_model.clear();
+				dummy_model.addAll(placeList);
+				status =googlePalcesClient.getStatusCode(); 
 			}
-			catch (JSONException e)
+			catch (Exception e)
 			{
 				e.printStackTrace();
 			}
-			return responseString;
+			return null;
 		}
-		
-		
 		
 		@Override
 		protected void onPostExecute(String result)
@@ -306,16 +353,6 @@ OnItemClickListener
 			m_handler.sendEmptyMessage(status);
 		}
 
-
-
-		public SearchResult parseToSearchResult(JSONObject jsonObject)
-		{
-			Gson gson = new Gson();
-			SearchResult result = gson.fromJson(jsonObject.toString(), SearchResult.class);
-			
-			return result;
-		}
-		
 	}
 	
 	

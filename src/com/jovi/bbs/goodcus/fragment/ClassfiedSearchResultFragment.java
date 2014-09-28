@@ -1,21 +1,16 @@
 package com.jovi.bbs.goodcus.fragment;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-
-import org.apache.http.HttpStatus;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.scribe.model.Response;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.jovi.bbs.goodcus.R;
 import com.jovi.bbs.goodcus.SearchDetailsPage;
-import com.jovi.bbs.goodcus.model.SearchResult;
-import com.jovi.bbs.goodcus.model.YelpFilter;
-import com.jovi.bbs.goodcus.net.Yelp;
+import com.jovi.bbs.goodcus.fragment.SearchResultFragmentFactory.SearchType;
+import com.jovi.bbs.goodcus.net.googlePlacesApi.CustomGooglePlaces;
+import com.jovi.bbs.goodcus.net.googlePlacesApi.GooglePlaceFilter;
+import com.jovi.bbs.goodcus.net.googlePlacesApi.Place;
+import com.jovi.bbs.goodcus.util.GoogleImageLoader;
 import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
 import com.jovi.bbs.goodcus.widgets.XListView;
 import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
@@ -38,6 +33,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
@@ -47,32 +43,34 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 	private int m_currentPage = 1;
 	private XListView m_listView;
 	private static int previousIndex;
-	private int listOffset;
 	private SearchResultListAdapter m_adapter;
 	private ProgressBar m_pBar;
-	private ArrayList<SearchResult> m_model = new ArrayList<SearchResult>();
+	private ArrayList<Place> m_model = new ArrayList<Place>();
 	//dummy_model loads up data from external yelp API from AynTask, then have mHandler to call notifyModelDataChanged
     //post list data changes in UI thread to avoid illegalstatesException caused by list adapter change and listView 
 	//change in different threads
-	private ArrayList<SearchResult> dummy_model = new ArrayList<SearchResult>();
-	private YelpFilter yelpFilter;
+	private ArrayList<Place> dummy_model = new ArrayList<Place>();
 	private int status;
-	private String searchTerm;
+	
+	private CustomGooglePlaces googlePalcesClient;
+	private Location currentLocation;
+	private SearchType searchType; 
+
 	
 	@SuppressLint("HandlerLeak") private Handler m_handler = new Handler()
 	{
 		public void handleMessage(Message msg) 
 		{
-			switch (msg.what) 
+			switch (msg.what)
 			{
-				case Yelp.NET_SUCCESS:
+				case CustomGooglePlaces.STATUS_CODE_OK:
 					notifyModelDataChanged();
-					// 只在 listview 中有数据之后才启用pull load
 					break;
-				case Yelp.NET_TIMEOUT:
-					Toast.makeText(getActivity(), R.string.net_timeout,
-							Toast.LENGTH_SHORT).show();
+
+				case CustomGooglePlaces.STATUS_CODE_REQUEST_DENIED:
+					Toast.makeText(getActivity(), R.string.net_timeout, Toast.LENGTH_SHORT).show();
 					break;
+				
 				default:
 					break;
 			}
@@ -105,6 +103,7 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		googlePalcesClient = new CustomGooglePlaces();
 		loadModel(m_currentPage++);
 	}
 
@@ -148,23 +147,24 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View v, int position, long id)
 	{
-		if (position < 1)
+		if(position < 1)
 			return;
-		SearchResult result = m_model.get(position - 1);
-		Gson gson = new Gson();
-		String jsonResult = gson.toJson(result);
+		Place selectPlace = m_model.get(position -1);
 		Bundle data = new Bundle();
-		data.putSerializable("searchResult", jsonResult);
+		data.putString("placeId", selectPlace.getPlaceId());
+		Location location = new Location("");
+		location.setLatitude(selectPlace.getLatitude());
+		location.setLongitude(selectPlace.getLongitude());
+		Gson gson = new Gson();
+		String jsonLocation = gson.toJson(location);
+		data.putSerializable("location",  jsonLocation);
 		Intent intent = new Intent(getActivity(), SearchDetailsPage.class);
 		intent.putExtras(data);
 		this.startActivity(intent);
-		
 	}
 	
 	public Location getCurrentLocation()
 	{
-
-		getActivity();
 		LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 		Criteria criteria = new Criteria();
 		String bestProvider = locationManager.getBestProvider(criteria, false);
@@ -207,12 +207,11 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 
 	public void loadModel(int numOfPages)
 	{
-		Location location = getCurrentLocation();
-		if (location != null)
+		currentLocation = getCurrentLocation();
+		if (currentLocation != null)
 		{
-			yelpFilter = new YelpFilter.FilterBuilder(searchTerm).build();
-			yelpFilter.setLatitude(location.getLatitude());
-			yelpFilter.setLongitude(location.getLongitude());
+			GooglePlaceFilter googlePlaceFilter = searchType.getPlaceFilter();
+			googlePlaceFilter.setLanguage("zh-TW");
 			SearchResultTask searchTask = new SearchResultTask();
 			searchTask.execute("");
 		} 
@@ -233,7 +232,6 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 	public void onLoadMore()
 	{
 		// TODO Auto-generated method stub
-		
 	}
 	
 	class SearchResultTask extends AsyncTask<String, Void, String>
@@ -241,34 +239,19 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 		@Override
 		protected String doInBackground(String... urls)
 		{
-			Response response = Yelp.getInstance().search(yelpFilter);
-			String responseString = response.getBody();
-			int responseCode = response.getCode();
-			dummy_model.clear();
-			
 			try
 			{
-				if(responseCode == HttpStatus.SC_OK)
-				{
-					JSONObject obj = new JSONObject(responseString);
-					JSONArray arr  = obj.getJSONArray("businesses");
-					for(int i=0; i<arr.length();i++)
-					{
-						dummy_model.add(parseToSearchResult(arr.getJSONObject(i)));
-					}
-					status=Yelp.NET_SUCCESS;
-				}
-				
-				if(responseCode == HttpStatus.SC_GATEWAY_TIMEOUT)
-				{
-					status = Yelp.NET_TIMEOUT;
-				}
+				List<Place> placeList = googlePalcesClient.getNearbyPlaces(currentLocation.getLatitude(), 
+						currentLocation.getLongitude(), 10000, searchType.getPlaceFilter());
+				dummy_model.clear();
+				dummy_model.addAll(placeList);
+				status =googlePalcesClient.getStatusCode(); 
 			}
-			catch (JSONException e)
+			catch (Exception e)
 			{
 				e.printStackTrace();
 			}
-			return responseString;
+			return null;
 		}
 		
 		@Override
@@ -277,17 +260,11 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 			super.onPostExecute(result);
 			m_handler.sendEmptyMessage(status);
 		}
-
-		public SearchResult parseToSearchResult(JSONObject jsonObject)
-		{
-			Gson gson = new Gson();
-			SearchResult result = gson.fromJson(jsonObject.toString(), SearchResult.class);
-			return result;
-		}
 	}
 	
 	class SearchResultListAdapter extends BaseAdapter
 	{
+		GoogleImageLoader imageLoader = new GoogleImageLoader(getActivity());
 		@Override
 		public int getCount()
 		{
@@ -316,32 +293,25 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 			}
 
 			TextView name = (TextView) convertView.findViewById(R.id.business_name);
-			ImageViewWithCache rating_image = (ImageViewWithCache) convertView.findViewById(R.id.rating_image);
+			RatingBar ratingbar  =  (RatingBar) convertView.findViewById(R.id.MyRating);
 			ImageViewWithCache img = (ImageViewWithCache) convertView.findViewById(R.id.headImgDetail);
 
 			name.setText(m_model.get(position).getName());
-			if (m_model.get(position).getImage_url() != null)
+			if(m_model.get(position).getPhotos().size()>0)
 			{
-				try
-				{
-					img.setImageUrl(new URL(m_model.get(position).getImage_url()));
-					rating_image.setImageUrl(new URL(m_model.get(position).getRating_img_url_small()));
-				}
-				catch (MalformedURLException e)
-				{
-					e.printStackTrace();
-				}
-			} else
-				img.setImageResource(R.drawable.default_user_head_img);
+				imageLoader.DisplayImage(googlePalcesClient.buildPhotoUrl(m_model.get(position).getPhotos().get(0)), img);
+			}
+			ratingbar.setRating((float) m_model.get(position).getRating());
 
 			return convertView;
 		}
 	}
 	
-	public static ClassfiedSearchResultFragment newInstance(String searchTerm)
+	
+	public static ClassfiedSearchResultFragment newInstance(SearchType searchType)
 	{
 		ClassfiedSearchResultFragment instance = new ClassfiedSearchResultFragment();
-		instance.searchTerm = searchTerm;
+		instance.searchType = searchType;
 		return instance;
 	}
 

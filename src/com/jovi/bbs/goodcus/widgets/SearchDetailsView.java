@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 public class SearchDetailsView extends LinearLayout
@@ -17,7 +18,7 @@ public class SearchDetailsView extends LinearLayout
 	ImageViewWithCache headImgDetail;
 	TextView businessName;
 	TextView bussinessAddr;
-	ImageView ratingImg;
+	RatingBar ratingImg;
 	TextView snippetText;
 
 	public SearchDetailsView(Context context)
@@ -27,7 +28,7 @@ public class SearchDetailsView extends LinearLayout
 		headImgDetail = (ImageViewWithCache) findViewById(R.id.headImgDetail);
 		businessName = (TextView) findViewById(R.id.business_name);
 		bussinessAddr = (TextView) findViewById(R.id.business_addr);
-		ratingImg = (ImageView) findViewById(R.id.rating_image);
+		ratingImg = (RatingBar) findViewById(R.id.MyRating2);
 		snippetText = (TextView) findViewById(R.id.snippet_text);
 		setOrientation(LinearLayout.VERTICAL);
 		setGravity(Gravity.LEFT);
@@ -41,7 +42,7 @@ public class SearchDetailsView extends LinearLayout
 		headImgDetail = (ImageViewWithCache) findViewById(R.id.headImgDetail);
 		businessName = (TextView) findViewById(R.id.business_name);
 		bussinessAddr = (TextView) findViewById(R.id.business_addr);
-		ratingImg = (ImageView) findViewById(R.id.rating_image);
+		ratingImg = (RatingBar) findViewById(R.id.MyRating2);
 		snippetText = (TextView) findViewById(R.id.snippet_text);
 		setOrientation(LinearLayout.VERTICAL);
 		setGravity(Gravity.LEFT);
@@ -67,7 +68,7 @@ public class SearchDetailsView extends LinearLayout
 		return bussinessAddr;
 	}
 
-	public ImageView getRatingImg()
+	public RatingBar getRatingImg()
 	{
 		return ratingImg;
 	}
