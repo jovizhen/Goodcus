@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    android:layout_width="wrap_content"
     android:layout_height="fill_parent"
     android:background="@color/white"
     android:orientation="vertical" >
@@ -13,70 +13,40 @@
         android:onClick="onPageTitleClick" >
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true" >
-
-            <ImageView
-                android:id="@+id/forumDisplayKanxueTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="10dp"
-                android:src="@drawable/kanxue_title"
-                android:visibility="gone" />
-
-            <ImageButton
-                android:id="@+id/forumDisplayBackBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:background="@drawable/normal_action_btn"
-                android:onClick="onBackBtnClick"
-                android:padding="10dp"
-                android:src="@drawable/navigation_back" />
-
-            <ImageView
-                android:id="@+id/forumDisplaySeg"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:src="@drawable/segmentation" />
-
-            <TextView
-                android:id="@+id/forumDisplayPageTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="10dp"
-                android:layout_weight="1"
-                android:textColor="@color/white"
-                android:textSize="18sp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true" >
+            android:layout_centerVertical="true"
+            android:orientation="horizontal" >
 
             <ImageButton
                 android:id="@+id/forumDisplayNewThreadBtn"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
                 android:background="@drawable/normal_action_btn"
                 android:onClick="toggleFilterPanel"
                 android:padding="10dp"
                 android:src="@drawable/ic_action_location_found" />
+            
+            <com.jovi.bbs.goodcus.widgets.ClearableAutocompleteTextView
+                android:id="@+id/search_box"
+                android:layout_width="231dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:dropDownVerticalOffset="5dp"
+                android:dropDownWidth="wrap_content"
+                android:inputType="textAutoComplete|textAutoCorrect"
+                android:popupBackground="@android:color/white"
+                android:textColor="@android:color/darker_gray" >
+
+            </com.jovi.bbs.goodcus.widgets.ClearableAutocompleteTextView>
 
             <com.jovi.bbs.goodcus.widgets.RefreshActionBtn
                 android:id="@+id/forumDisplayRefreshBtn"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
+                android:layout_gravity="center_vertical|right"
                 android:background="@drawable/normal_action_btn"
                 android:onClick="onRefreshBtnClick"
                 android:padding="10dp"

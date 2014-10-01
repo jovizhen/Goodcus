@@ -10,7 +10,9 @@ import com.jovi.bbs.goodcus.fragment.SearchFilterFragment;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.CustomGooglePlaces;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.GooglePlaceFilter;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.Place;
+import com.jovi.bbs.goodcus.net.googlePlacesApi.Prediction;
 import com.jovi.bbs.goodcus.util.GoogleImageLoader;
+import com.jovi.bbs.goodcus.widgets.ClearableAutocompleteTextView;
 import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
 import com.jovi.bbs.goodcus.widgets.RefreshActionBtn;
 import com.jovi.bbs.goodcus.widgets.XListView;
@@ -30,10 +32,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ProgressBar;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.RatingBar;
@@ -46,6 +51,7 @@ OnItemClickListener
 	private static final String SEARCH_FILTER_FRAGMENT_TAG = "search_filter_fragment";
 	private int m_currentPage = 1;
 	private XListView m_listView;
+	private ClearableAutocompleteTextView searchBox;
 	private SearchResultListAdapter m_adapter;
 	private ProgressBar m_pBar;
 	private RefreshActionBtn m_refreshBtn;
@@ -56,6 +62,8 @@ OnItemClickListener
 	private CustomGooglePlaces googlePalcesClient;
 	private int status;
 	private Location currentLocation;
+	
+	
 
 	@SuppressLint("HandlerLeak") private Handler m_handler = new Handler()
 	{
@@ -117,8 +125,6 @@ OnItemClickListener
 		m_pBar = (ProgressBar) this.findViewById(R.id.forumDisplayProgressBar);
 
 		Bundle data = this.getIntent().getExtras();
-		TextView tv = (TextView) this.findViewById(R.id.forumDisplayPageTitle);
-		tv.setText(data.getString("title"));
 		
 //		yelpFilter =  new YelpFilter.FilterBuilder("Resturant").build();
 //		yelpFilter.setLatitude(30.361471);
@@ -129,6 +135,8 @@ OnItemClickListener
 		googlePlaceFilter.setLanguage("zh-TW");
 		
 		googlePalcesClient = new CustomGooglePlaces();
+		searchBox = (ClearableAutocompleteTextView) findViewById(R.id.search_box);
+		searchBox.setAdapter(new AutocompleteAdapter());
 		
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(App.LOGIN_STATE_CHANGE_ACTION);
@@ -280,6 +288,83 @@ OnItemClickListener
 	}
 	
 	
+	class AutocompleteAdapter extends BaseAdapter implements Filterable
+	{
+		private ArrayList<String> resultList = new ArrayList<String>();
+		
+		@Override
+		public int getCount()
+		{
+			// TODO Auto-generated method stub
+			return resultList.size();
+		}
+
+		@Override
+		public Object getItem(int index)
+		{
+			return resultList.get(index);
+		}
+
+		@Override
+		public long getItemId(int arg0)
+		{
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent)
+		{
+			if (convertView == null)
+			{
+				LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				convertView = inflater.inflate(R.layout.dropdown_item, parent, false);
+			}
+			((TextView) convertView.findViewById(R.id.dropdown_item)).setText((CharSequence) getItem(position));
+			return convertView;
+		}
+
+		@Override
+		public Filter getFilter()
+		{
+			Filter filter = new Filter()
+			{
+				@Override
+				protected FilterResults performFiltering(CharSequence constraint)
+				{
+					FilterResults filterResults = new FilterResults();
+					if (constraint != null && googlePalcesClient != null)
+					{
+						List<Prediction> predictionList = googlePalcesClient.getPlacePredictions(constraint.toString());
+						resultList.clear();
+						for (Prediction pred : predictionList)
+						{
+							resultList.add(pred.getDescription());
+						}
+						// Assign the data to the FilterResults
+						filterResults.values = resultList;
+						filterResults.count = resultList.size();
+					}
+
+					return filterResults;
+				}
+
+				@Override
+				protected void publishResults(CharSequence constraint, FilterResults results)
+				{
+					if (results != null && results.count > 0)
+					{
+						notifyDataSetChanged();
+					} else
+					{
+						notifyDataSetInvalidated();
+					}
+				}
+			};
+			return filter;
+		}
+	}
+	
+	
 	class SearchResultListAdapter extends BaseAdapter
 	{
 
@@ -352,8 +437,5 @@ OnItemClickListener
 			super.onPostExecute(result);
 			m_handler.sendEmptyMessage(status);
 		}
-
 	}
-	
-	
 }
