@@ -1,9 +1,7 @@
 package com.jovi.bbs.goodcus;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,17 +24,21 @@ import com.jovi.bbs.goodcus.fragment.MapDirectionFragment;
 import com.jovi.bbs.goodcus.fragment.PostReviewFragment;
 import com.jovi.bbs.goodcus.fragment.ReviewListFragment;
 import com.jovi.bbs.goodcus.model.ApplicationUser;
-import com.jovi.bbs.goodcus.model.Coordinate;
 import com.jovi.bbs.goodcus.model.ResponseMessage;
 import com.jovi.bbs.goodcus.model.ReviewRecord;
 import com.jovi.bbs.goodcus.model.ReviewRecordListResponse;
-import com.jovi.bbs.goodcus.model.SearchResult;
 import com.jovi.bbs.goodcus.net.Api;
+import com.jovi.bbs.goodcus.net.googlePlacesApi.CustomGooglePlaces;
+import com.jovi.bbs.goodcus.net.googlePlacesApi.Photo;
+import com.jovi.bbs.goodcus.net.googlePlacesApi.Place;
 import com.jovi.bbs.goodcus.util.HttpUtil;
-import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
 import com.jovi.bbs.goodcus.widgets.SearchDetailsView;
 import com.jovi.bbs.goodcus.widgets.XListView;
 import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
+import com.jovi.bbs.goodcus.widgets.tableView.UITableView;
+import com.jovi.bbs.goodcus.widgets.tableView.UITableView.ClickListener;
+import com.jovi.bbs.goodcus.widgets.touchGallery.CirclePageIndicator;
+import com.jovi.bbs.goodcus.widgets.touchGallery.ReferencePagerAdapter;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -46,18 +48,19 @@ import android.app.ProgressDialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.location.Address;
-import android.location.Geocoder;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -67,25 +70,37 @@ import android.widget.Toast;
 public class SearchDetailsPage extends Activity implements IXListViewListener, OnItemClickListener
 {
 	protected static final String TAG = "Search Details Page";
-	private static final String POST_REVIEW_FRAGMENT    = "post_review_fragment";
-	private static final String REVIEW_LIST_FRAGMENT    = "review_list_fragment";
-	private static final String MAP_DIRECTION_FRAGMENT  = "map_direction_fragment";
+	private   static final String POST_REVIEW_FRAGMENT    = "post_review_fragment";
+	private   static final String REVIEW_LIST_FRAGMENT    = "review_list_fragment";
+	private   static final String MAP_DIRECTION_FRAGMENT  = "map_direction_fragment";
 	
-	private XListView m_listView;
-	SearchDetailsView detailsView;
-	TextView warnMsg;
-	private ArrayList<ReviewRecord> m_model = new ArrayList<ReviewRecord>();
-	
-	private ProgressDialog m_pd;
-	private ProgressBar m_pBar;
+	private RelativeLayout    pageHeader;
+	private XListView         m_listView;
+	private SearchDetailsView detailsView;
+	private TextView          warnMsg;
+	private EditText          replyTextView;
+	private ProgressDialog    m_pd;
+	private ProgressBar       m_pBar;
+	private ViewPager         mViewPager;
+	private CirclePageIndicator mIndicator;
+	private ArrayList<ReviewRecord> m_model  = new ArrayList<ReviewRecord>();
+	private ArrayList<String>       m_photos = new ArrayList<String>();
+	private UITableView  tableView;
 	private String business_id;
 	private String user_id;
-	private int m_currentPage = 1;
+	private String placeId;
+	
 	private RequestQueue requestQueue;
-	EditText replyTextView;
+	private CustomGooglePlaces googlePalcesClient;
+	private ReferencePagerAdapter pagerAdapter;
+	
 	private GoogleMap mMap;
-	private SearchResult result;
-	private RelativeLayout pageHeader;
+	private Location location;
+	private Place place;
+	
+	
+	
+	
 	@SuppressLint("HandlerLeak") private Handler m_handler = new Handler()
 	{
 		public void handleMessage(Message msg) 
@@ -118,35 +133,36 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.search_details_page);
-		
+		googlePalcesClient = new CustomGooglePlaces();
 		requestQueue = HttpUtil.getInstance().getRequestQueue();
 		detailsView = (SearchDetailsView) findViewById(R.id.searchDetailsFrag);
 		Gson gson = new Gson();
-		String jsonResult =  this.getIntent().getExtras().getString("searchResult");
-		result =  gson.fromJson(jsonResult, SearchResult.class);
-		detailsView.getBusinessName().setText(result.getName());
-		detailsView.getBussinessAddr().setText(result.getLocationLabel());
-		try
-		{
-			detailsView.getHeadImgDetail().setImageUrl(new URL(result.getImage_url()));
-		}
-		catch (MalformedURLException e)
-		{
-			e.printStackTrace();
-		}
-		setUpMapIfNeeded();
+		placeId =  this.getIntent().getExtras().getString("placeId");
+		String jsonLocation = this.getIntent().getExtras().getString("location");
+		location = gson.fromJson(jsonLocation, Location.class);
 		
-		business_id = result.getId();
+		PlaceDetailTask detailTask = new PlaceDetailTask();
+		detailTask.execute("");
+		setUpMapIfNeeded();
+		pagerAdapter = new ReferencePagerAdapter(this, m_photos);
+		mViewPager = (ViewPager) findViewById(R.id.viewer);
+		mViewPager.setAdapter(pagerAdapter);
 		pageHeader = (RelativeLayout) findViewById(R.id.pagedetail_header);
-		try
-		{
-			loadModel(m_currentPage++);
-		}
-		catch (JSONException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		mIndicator = (CirclePageIndicator)findViewById(R.id.indicator);
+		mIndicator.setViewPager(mViewPager);
+		
+		tableView = (UITableView) findViewById(R.id.tableView);
+		createList();
+	}
+	
+	private void createList() 
+	{
+		CustomClickListener listener = new CustomClickListener();
+		tableView.setClickListener(listener);
+		tableView.addBasicItem(R.drawable.ic_action_directions, "地图导航", null);
+		tableView.addBasicItem(R.drawable.ic_action_copy, "阅读评论", null);
+		tableView.addBasicItem(R.drawable.ic_action_call, "电话", null);
+		tableView.commit();
 	}
 	
 	public void toggleReplyPanel(View v)
@@ -179,7 +195,7 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 		toggleReplyPanel(v);
 	}
 	
-	public void onDirectionClick(View v)
+	public void onDirectionClick()
 	{
 		Fragment f = getFragmentManager().findFragmentByTag(MAP_DIRECTION_FRAGMENT);
 		if(f!=null)
@@ -193,10 +209,14 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 		}
 		else
 		{
+			Location location = new Location("");
+			location.setLatitude(place.getLatitude());
+			location.setLongitude(place.getLongitude());
 			Gson gson = new Gson();
-			String jsonResult = gson.toJson(result);
+			String jsonLocation = gson.toJson(location);
+			
 			Bundle data = new Bundle();
-			data.putSerializable("searchResult", jsonResult);
+			data.putSerializable("bussiness_location", jsonLocation);
 			getFragmentManager().beginTransaction().
 			setCustomAnimations(R.animator.slide_from_right, 
 					R.animator.slide_to_right, 
@@ -211,10 +231,10 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 	
 	public void onDirectionBackBtnClick(View v)
 	{
-		onDirectionClick(v); 
+		onDirectionClick(); 
 	}
 	
-	public void onBrowseReviewClick(View v)
+	public void onBrowseReviewClick()
 	{
 		Fragment f = getFragmentManager().findFragmentByTag(MAP_DIRECTION_FRAGMENT);
 		if(f!=null)
@@ -224,10 +244,8 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 		}
 		else 
 		{
-			Gson gson = new Gson();
-			String jsonResult = gson.toJson(result);
 			Bundle data = new Bundle();
-			data.putSerializable("searchResult", jsonResult);
+			data.putString("place_id", place.getId());
 			getFragmentManager().beginTransaction().
 			setCustomAnimations(R.animator.slide_from_right, 
 					R.animator.slide_to_right, 
@@ -240,7 +258,7 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 		}
 	}
 	
-	public void onPhoneClick(View v)
+	public void onPhoneClick()
 	{
 		
 	}
@@ -311,30 +329,11 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 			mMap.setPadding(0, 10, 0, 10);
 			try
 			{
-				Coordinate coordinate = result.getLocation().getCoordinate();
-				//if yelp response contains the coordinate
-				if(coordinate!=null)
-				{
-					double lat = coordinate.getLatitude();
-					double lont = coordinate.getLongitude();
-					Marker mMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lont)).title("You are here!"));
-					mMarker.setDraggable(true);
-					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lont), 14.00f));
-				}
-				// otherwise we will try google build in geocoder_api to parse from its address 
-				else 
-				{
-					Geocoder geocoder = new Geocoder(this);
-					List<Address> resultAddresses = geocoder.getFromLocationName(result.getLocationLabel(), 1);
-					if(resultAddresses.size()!= 0)
-					{
-						double lat = resultAddresses.get(0).getLatitude();
-						double lont = resultAddresses.get(0).getLongitude();
-						Marker mMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lont)).title("You are here!"));
-						mMarker.setDraggable(true);
-						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lont), 14.00f));
-					}
-				}
+				double lat = location.getLatitude();
+				double lont = location.getLongitude();
+				Marker mMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lont)).title("You are here!"));
+				mMarker.setDraggable(true);
+				mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lont), 14.00f));
 			}
 			catch (Exception e)
 			{
@@ -427,12 +426,101 @@ public class SearchDetailsPage extends Activity implements IXListViewListener, O
 		requestQueue.add(jr);
 	}
 
-	
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3)
 	{
 		// TODO Auto-generated method stub
-		
 	}
+	
+	
+	class PlaceDetailTask extends AsyncTask<String, Void, String>
+	{
 
+		@Override
+		protected String doInBackground(String... arg0)
+		{
+			place = googlePalcesClient.getPlace(placeId);
+			return null;
+		}
+		
+		protected void onPostExecute(String result)
+		{
+			Thread aThread = new Thread()
+			{
+				@Override
+				public void run()
+				{
+					Bitmap bitmap = null;
+					if(place.getPhotos().size()>0)
+					{
+						InputStream is = place.getPhotos().get(0).download().getInputStream();
+						bitmap = BitmapFactory.decodeStream(is);
+					}
+					DetailViewDisplayer displayer = new DetailViewDisplayer(place, bitmap);
+					business_id = place.getId();
+					m_handler.post(displayer);
+				}
+			};
+			
+			aThread.start();
+			m_handler.post(new Runnable()
+			{
+				
+				@Override
+				public void run()
+				{
+					ArrayList<String> refList = new ArrayList<String>();
+					for(Photo photo :place.getPhotos())
+					{
+						refList.add(photo.getReference());
+					}
+					m_photos.addAll(refList);
+					pagerAdapter.notifyDataSetChanged();
+				}
+			});
+		}
+	}
+	
+	class DetailViewDisplayer implements Runnable
+	{
+		Place detailPlace;
+		Bitmap bitmap;
+		
+		public DetailViewDisplayer(Place detailPlace, Bitmap bitmap)
+		{
+			this.detailPlace = detailPlace;
+			this.bitmap = bitmap;
+		}
+		
+		public void run()
+		{
+			detailsView.getBusinessName().setText(place.getName());
+			detailsView.getBussinessAddr().setText(place.getAddress());
+			detailsView.getRatingImg().setRating((float) place.getRating());
+			if(bitmap != null)
+			{
+				detailsView.getHeadImgDetail().setImageBitmap(bitmap);
+			}
+		}
+	}
+	
+	private class CustomClickListener implements ClickListener
+	{
+		@Override
+		public void onClick(int index)
+		{
+			if(index == 0)
+			{
+				onDirectionClick();;
+			}
+			else if(index == 1)
+			{
+				onBrowseReviewClick();
+			}
+			else if(index == 2)
+			{
+				onPhoneClick();
+			}
+		}
+	}
 }

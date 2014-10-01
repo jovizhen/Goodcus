@@ -49,14 +49,14 @@ public class NearbyPage extends FragmentActivity
 		public Fragment getItem(int index)
 		{
 
-			Fragment fragment = SearchResultFragmentFactory.buildFragment(SearchResultFragmentFactory.navigation_menu[index].getKey());
+			Fragment fragment = SearchResultFragmentFactory.buildFragment(SearchResultFragmentFactory.navigation_menu[index]);
+			currentFragment = fragment;
+			return fragment;
 			// Bundle args = new Bundle();
 			// // Our object is just an integer :-P
 			// args.putInt(DemoObjectFragment.ARG_OBJECT, i + 1);
 			// fragment.setArguments(args);
 			// return fragment;
-			currentFragment = fragment;
-			return fragment;
 		}
 
 		@Override

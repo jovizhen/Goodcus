@@ -47,10 +47,9 @@ public class MapDirectionFragment extends Fragment
 		View view = inflater.inflate(R.layout.fragment_map_direction, container, false);
 		
 		Gson gson = new Gson();
-		String jsonResult =getArguments().getString("searchResult");  
-		result =  gson.fromJson(jsonResult, SearchResult.class);
+		String jsonLocation =getArguments().getString("bussiness_location");  
+		destination =  gson.fromJson(jsonLocation, Location.class);
 		currentLocation = getCurrentLocation();
-		destination = parseLocation(result);
 		setupMapIfNeeded();
 		findDirections(currentLocation.getLatitude(), currentLocation.getLongitude(),
 				destination.getLatitude(), destination.getLongitude(), GMapV2Direction.MODE_DRIVING);
@@ -98,40 +97,6 @@ public class MapDirectionFragment extends Fragment
 		return mlocManager.getLastKnownLocation(bestProvider);
 	}
 	
-	public Location parseLocation(SearchResult result)
-	{
-		Location location = new Location("");
-		try
-		{
-			if (result.getLocation().getCoordinate() != null)
-			{
-				double lat = result.getLocation().getCoordinate().getLatitude();
-				double lont = result.getLocation().getCoordinate().getLongitude();
-
-				location.setLatitude(lat);
-				location.setLongitude(lont);
-				return location;
-			}
-			else
-			{
-				Geocoder geocoder = new Geocoder(getActivity());
-				List<Address> resultAddresses = geocoder.getFromLocationName(result.getLocationLabel(), 1);
-				if (resultAddresses.size() != 0)
-				{
-					double lat = resultAddresses.get(0).getLatitude();
-					double lont = resultAddresses.get(0).getLongitude();
-					location.setLatitude(lat);
-					location.setLongitude(lont);
-					return location;
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		return location;
-	}
 	
 	@SuppressWarnings("unchecked")
 	public void findDirections(double fromPositionDoubleLat, double fromPositionDoubleLong, 

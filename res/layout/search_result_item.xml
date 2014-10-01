@@ -13,16 +13,16 @@
 
         <com.jovi.bbs.goodcus.widgets.ImageViewWithCache
             android:id="@+id/headImgDetail"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="84dp"
+            android:layout_height="76dp"
             android:scaleType="centerCrop"
             android:src="@drawable/default_user_head_img" />
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
-            android:layout_weight="1"
+            android:layout_weight="0.55"
             android:orientation="vertical" >
 
             <TextView
@@ -38,14 +38,17 @@
             <LinearLayout
                 android:id="@+id/LinearLayout2"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom" >
 
-                <com.jovi.bbs.goodcus.widgets.ImageViewWithCache
-                    android:id="@+id/rating_image"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1.72"
-                    android:src="@drawable/action_settings" />
+                <RatingBar
+    				android:id="@+id/MyRating"
+    				style="?android:attr/ratingBarStyleSmall"
+    				android:layout_width="wrap_content"
+    				android:layout_height="wrap_content"
+    				android:isIndicator="true"
+    				android:numStars="5"
+    				android:stepSize="0.1" />
 
                 <TextView
                     android:id="@+id/distanceLabel"
