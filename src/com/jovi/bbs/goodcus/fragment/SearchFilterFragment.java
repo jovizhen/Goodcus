@@ -11,9 +11,16 @@ import android.view.ViewGroup;
 
 public class SearchFilterFragment extends Fragment
 {
+	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		return inflater.inflate(R.layout.search_filter_fragment, container, false);
+		View view =  inflater.inflate(R.layout.search_filter_fragment, container, false);
+		return view;
+	}
+	
+	public void saveFilter()
+	{
+		
 	}
 
 }

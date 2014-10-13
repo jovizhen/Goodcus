@@ -60,7 +60,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:background="@drawable/normal_action_btn"
-                android:onClick="onRefreshBtnClick"
                 android:padding="10dp"
                 android:src="@drawable/navigation_refresh" >
 

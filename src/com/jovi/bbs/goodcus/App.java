@@ -11,10 +11,9 @@ import android.os.Environment;
 
 public class App extends Application
 {
-	private static String LOG_FILE_NAME = "goodcus.log";
 	public static final String LOGIN_STATE_CHANGE_ACTION = "com.jovi.bbs.goodcus.LOGIN_STATE_CHANGE_ACTION";
+	private static String LOG_FILE_NAME = "goodcus.log";
 	private int m_versionCode = 0;
-	
 	
 	public void onCreate()
 	{

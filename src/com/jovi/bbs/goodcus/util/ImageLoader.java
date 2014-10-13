@@ -27,14 +27,14 @@ public class ImageLoader
 {
 	MemoryCache memoryCache = new MemoryCache();
 	FileCache fileCache;
-	private Map<ImageView, String> imageViews = Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
-	ExecutorService executorService;
-	Handler handler = new Handler();// handler to display images in UI thread
+	protected Map<ImageView, String> imageViews = Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
+	protected ExecutorService executorService;
+	protected Handler handler = new Handler();// handler to display images in UI thread
 
 	public ImageLoader(Context context)
 	{
 		fileCache = new FileCache(context);
-		executorService = Executors.newFixedThreadPool(5);
+		executorService = Executors.newFixedThreadPool(10);
 	}
     
     final int stub_id=R.drawable.default_user_head_img;
@@ -102,7 +102,8 @@ public class ImageLoader
             final int REQUIRED_SIZE=70;
             int width_tmp=o.outWidth, height_tmp=o.outHeight;
             int scale=1;
-            while(true){
+            while(true)
+            {
                 if(width_tmp/2<REQUIRED_SIZE || height_tmp/2<REQUIRED_SIZE)
                     break;
                 width_tmp/=2;
@@ -144,12 +145,12 @@ public class ImageLoader
         @Override
         public void run() {
             try{
-                if(imageViewReused(photoToLoad))
-                    return;
+//                if(imageViewReused(photoToLoad))
+//                    return;
                 Bitmap bmp=getBitmap(photoToLoad.url);
                 memoryCache.put(photoToLoad.url, bmp);
-                if(imageViewReused(photoToLoad))
-                    return;
+//                if(imageViewReused(photoToLoad))
+//                    return;
                 BitmapDisplayer bd=new BitmapDisplayer(bmp, photoToLoad);
                 handler.post(bd);
             }catch(Throwable th){
@@ -173,8 +174,8 @@ public class ImageLoader
         public BitmapDisplayer(Bitmap b, PhotoToLoad p){bitmap=b;photoToLoad=p;}
         public void run()
         {
-            if(imageViewReused(photoToLoad))
-                return;
+//            if(imageViewReused(photoToLoad))
+//                return;
             if(bitmap!=null)
                 photoToLoad.imageView.setImageBitmap(bitmap);
             else

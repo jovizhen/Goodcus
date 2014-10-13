@@ -11,21 +11,16 @@ import com.jovi.bbs.goodcus.net.googlePlacesApi.CustomGooglePlaces;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.GooglePlaceFilter;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.Place;
 import com.jovi.bbs.goodcus.util.GoogleImageLoader;
+import com.jovi.bbs.goodcus.util.Utils;
 import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
 import com.jovi.bbs.goodcus.widgets.XListView;
 import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,73 +33,28 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class ClassfiedSearchResultFragment extends Fragment implements IXListViewListener, OnItemClickListener, LocationListener
+public class ClassfiedSearchResultFragment extends Fragment implements IXListViewListener, OnItemClickListener
 {
-	private int m_currentPage = 1;
-	private XListView m_listView;
 	private static int previousIndex;
-	private SearchResultListAdapter m_adapter;
-	private ProgressBar m_pBar;
-	private ArrayList<Place> m_model = new ArrayList<Place>();
-	//dummy_model loads up data from external yelp API from AynTask, then have mHandler to call notifyModelDataChanged
-    //post list data changes in UI thread to avoid illegalstatesException caused by list adapter change and listView 
-	//change in different threads
-	private ArrayList<Place> dummy_model = new ArrayList<Place>();
 	private int status;
+
+	private ProgressBar m_pBar;
+	private XListView m_listView;
+
+	private SearchResultListAdapter m_adapter;
+	private ArrayList<Place> m_model = new ArrayList<Place>();
 	
 	private CustomGooglePlaces googlePalcesClient;
+	private GooglePlaceFilter googlePlaceFilter;
 	private Location currentLocation;
 	private SearchType searchType; 
 
-	
-	@SuppressLint("HandlerLeak") private Handler m_handler = new Handler()
-	{
-		public void handleMessage(Message msg) 
-		{
-			switch (msg.what)
-			{
-				case CustomGooglePlaces.STATUS_CODE_OK:
-					notifyModelDataChanged();
-					break;
-
-				case CustomGooglePlaces.STATUS_CODE_REQUEST_DENIED:
-					Toast.makeText(getActivity(), R.string.net_timeout, Toast.LENGTH_SHORT).show();
-					break;
-				
-				default:
-					break;
-			}
-			//toggle off the refresh btn animation on host activity action bar
-			
-//			if (m_refreshBtn.isRefreshing())
-//			{
-//				m_listView.setSelection(1);
-//				m_refreshBtn.endRefresh();
-//			}
-
-			if (m_listView.getPullLoading())
-			{
-				// 加载到最后一页时禁用pull load
-				m_listView.stopLoadMore();
-			}
-
-			if (m_listView.getPullRefreshing())
-			{
-				m_listView.stopRefresh();
-			}
-			
-			m_pBar.setVisibility(View.GONE);
-
-		}
-	};
-	
-	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		googlePalcesClient = new CustomGooglePlaces();
-		loadModel(m_currentPage++);
+		configure();
+		loadModel(null);
 	}
 
 	@Override
@@ -112,17 +62,19 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 	{
 		View view = inflater.inflate(R.layout.classfied_result_fragment, container, false);
 		m_listView = (XListView) view.findViewById(R.id.fragment_result_list);
-		m_listView.setPullLoadEnable(false);
+		m_listView.setPullLoadEnable(googlePalcesClient.getPageToken() != null);
 		m_listView.setPullRefreshEnable(true);
 		m_listView.setXListViewListener(this);
 		m_listView.setOnItemClickListener(this);
 		m_adapter = new SearchResultListAdapter();
 		m_listView.setAdapter(m_adapter);
 		m_pBar = (ProgressBar) view.findViewById(R.id.forumDisplayProgressBar);
+		if(m_model.size()!=0)
+		{
+			m_pBar.setVisibility(View.GONE);
+		}
 		return view;
 	}
-
-	
 	
 	@Override
 	public void onPause()
@@ -142,6 +94,31 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 		    else
 		    	m_listView.setSelectionFromTop(0, 0);
 		}
+	}
+	
+	private void configure()
+	{
+		googlePalcesClient = new CustomGooglePlaces();
+		googlePlaceFilter = searchType.getPlaceFilter();
+		currentLocation = Utils.getCurrentLocation(getActivity());
+	}
+	
+	public void loadModel(String pageToken)
+	{
+		if (currentLocation != null)
+		{
+			if(pageToken != null)
+			{
+				googlePlaceFilter.setPagetoken(pageToken);
+			}
+			else
+			{
+				googlePlaceFilter.setPagetoken(null);
+				m_model.clear();
+			}
+			SearchResultTask searchTask = new SearchResultTask();
+			searchTask.execute("");
+		} 
 	}
 
 	@Override
@@ -163,103 +140,16 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 		this.startActivity(intent);
 	}
 	
-	public Location getCurrentLocation()
-	{
-		LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-		Criteria criteria = new Criteria();
-		String bestProvider = locationManager.getBestProvider(criteria, false);
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
-	            new LocationListener()
-				{
-					
-					@Override
-					public void onStatusChanged(String arg0, int arg1, Bundle arg2)
-					{
-						// TODO Auto-generated method stub
-						
-					}
-					
-					@Override
-					public void onProviderEnabled(String arg0)
-					{
-						// TODO Auto-generated method stub
-						
-					}
-					
-					@Override
-					public void onProviderDisabled(String provider)
-					{
-						// TODO Auto-generated method stub
-						
-					}
-					
-					@Override
-					public void onLocationChanged(Location loc)
-					{
-						loc.getLatitude();
-						loc.getLongitude();
-						
-					}
-				});
-
-		return locationManager.getLastKnownLocation(bestProvider);
-	}
-
-	public void loadModel(int numOfPages)
-	{
-		currentLocation = getCurrentLocation();
-		if (currentLocation != null)
-		{
-			GooglePlaceFilter googlePlaceFilter = searchType.getPlaceFilter();
-			googlePlaceFilter.setLanguage("zh-TW");
-			SearchResultTask searchTask = new SearchResultTask();
-			searchTask.execute("");
-		} 
-	}
-	
-	public void notifyModelDataChanged()
-	{
-		m_model.addAll(dummy_model);
-		m_adapter.notifyDataSetChanged();
-	}
 	@Override
 	public void onRefresh()
 	{
-		// TODO Auto-generated method stub
+		loadModel(null);
 	}
 
 	@Override
 	public void onLoadMore()
 	{
-		// TODO Auto-generated method stub
-	}
-	
-	class SearchResultTask extends AsyncTask<String, Void, String>
-	{
-		@Override
-		protected String doInBackground(String... urls)
-		{
-			try
-			{
-				List<Place> placeList = googlePalcesClient.getNearbyPlaces(currentLocation.getLatitude(), 
-						currentLocation.getLongitude(), 10000, searchType.getPlaceFilter());
-				dummy_model.clear();
-				dummy_model.addAll(placeList);
-				status =googlePalcesClient.getStatusCode(); 
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(String result)
-		{
-			super.onPostExecute(result);
-			m_handler.sendEmptyMessage(status);
-		}
+		loadModel(googlePalcesClient.getPageToken());
 	}
 	
 	class SearchResultListAdapter extends BaseAdapter
@@ -272,8 +162,12 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 		}
 
 		@Override
-		public Object getItem(int position)
+		public Object getItem(int index)
 		{
+			if (m_model.size() != 0)
+			{
+				return m_model.get(index);
+			}
 			return null;
 		}
 
@@ -293,20 +187,80 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 			}
 
 			TextView name = (TextView) convertView.findViewById(R.id.business_name);
+			TextView addr = (TextView) convertView.findViewById(R.id.business_address);
 			RatingBar ratingbar  =  (RatingBar) convertView.findViewById(R.id.MyRating);
 			ImageViewWithCache img = (ImageViewWithCache) convertView.findViewById(R.id.headImgDetail);
 
 			name.setText(m_model.get(position).getName());
+			addr.setText(m_model.get(position).getVicinity());
 			if(m_model.get(position).getPhotos().size()>0)
 			{
-				imageLoader.DisplayImage(googlePalcesClient.buildPhotoUrl(m_model.get(position).getPhotos().get(0)), img);
+				imageLoader.DisplayImage(googlePalcesClient.buildPhotoDownloadUrl(m_model.get(position).getPhotos().get(0), 100, 100), 
+						m_model.get(position).getPlaceId(),  img);
 			}
 			ratingbar.setRating((float) m_model.get(position).getRating());
-
 			return convertView;
 		}
 	}
 	
+	class SearchResultTask extends AsyncTask<String, Void, List<Place>>
+	{
+		@Override
+		protected List<Place> doInBackground(String... urls)
+		{
+			List<Place> placeList = new ArrayList<Place>();
+			try
+			{
+				placeList = googlePalcesClient.getNearbyPlaces(currentLocation.getLatitude(), 
+						currentLocation.getLongitude(), 10000, googlePlaceFilter);
+				status =googlePalcesClient.getStatusCode(); 
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			return placeList;
+		}
+		
+		@Override
+		protected void onPostExecute(List<Place> searchResult)
+		{
+			super.onPostExecute(searchResult);
+//			m_handler.sendEmptyMessage(status);
+			switch (status)
+			{
+				case CustomGooglePlaces.STATUS_CODE_OK:
+					m_model.addAll(searchResult);
+					m_adapter.notifyDataSetChanged();
+					break;
+
+				case CustomGooglePlaces.STATUS_CODE_REQUEST_DENIED:
+					Toast.makeText(getActivity(), R.string.net_timeout, Toast.LENGTH_SHORT).show();
+					break;
+
+				default:
+					break;
+			}
+			if (googlePalcesClient.getPageToken() == null)
+			{
+				m_listView.setPullLoadEnable(false);
+			}
+			else 
+			{
+				m_listView.setPullLoadEnable(true);
+			}
+			
+			if(m_listView.getPullLoading())
+			{
+				m_listView.stopLoadMore();
+			}
+			if(m_listView.getPullRefreshing())
+			{
+				m_listView.stopRefresh();
+			}
+			m_pBar.setVisibility(View.GONE);
+		}
+	}
 	
 	public static ClassfiedSearchResultFragment newInstance(SearchType searchType)
 	{
@@ -315,32 +269,5 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 		return instance;
 	}
 
-	@Override
-	public void onLocationChanged(Location location)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onProviderDisabled(String provider)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onProviderEnabled(String provider)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras)
-	{
-		// TODO Auto-generated method stub
-		
-	}
 }
 

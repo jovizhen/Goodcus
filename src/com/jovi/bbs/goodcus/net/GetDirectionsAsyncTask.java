@@ -61,7 +61,7 @@ public class GetDirectionsAsyncTask extends AsyncTask<Map<String, String>, Objec
             LatLng toPosition = new LatLng(Double.valueOf(paramMap.get(DESTINATION_LAT)) , Double.valueOf(paramMap.get(DESTINATION_LONG)));
             GMapV2Direction md = new GMapV2Direction();
             Document doc = md.getDocument(fromPosition, toPosition, paramMap.get(DIRECTIONS_MODE));
-            ArrayList directionPoints = md.getDirection(doc);
+            ArrayList<LatLng> directionPoints = md.getDirection(doc);
             return directionPoints;
         }
         catch (Exception e)

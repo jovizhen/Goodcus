@@ -19,29 +19,30 @@
 	
 	        <com.jovi.bbs.goodcus.widgets.ImageViewWithCache
 	            android:id="@+id/showthreadHeadImg"
-	            android:layout_width="40dp"
-	            android:layout_height="40dp"
-	            android:scaleType="centerCrop"
+	            android:layout_width="80dp"
+	            android:layout_height="80dp"
 	            android:clickable="true"
 	            android:onClick="onShowUserBtnClick"
+	            android:scaleType="centerCrop"
 	            android:src="@drawable/default_user_head_img" />
 	
 	        <LinearLayout
 	            android:layout_width="fill_parent"
-	            android:layout_height="40dp"
+	            android:layout_height="60dp"
 	            android:layout_marginLeft="10dp"
 	            android:orientation="vertical" >
 	
 	            <LinearLayout
 	                android:layout_width="fill_parent"
-	                android:layout_height="wrap_content"
+	                android:layout_height="30dp"
 	                android:layout_weight="1" >
 	
 	                <TextView
 	                    android:id="@+id/showthreadUsername"
 	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
+	                    android:layout_height="match_parent"
 	                    android:layout_weight="1"
+	                    android:textColor="@color/forum_display_item_title_color"
 	                    android:textStyle="bold" />
 	
 	                <TextView
@@ -50,16 +51,31 @@
 	                    android:layout_height="wrap_content"
 	                    android:text="1#" />
 	
-	            </LinearLayout>
-	
-	            <TextView
-	                android:id="@+id/showthreadPosttime"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:textColor="@color/gray"
-	                android:textSize="10sp" />
-	
-	        </LinearLayout>
+	            </LinearLayout><LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="3.17" >
+
+                    <RatingBar
+                        android:id="@+id/authorRating"
+                        style="?android:attr/ratingBarStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="15dp"
+                        android:isIndicator="true"
+                        android:numStars="5"
+                        android:stepSize="0.1" />
+
+                    <TextView
+                        android:id="@+id/showthreadPosttime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/gray"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+            </LinearLayout>
 	
 	    </LinearLayout>
 	

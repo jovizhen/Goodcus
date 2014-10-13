@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="C:/Users/jovi/GoodudeWorkspace/Goodcus/libs/gson-2.2.4.jar"/>
 	<classpathentry kind="lib" path="C:/Users/jovi/GoodudeWorkspace/Goodcus/libs/volley.jar"/>
 	<classpathentry kind="lib" path="C:/Users/jovi/GoodudeWorkspace/Goodcus/libs/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jovi/GoodudeWorkspace/Goodcus/libs/nineoldandroids-2.4.0.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

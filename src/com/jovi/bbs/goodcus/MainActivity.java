@@ -15,6 +15,7 @@ import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
 import android.widget.Toast;
 
+@SuppressWarnings("deprecation")
 public class MainActivity extends TabActivity
 {
 

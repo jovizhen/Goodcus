@@ -208,13 +208,24 @@ public class GooglePlaceFilter
 	{
 		this.pagetoken = pagetoken;
 		Param param = searchParamByName("pagetoken");
-		if(param == null)
+		if (pagetoken != null)
 		{
-			paramList.add(Param.name("pagetoken").value(pagetoken));
+			if(param == null)
+			{
+				paramList.add(Param.name("pagetoken").value(pagetoken));
+			}
+			else
+			{
+				param.setValue(pagetoken);
+			}
 		}
 		else
 		{
-			param.setValue(pagetoken);
+			if(param!=null)
+			{
+				paramList.remove(param);
+			}
+			
 		}
 		return this;
 	}

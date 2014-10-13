@@ -3,99 +3,54 @@ package com.jovi.bbs.goodcus.fragment;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
-import com.android.volley.Request.Method;
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.google.gson.Gson;
 import com.jovi.bbs.goodcus.R;
-import com.jovi.bbs.goodcus.model.ReviewRecord;
-import com.jovi.bbs.goodcus.model.ReviewRecordListResponse;
-import com.jovi.bbs.goodcus.util.HttpUtil;
+import com.jovi.bbs.goodcus.net.googlePlacesApi.CustomGooglePlaces;
+import com.jovi.bbs.goodcus.net.googlePlacesApi.Place;
+import com.jovi.bbs.goodcus.net.googlePlacesApi.Review;
+import com.jovi.bbs.goodcus.util.GoogleImageLoader;
 import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
+import com.jovi.bbs.goodcus.widgets.RefreshActionBtn;
 import com.jovi.bbs.goodcus.widgets.XListView;
 import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Fragment;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 public class ReviewListFragment extends Fragment implements IXListViewListener
 {
 	protected static final String TAG = "bussiness_review_page";
-	ShowCommentAdapter m_adapter;
+	private String placeId;
+	
 	private ProgressBar m_pBar;
 	private XListView m_listView;
-	private int m_currentPage = 1;
-	private RequestQueue requestQueue;
-	private String business_id;
-	EditText replyTextView;
-	private ArrayList<ReviewRecord> m_model = new ArrayList<ReviewRecord>();
-	private ArrayList<ReviewRecord> dummy_model = new ArrayList<ReviewRecord>();
-	TextView messageBoard;
-	
-	@SuppressLint("HandlerLeak") private Handler m_handler = new Handler()
-	{
-		public void handleMessage(Message msg) 
-		{
-			if(msg.what==-1)
-			{
-				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-				builder.setMessage("网络连接超时，请稍候再试");
-				builder.setPositiveButton("确定", null);
-				builder.create().show();
-			}
-			else if(msg.what == 0)
-			{
-				if(m_model.size()==0)
-				{
-					messageBoard.setText("暂无评论");
-				}
-				
-				else
-				{
-					messageBoard.setVisibility(View.GONE);
-					notifyModelDataChanged();
-				}
 
-				if (m_listView.getPullLoading())
-				{
-					// 加载到最后一页时禁用pull load
-					m_listView.stopLoadMore();
-				}
-
-				if (m_listView.getPullRefreshing())
-				{
-					m_listView.stopRefresh();
-				}
-				
-			}
-			
-			m_pBar.setVisibility(View.GONE);
-
-		}
-	};
-	
+	private ArrayList<Review> m_model = new ArrayList<Review>();
+	private ShowCommentAdapter m_adapter;
+	public CustomGooglePlaces googlePalcesClient;
 	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+	{
+		View view = initView(inflater, container);
+		configure();
+		loadModel();
+		return view;
+	}
+	
+	private View initView(LayoutInflater inflater, ViewGroup container)
 	{
 		View view = inflater.inflate(R.layout.fragment_review_list, container, false);
 		m_listView = (XListView) view.findViewById(R.id.review_list);
@@ -104,69 +59,41 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 		m_listView.setXListViewListener(this);
 		m_adapter = new ShowCommentAdapter();
 		m_listView.setAdapter(m_adapter);
+		RefreshActionBtn btn = (RefreshActionBtn) view.findViewById(R.id.reviewDisplayRefreshBtn);
+		btn.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				onRefresh();
+			}
+		});
 		m_pBar = (ProgressBar) view.findViewById(R.id.reviewDisplayProgressBar);
-		business_id =getArguments().getString("place_id");  
-		requestQueue = HttpUtil.getInstance().getRequestQueue();
-		
-		try
-		{
-			loadModel(m_currentPage++);
-		}
-		catch (JSONException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return view;
 	}
 	
-	private void loadModel(final int page) throws JSONException
+	private void configure()
 	{
-		dummy_model.clear();
-		ReviewRecord record = new ReviewRecord();
-		record.setBusinessId(business_id);
-		Gson gson =new Gson();
-		String jsonString = gson.toJson(record);
-		JSONObject j = new JSONObject(jsonString);
-
-		JsonObjectRequest jr = new JsonObjectRequest(Method.POST, "http://24.24.219.46:8888/queryReview", j, new Listener<JSONObject>()
-		{
-			@Override
-			public void onResponse(JSONObject json)
-			{
-				Gson gson = new Gson();
-				ReviewRecordListResponse response = gson.fromJson(json.toString(), ReviewRecordListResponse.class);
-				if (response.getRecordList() != null)
-				{
-					dummy_model.addAll(response.getRecordList());
-				}
-				m_handler.sendEmptyMessage(0);
-				
-			}
-		}, new ErrorListener()
-		{
-			@Override
-			public void onErrorResponse(VolleyError error)
-			{
-				Log.d(TAG, error.toString());
-				if(error instanceof TimeoutError)
-				{
-					m_handler.sendEmptyMessage(-1);
-				}
-			}
-		});
-		requestQueue.add(jr);
+		googlePalcesClient = new CustomGooglePlaces();
+		placeId = getArguments().getString("place_id");
 	}
 	
-	public void notifyModelDataChanged()
+	private void loadModel() 
 	{
-		m_model.addAll(dummy_model);
-		m_adapter.notifyDataSetChanged();
+		try
+		{
+			m_model.clear();
+			PlaceDetailTask detailTask = new PlaceDetailTask();
+			detailTask.execute("");
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	private class ShowCommentAdapter extends BaseAdapter
 	{
-
 		@Override
 		public int getCount()
 		{
@@ -196,30 +123,22 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 			TextView username = (TextView) convertView.findViewById(R.id.showthreadUsername);
 			TextView floorNum = (TextView) convertView.findViewById(R.id.showThreadFloorNum);
 			floorNum.setText((position + 1) + "#");
+			RatingBar ratingbar = (RatingBar) convertView.findViewById(R.id.authorRating);
 			TextView posttime = (TextView) convertView.findViewById(R.id.showthreadPosttime);
 			final TextView msg = (TextView) convertView.findViewById(R.id.showthreadMsg);
 			ImageViewWithCache img = (ImageViewWithCache) convertView.findViewById(R.id.showthreadHeadImg);
 
-			final ReviewRecord record = m_model.get(position);
-			username.setText(record.getUser().getDisplayName());
-			posttime.setText("not imp");
-			if (record.getUser().getImgUrl() != null)
+			final Review record = m_model.get(position);
+			username.setText(record.getAuthor());
+			ratingbar.setRating(record.getRating());
+			Date date  = new Date(record.getTime()*1000); 
+			posttime.setText(date.toString());
+			if (record.getAuthorUrl() != null)
 			{
-				try
-				{
-					img.setImageUrl(new URL(record.getUser().getImgUrl()));
-				}
-				catch (MalformedURLException e)
-				{
-					e.printStackTrace();
-				}
+				ImageUrlLoadTask urlLoadTask = new ImageUrlLoadTask(record.getAuthorUrl(), img);
+				urlLoadTask.execute();
 			} 
-			else
-			{
-				img.setImageResource(R.drawable.default_user_head_img);
-			}
-			msg.setText(record.getReview());
-
+			msg.setText(record.getText());
 			return convertView;
 		}
 	}
@@ -227,15 +146,84 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 	@Override
 	public void onRefresh()
 	{
-		// TODO Auto-generated method stub
-		
+		loadModel();
 	}
 
 	@Override
 	public void onLoadMore()
 	{
-		// TODO Auto-generated method stub
+	}
+	
+	class ImageUrlLoadTask extends AsyncTask<String, Void, String>
+	{
+
+		ImageViewWithCache imageView;
+		String queryUrl;
+		public ImageUrlLoadTask(String queryUrl, ImageViewWithCache imageView)
+		{
+			this.queryUrl = queryUrl;
+			this.imageView = imageView;
+		}
+		@Override
+		protected String doInBackground(String... params)
+		{
+			String imgUrl = "";
+			try
+			{
+				String peopleId = queryUrl.trim().replace("https://plus.google.com/", "").trim();
+				String url = String.format("%s/%s?fields=image&key=%s", "https://www.googleapis.com/plus/v1/people", peopleId, 
+						"AIzaSyAdxpP8KZZnmJgDC_gKOFIpI5od_AZmDfw");
+				String rawJson = com.jovi.bbs.goodcus.net.googlePlacesApi.HttpUtil.
+						get(GoogleImageLoader.CLIENT, url);
+				JSONObject json = new JSONObject(rawJson);
+				JSONObject result = json.getJSONObject("image");
+				imgUrl = result.getString("url");
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			return imgUrl;
+		}
 		
+		protected void onPostExecute(String url)
+		{
+			if(url!=null)
+			{
+				try
+				{
+					imageView.setImageUrl(new URL(url));
+				}
+				catch (MalformedURLException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	class PlaceDetailTask extends AsyncTask<String, Void, List<Review>>
+	{
+		@Override
+		protected List<Review> doInBackground(String... arg0)
+		{
+			Place place = googlePalcesClient.getPlace(placeId);
+			return place.getReviews();
+		}
+		
+		protected void onPostExecute(List<Review> result)
+		{
+			if(result.size()!=0)
+			{
+				m_model.addAll(result);
+				m_adapter.notifyDataSetChanged();
+			}
+			if(m_listView.getPullRefreshing())
+			{
+				m_listView.stopRefresh();
+			}
+			m_pBar.setVisibility(View.GONE);
+		}
 	}
 	
 }

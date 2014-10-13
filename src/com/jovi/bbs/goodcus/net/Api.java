@@ -19,7 +19,7 @@ import com.google.android.gms.plus.PlusClient;
 import com.google.android.gms.plus.PlusClient.Builder;
 import com.jovi.bbs.goodcus.App;
 
-public class Api  implements ConnectionCallbacks, OnConnectionFailedListener, DisconnectCallbacks
+public class Api implements ConnectionCallbacks, OnConnectionFailedListener, DisconnectCallbacks
 {
 	private static final int INVALID_REQUEST_CODE = -1;
 	private PlusClient googlePlusClient;
@@ -28,15 +28,16 @@ public class Api  implements ConnectionCallbacks, OnConnectionFailedListener, Di
 	int mRequestCode;
 	private boolean isConnecting = false;
 	private ProgressDialog pd = null;
-	
+
 	public void setActivity(Activity activity)
 	{
 		mActivity = activity;
 		Builder clientBuilder = new PlusClient.Builder(mActivity, this, this);
-		clientBuilder.setScopes(new String[]{Scopes.PLUS_PROFILE});
+		clientBuilder.setScopes(new String[]
+		{ Scopes.PLUS_PROFILE });
 		googlePlusClient = clientBuilder.build();
 	}
-	
+
 	public PlusClient getGooglePlusClient()
 	{
 		return googlePlusClient;
@@ -49,22 +50,20 @@ public class Api  implements ConnectionCallbacks, OnConnectionFailedListener, Di
 		mLastConnectionResult = result;
 		mRequestCode = result.getErrorCode();
 
-        // On a failed connection try again.
-        if (mRequestCode != INVALID_REQUEST_CODE) 
-        {
-            resolveLastResult();
-        } 
-        else 
-        {
-        	Toast.makeText(mActivity, "Invalid request",
-					Toast.LENGTH_SHORT).show();
-        }
-        pd.dismiss();
-        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+		// On a failed connection try again.
+		if (mRequestCode != INVALID_REQUEST_CODE)
+		{
+			resolveLastResult();
+		} else
+		{
+			Toast.makeText(mActivity, "Invalid request", Toast.LENGTH_SHORT).show();
+		}
+		pd.dismiss();
+		AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
 		builder.setMessage("登陆失败， 再试一次？");
 		builder.setPositiveButton("确定", new OnClickListener()
 		{
-			
+
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
@@ -93,20 +92,22 @@ public class Api  implements ConnectionCallbacks, OnConnectionFailedListener, Di
 		intent.putExtras(data);
 		mActivity.sendBroadcast(intent);
 	}
-	
-	private void startResolution() {
-        try 
-        {
-            mLastConnectionResult.startResolutionForResult(mActivity, mRequestCode);
-        } 
-        catch (SendIntentException e)
-        {
-            // The intent we had is not valid right now, perhaps the remote process died.
-            // Try to reconnect to get a new resolution intent.
-            mLastConnectionResult = null;
-            googlePlusClient.connect();
-        }
-    }
+
+	private void startResolution()
+	{
+		try
+		{
+			mLastConnectionResult.startResolutionForResult(mActivity, mRequestCode);
+		}
+		catch (SendIntentException e)
+		{
+			// The intent we had is not valid right now, perhaps the remote
+			// process died.
+			// Try to reconnect to get a new resolution intent.
+			mLastConnectionResult = null;
+			googlePlusClient.connect();
+		}
+	}
 
 	@Override
 	public void onConnected(Bundle connectionHint)
@@ -117,7 +118,7 @@ public class Api  implements ConnectionCallbacks, OnConnectionFailedListener, Di
 		data.putBoolean("isConnecting", isConnecting);
 		intent.putExtras(data);
 		mActivity.sendBroadcast(intent);
-		if(pd != null)
+		if (pd != null)
 		{
 			pd.dismiss();
 		}
@@ -128,18 +129,18 @@ public class Api  implements ConnectionCallbacks, OnConnectionFailedListener, Di
 		pd = ProgressDialog.show(mActivity, null, "登录中，请稍后……", true, true);
 		googlePlusClient.connect();
 	}
-	
+
 	public void disconnectFromGooglePlus()
 	{
 		pd = ProgressDialog.show(mActivity, null, "登出中，请稍后……", true, true);
 		googlePlusClient.disconnect();
 		onServiceDisconnected();
 	}
-	
+
 	@Override
 	public void onDisconnected()
 	{
-		
+
 	}
 
 	@Override
@@ -153,7 +154,7 @@ public class Api  implements ConnectionCallbacks, OnConnectionFailedListener, Di
 		mActivity.sendBroadcast(intent);
 		pd.dismiss();
 	}
-	
+
 	private static Api instance;
 
 	public static Api getInstance()

@@ -47,7 +47,7 @@ public final class HttpUtil {
 	 * @return string response
 	 * @throws IOException
 	 */
-	protected static String get(HttpClient client, String uri) throws IOException {
+	public static String get(HttpClient client, String uri) throws IOException {
 		try {
 			return get(client, new HttpGet(uri));
 		} catch (Exception e) {

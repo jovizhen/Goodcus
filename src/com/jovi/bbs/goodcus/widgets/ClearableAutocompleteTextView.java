@@ -131,7 +131,7 @@ public class ClearableAutocompleteTextView extends AutoCompleteTextView
 
 	public void hideClearButton()
 	{
-		this.setCompoundDrawables(null, null, null, null);
+		this.setCompoundDrawables(imgSearchIcon, null, null, null);
 	}
 
 	public void showClearButton()

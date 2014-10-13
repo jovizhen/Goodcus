@@ -17,7 +17,8 @@ import static com.jovi.bbs.goodcus.net.googlePlacesApi.GooglePlaces.*;
 /**
  * Represents a place returned by Google Places API_
  */
-public class Place {
+public class Place
+{
 	private GooglePlaces client;
 	private String id;
 	private String placeId;
@@ -44,55 +45,63 @@ public class Place {
 	private int accuracy;
 	private String lang;
 
-	protected Place() {
+	public Place()
+	{
 	}
 
 	/**
-	 * Sets the {@link se.walkercrou.places.GooglePlaces} client associated with this Place object.
-	 *
-	 * @param client to set
+	 * Sets the {@link se.walkercrou.places.GooglePlaces} client associated with
+	 * this Place object.
+	 * 
+	 * @param client
+	 *            to set
 	 * @return this
 	 */
-	protected Place setClient(GooglePlaces client) {
+	protected Place setClient(GooglePlaces client)
+	{
 		this.client = client;
 		return this;
 	}
 
 	/**
 	 * Returns the client associated with this Place object.
-	 *
+	 * 
 	 * @return client
 	 */
-	public GooglePlaces getClient() {
+	public GooglePlaces getClient()
+	{
 		return client;
 	}
 
 	/**
 	 * Sets the unique id associated with this place.
-	 *
-	 * @param id id
+	 * 
+	 * @param id
+	 *            id
 	 * @return this
 	 */
-	protected Place setId(String id) {
+	protected Place setId(String id)
+	{
 		this.id = id;
 		return this;
 	}
 
 	/**
 	 * Returns the id associated with this place.
-	 *
+	 * 
 	 * @return id
 	 */
-	public String getId() {
+	public String getId()
+	{
 		return id;
 	}
-	
-	protected Place setPlaceId(String placeId)
+
+	public Place setPlaceId(String placeId)
 	{
 		this.placeId = placeId;
 		return this;
 	}
-	
+
 	public String getPlaceId()
 	{
 		return placeId;
@@ -100,717 +109,832 @@ public class Place {
 
 	/**
 	 * Returns the latitude of the place.
-	 *
+	 * 
 	 * @return place latitude
 	 */
-	public double getLatitude() {
+	public double getLatitude()
+	{
 		return lat;
 	}
 
 	/**
 	 * Sets the latitude of the place.
-	 *
-	 * @param lat latitude
+	 * 
+	 * @param lat
+	 *            latitude
 	 * @return this
 	 */
-	protected Place setLatitude(double lat) {
+	public Place setLatitude(double lat)
+	{
 		this.lat = lat;
 		return this;
 	}
 
 	/**
 	 * Returns the longitude of this place.
-	 *
+	 * 
 	 * @return longitude
 	 */
-	public double getLongitude() {
+	public double getLongitude()
+	{
 		return lng;
 	}
 
 	/**
 	 * Sets the longitude of this place.
-	 *
-	 * @param lon longitude
+	 * 
+	 * @param lon
+	 *            longitude
 	 * @return this
 	 */
-	protected Place setLongitude(double lon) {
+	public Place setLongitude(double lon)
+	{
 		this.lng = lon;
 		return this;
 	}
 
 	/**
 	 * Returns the amount of seconds this place is off from the UTC timezone.
-	 *
+	 * 
 	 * @return seconds from timezone
 	 */
-	public int getUtcOffset() {
+	public int getUtcOffset()
+	{
 		return utcOffset;
 	}
 
 	/**
 	 * Sets the amount of seconds this place is off from the UTC timezone.
-	 *
-	 * @param utcOffset in seconds
+	 * 
+	 * @param utcOffset
+	 *            in seconds
 	 * @return this
 	 */
-	protected Place setUtcOffset(int utcOffset) {
+	protected Place setUtcOffset(int utcOffset)
+	{
 		this.utcOffset = utcOffset;
 		return this;
 	}
 
 	/**
 	 * Returns the {@link se.walkercrou.places.Hours} for this place.
-	 *
+	 * 
 	 * @return hours of operation
 	 */
-	public Hours getHours() {
+	public Hours getHours()
+	{
 		return hours;
 	}
 
 	/**
 	 * Sets the {@link se.walkercrou.places.Hours} of this place.
-	 *
-	 * @param hours of operation
+	 * 
+	 * @param hours
+	 *            of operation
 	 * @return this
 	 */
-	protected Place setHours(Hours hours) {
+	protected Place setHours(Hours hours)
+	{
 		this.hours = hours;
 		return this;
 	}
 
 	/**
 	 * Returns true if this place is always opened.
-	 *
+	 * 
 	 * @return true if always opened
 	 */
-	public boolean isAlwaysOpened() {
+	public boolean isAlwaysOpened()
+	{
 		return hours.isAlwaysOpened();
 	}
 
 	/**
 	 * Returns this Place's phone number.
-	 *
+	 * 
 	 * @return number
 	 */
-	public String getPhoneNumber() {
+	public String getPhoneNumber()
+	{
 		return phone;
 	}
 
 	/**
 	 * Sets this Place's phone number.
-	 *
-	 * @param phone number
+	 * 
+	 * @param phone
+	 *            number
 	 * @return this
 	 */
-	protected Place setPhoneNumber(String phone) {
+	protected Place setPhoneNumber(String phone)
+	{
 		this.phone = phone;
 		return this;
 	}
 
 	/**
 	 * Returns the place's phone number with a country code.
-	 *
+	 * 
 	 * @return phone number
 	 */
-	public String getInternationalPhoneNumber() {
+	public String getInternationalPhoneNumber()
+	{
 		return internationalPhone;
 	}
 
 	/**
 	 * Sets the phone number with an international country code.
-	 *
-	 * @param internationalPhone phone number
+	 * 
+	 * @param internationalPhone
+	 *            phone number
 	 * @return this
 	 */
-	protected Place setInternationalPhoneNumber(String internationalPhone) {
+	protected Place setInternationalPhoneNumber(String internationalPhone)
+	{
 		this.internationalPhone = internationalPhone;
 		return this;
 	}
 
 	/**
 	 * Returns the Google PLus page for this place.
-	 *
+	 * 
 	 * @return plus page
 	 */
-	public String getGoogleUrl() {
+	public String getGoogleUrl()
+	{
 		return googleUrl;
 	}
 
 	/**
 	 * Sets the Google Plus page for this place.
-	 *
-	 * @param googleUrl google plus page
+	 * 
+	 * @param googleUrl
+	 *            google plus page
 	 * @return this
 	 */
-	protected Place setGoogleUrl(String googleUrl) {
+	protected Place setGoogleUrl(String googleUrl)
+	{
 		this.googleUrl = googleUrl;
 		return this;
 	}
 
 	/**
 	 * Returns the website of this place.
-	 *
+	 * 
 	 * @return website
 	 */
-	public String getWebsite() {
+	public String getWebsite()
+	{
 		return website;
 	}
 
 	/**
 	 * Sets the website url associated with this place.
-	 *
-	 * @param website of place
+	 * 
+	 * @param website
+	 *            of place
 	 * @return this
 	 */
-	protected Place setWebsite(String website) {
+	protected Place setWebsite(String website)
+	{
 		this.website = website;
 		return this;
 	}
 
 	/**
-	 * Sets the "vicinity" the place is in. This is sometimes a substitute for address.
-	 *
-	 * @param vicinity of place
+	 * Sets the "vicinity" the place is in. This is sometimes a substitute for
+	 * address.
+	 * 
+	 * @param vicinity
+	 *            of place
 	 * @return this
 	 */
-	protected Place setVicinity(String vicinity) {
+	public Place setVicinity(String vicinity)
+	{
 		this.vicinity = vicinity;
 		return this;
 	}
 
 	/**
-	 * Returns the "vicinity" the place is in. This is sometimes a substitute for address.
-	 *
+	 * Returns the "vicinity" the place is in. This is sometimes a substitute
+	 * for address.
+	 * 
 	 * @return vicinity
 	 */
-	public String getVicinity() {
+	public String getVicinity()
+	{
 		return vicinity;
 	}
 
 	/**
 	 * Sets the url of the icon to represent this place.
-	 *
-	 * @param iconUrl to represent place.
+	 * 
+	 * @param iconUrl
+	 *            to represent place.
 	 * @return this
 	 */
-	protected Place setIconUrl(String iconUrl) {
+	protected Place setIconUrl(String iconUrl)
+	{
 		this.iconUrl = iconUrl;
 		return this;
 	}
 
 	/**
 	 * Returns the url of the icon to represent this place.
-	 *
+	 * 
 	 * @return icon to represent
 	 */
-	public String getIconUrl() {
+	public String getIconUrl()
+	{
 		return iconUrl;
 	}
 
 	/**
 	 * Downloads the icon to this place.
-	 *
+	 * 
 	 * @return this
 	 */
-	public Place downloadIcon() {
+	public Place downloadIcon()
+	{
 		icon = client.download(iconUrl);
 		return this;
 	}
 
 	/**
-	 * Returns the input stream of this place. {@link #downloadIcon()} must be called previous to call this.
-	 *
+	 * Returns the input stream of this place. {@link #downloadIcon()} must be
+	 * called previous to call this.
+	 * 
 	 * @return input stream
 	 */
-	public InputStream getIconInputStream() {
+	public InputStream getIconInputStream()
+	{
 		return icon;
 	}
 
-
 	/**
 	 * Sets the name of this place.
-	 *
-	 * @param name of place
+	 * 
+	 * @param name
+	 *            of place
 	 * @return this
 	 */
-	protected Place setName(String name) {
+	public Place setName(String name)
+	{
 		this.name = name;
 		return this;
 	}
 
 	/**
 	 * Returns the name of this place.
-	 *
+	 * 
 	 * @return name of place
 	 */
-	public String getName() {
+	public String getName()
+	{
 		return name;
 	}
 
 	/**
 	 * Returns the address of this place.
-	 *
+	 * 
 	 * @return address of this place
 	 */
-	public String getAddress() {
+	public String getAddress()
+	{
 		return addr;
 	}
 
 	/**
 	 * Sets the address of this place.
-	 *
-	 * @param addr address
+	 * 
+	 * @param addr
+	 *            address
 	 * @return this
 	 */
-	protected Place setAddress(String addr) {
+	protected Place setAddress(String addr)
+	{
 		this.addr = addr;
 		return this;
 	}
 
 	/**
 	 * Adds a collection of address components to this place.
-	 *
-	 * @param c components to add
+	 * 
+	 * @param c
+	 *            components to add
 	 * @return this
 	 */
-	protected Place addAddressComponents(Collection<AddressComponent> c) {
+	protected Place addAddressComponents(Collection<AddressComponent> c)
+	{
 		this.addressComponents.addAll(c);
 		return this;
 	}
 
 	/**
 	 * Adds an address component to this place.
-	 *
-	 * @param c component to add
+	 * 
+	 * @param c
+	 *            component to add
 	 * @return this
 	 */
-	protected Place addAddressComponent(AddressComponent c) {
+	protected Place addAddressComponent(AddressComponent c)
+	{
 		addressComponents.add(c);
 		return this;
 	}
 
 	/**
 	 * Removes the specified address components.
-	 *
-	 * @param c component to remove
+	 * 
+	 * @param c
+	 *            component to remove
 	 * @return this
 	 */
-	protected Place removeAddressComponent(AddressComponent c) {
+	protected Place removeAddressComponent(AddressComponent c)
+	{
 		addressComponents.remove(c);
 		return this;
 	}
 
 	/**
 	 * Clears the address components for this place.
-	 *
+	 * 
 	 * @return this
 	 */
-	protected Place clearAddressComponent() {
+	protected Place clearAddressComponent()
+	{
 		addressComponents.clear();
 		return this;
 	}
 
 	/**
 	 * Returns the address components for this place.
-	 *
+	 * 
 	 * @return address components
 	 */
-	public List<AddressComponent> getAddressComponents() {
+	public List<AddressComponent> getAddressComponents()
+	{
 		return Collections.unmodifiableList(addressComponents);
 	}
 
 	/**
 	 * Adds a collection of photos to this place.
-	 *
-	 * @param photos to add
+	 * 
+	 * @param photos
+	 *            to add
 	 * @return this
 	 */
-	protected Place addPhotos(Collection<Photo> photos) {
+	protected Place addPhotos(Collection<Photo> photos)
+	{
 		this.photos.addAll(photos);
 		return this;
 	}
 
 	/**
 	 * Adds a photo.
-	 *
-	 * @param photo to add
+	 * 
+	 * @param photo
+	 *            to add
 	 * @return this
 	 */
-	protected Place addPhoto(Photo photo) {
+	protected Place addPhoto(Photo photo)
+	{
 		photos.add(photo);
 		return this;
 	}
 
 	/**
 	 * Removes the specified photo.
-	 *
-	 * @param photo to remove
+	 * 
+	 * @param photo
+	 *            to remove
 	 * @return this
 	 */
-	protected Place removePhoto(Photo photo) {
+	protected Place removePhoto(Photo photo)
+	{
 		photos.remove(photo);
 		return this;
 	}
 
 	/**
 	 * Clears all photos for this place.
-	 *
+	 * 
 	 * @return this
 	 */
-	protected Place clearPhotos() {
+	protected Place clearPhotos()
+	{
 		photos.clear();
 		return this;
 	}
 
 	/**
 	 * Returns the photo references for this place.
-	 *
+	 * 
 	 * @return photos
 	 */
-	public List<Photo> getPhotos() {
+	public List<Photo> getPhotos()
+	{
 		return Collections.unmodifiableList(photos);
 	}
 
 	/**
 	 * Adds a collection of reviews to this place.
-	 *
-	 * @param reviews to add
+	 * 
+	 * @param reviews
+	 *            to add
 	 * @return this
 	 */
-	protected Place addReviews(Collection<Review> reviews) {
+	protected Place addReviews(Collection<Review> reviews)
+	{
 		this.reviews.addAll(reviews);
 		return this;
 	}
 
 	/**
 	 * Adds a review to this place.
-	 *
-	 * @param review to add
+	 * 
+	 * @param review
+	 *            to add
 	 * @return this
 	 */
-	protected Place addReview(Review review) {
+	protected Place addReview(Review review)
+	{
 		reviews.add(review);
 		return this;
 	}
 
 	/**
 	 * Removes the specified review.
-	 *
-	 * @param review to remove
+	 * 
+	 * @param review
+	 *            to remove
 	 * @return this
 	 */
-	protected Place removeReview(Review review) {
+	protected Place removeReview(Review review)
+	{
 		reviews.remove(review);
 		return this;
 	}
 
 	/**
 	 * Clears this place's reviews.
-	 *
+	 * 
 	 * @return this
 	 */
-	protected Place clearReviews() {
+	protected Place clearReviews()
+	{
 		reviews.clear();
 		return this;
 	}
 
 	/**
 	 * Returns this place's reviews in an unmodifiable list.
-	 *
+	 * 
 	 * @return reviews
 	 */
-	public List<Review> getReviews() {
+	public List<Review> getReviews()
+	{
 		return Collections.unmodifiableList(reviews);
 	}
 
 	/**
-	 * Adds a collection of events to this place. This does not send a Event add request to the Google Places API.
-	 *
-	 * @param events to add
+	 * Adds a collection of events to this place. This does not send a Event add
+	 * request to the Google Places API.
+	 * 
+	 * @param events
+	 *            to add
 	 * @return this
 	 */
-	protected Place addEvents(Collection<Event> events) {
+	protected Place addEvents(Collection<Event> events)
+	{
 		this.events.addAll(events);
 		return this;
 	}
 
 	/**
-	 * Adds an event to this place. This does not send a Event add request to the Google Places API.
-	 *
-	 * @param event to add
+	 * Adds an event to this place. This does not send a Event add request to
+	 * the Google Places API.
+	 * 
+	 * @param event
+	 *            to add
 	 * @return this
 	 */
-	protected Place addEvent(Event event) {
+	protected Place addEvent(Event event)
+	{
 		events.add(event);
 		return this;
 	}
 
 	/**
 	 * Returns the events of this place in an unmodifiable list.
-	 *
+	 * 
 	 * @return unmodifiable list of events
 	 */
-	public List<Event> getEvents() {
+	public List<Event> getEvents()
+	{
 		return Collections.unmodifiableList(events);
 	}
 
 	/**
-	 * Removes the specified event from the place. This does not send a Event deletion request to Google Places API.
-	 *
-	 * @param event to remove
+	 * Removes the specified event from the place. This does not send a Event
+	 * deletion request to Google Places API.
+	 * 
+	 * @param event
+	 *            to remove
 	 * @return this
 	 */
-	protected Place removeEvent(Event event) {
+	protected Place removeEvent(Event event)
+	{
 		events.remove(event);
 		return this;
 	}
 
 	/**
-	 * Clears all events in this place. This does not send a Event deletion request to Google Places API.
-	 *
+	 * Clears all events in this place. This does not send a Event deletion
+	 * request to Google Places API.
+	 * 
 	 * @return this
 	 */
-	protected Place clearEvents() {
+	protected Place clearEvents()
+	{
 		events.clear();
 		return this;
 	}
 
 	/**
 	 * Adds a collection of string "types".
-	 *
-	 * @param types to add
+	 * 
+	 * @param types
+	 *            to add
 	 * @return this
 	 */
-	protected Place addTypes(Collection<String> types) {
+	protected Place addTypes(Collection<String> types)
+	{
 		this.types.addAll(types);
 		return this;
 	}
 
 	/**
 	 * Adds a new type to this place.
-	 *
-	 * @param type to add
+	 * 
+	 * @param type
+	 *            to add
 	 * @return this
 	 */
-	protected Place addType(String type) {
+	protected Place addType(String type)
+	{
 		types.add(type);
 		return this;
 	}
 
 	/**
 	 * Returns all of this place's types in an unmodifiable list.
-	 *
+	 * 
 	 * @return types
 	 */
-	public List<String> getTypes() {
+	public List<String> getTypes()
+	{
 		return Collections.unmodifiableList(types);
 	}
 
 	/**
 	 * Removes a type from this place.
-	 *
-	 * @param type to remove
+	 * 
+	 * @param type
+	 *            to remove
 	 * @return this
 	 */
-	protected Place removeType(String type) {
+	protected Place removeType(String type)
+	{
 		types.remove(type);
 		return this;
 	}
 
 	/**
 	 * Clears all types from this place.
-	 *
+	 * 
 	 * @return this
 	 */
-	protected Place clearTypes() {
+	protected Place clearTypes()
+	{
 		types.clear();
 		return this;
 	}
 
 	/**
 	 * Returns the rating of this place.
-	 *
+	 * 
 	 * @return rating
 	 */
-	public double getRating() {
+	public double getRating()
+	{
 		return rating;
 	}
 
 	/**
 	 * Sets the rating of this place.
-	 *
-	 * @param rating of place
+	 * 
+	 * @param rating
+	 *            of place
 	 * @return this
 	 */
-	protected Place setRating(double rating) {
+	public Place setRating(double rating)
+	{
 		this.rating = rating;
 		return this;
 	}
 
 	/**
 	 * Returns the {@link se.walkercrou.places.Status} of this place.
-	 *
+	 * 
 	 * @return status
 	 */
-	public Status getStatus() {
+	public Status getStatus()
+	{
 		return status;
 	}
 
 	/**
 	 * Sets the {@link se.walkercrou.places.Status} of this place.
-	 *
-	 * @param status to set
+	 * 
+	 * @param status
+	 *            to set
 	 * @return this
 	 */
-	protected Place setStatus(Status status) {
+	protected Place setStatus(Status status)
+	{
 		this.status = status;
 		return this;
 	}
 
 	/**
 	 * Returns the {@link se.walkercrou.places.Price} of this place.
-	 *
+	 * 
 	 * @return price
 	 */
-	public Price getPrice() {
+	public Price getPrice()
+	{
 		return price;
 	}
 
 	/**
 	 * Sets the {@link se.walkercrou.places.Price} of this place.
-	 *
-	 * @param price to set
+	 * 
+	 * @param price
+	 *            to set
 	 * @return this
 	 */
-	protected Place setPrice(Price price) {
+	protected Place setPrice(Price price)
+	{
 		this.price = price;
 		return this;
 	}
 
 	/**
 	 * Returns the reference id, used for getting more details about this place.
-	 *
+	 * 
 	 * @return reference id
 	 */
-	public String getReferenceId() {
+	public String getReferenceId()
+	{
 		return referenceId;
 	}
 
 	/**
 	 * Returns the reference id to find more details about this place.
-	 *
-	 * @param referenceId to get details from
+	 * 
+	 * @param referenceId
+	 *            to get details from
 	 * @return this
 	 */
-	protected Place setReferenceId(String referenceId) {
+	protected Place setReferenceId(String referenceId)
+	{
 		this.referenceId = referenceId;
 		return this;
 	}
 
 	/**
 	 * Sets the JSON representation of this Place.
-	 *
-	 * @param json representation
+	 * 
+	 * @param json
+	 *            representation
 	 * @return this
 	 */
-	protected Place setJson(JSONObject json) {
+	protected Place setJson(JSONObject json)
+	{
 		this.json = json;
 		return this;
 	}
 
 	/**
-	 * Returns the JSON representation of this place. This does not build a JSON object, it only returns the JSON
-	 * that was given in the initial response from the server.
-	 *
+	 * Returns the JSON representation of this place. This does not build a JSON
+	 * object, it only returns the JSON that was given in the initial response
+	 * from the server.
+	 * 
 	 * @return the json representation
 	 */
-	public JSONObject getJson() {
+	public JSONObject getJson()
+	{
 		return json;
 	}
 
 	/**
 	 * Sets the accuracy of the location, expressed in meters.
-	 *
-	 * @param accuracy of location
+	 * 
+	 * @param accuracy
+	 *            of location
 	 * @return this
 	 */
-	protected Place setAccuracy(int accuracy) {
+	protected Place setAccuracy(int accuracy)
+	{
 		this.accuracy = accuracy;
 		return this;
 	}
 
 	/**
 	 * Returns the accuracy of the location, expressed in meters.
-	 *
+	 * 
 	 * @return accuracy of location
 	 */
-	public int getAccuracy() {
+	public int getAccuracy()
+	{
 		return accuracy;
 	}
 
 	/**
 	 * Sets the language of the location.
-	 *
-	 * @param lang place language
+	 * 
+	 * @param lang
+	 *            place language
 	 * @return this
 	 */
-	protected Place setLanguage(String lang) {
+	protected Place setLanguage(String lang)
+	{
 		this.lang = lang;
 		return this;
 	}
 
 	/**
 	 * Returns the language of the place.
-	 *
+	 * 
 	 * @return language
 	 */
-	public String getLanguage() {
+	public String getLanguage()
+	{
 		return lang;
 	}
 
 	/**
-	 * Bumps a place within the application. Bumps are reflected in your place searches for your application only.
-	 * Bumping a place makes it appear higher in the result set.
-	 *
-	 * @param extraParams to append to request url
+	 * Bumps a place within the application. Bumps are reflected in your place
+	 * searches for your application only. Bumping a place makes it appear
+	 * higher in the result set.
+	 * 
+	 * @param extraParams
+	 *            to append to request url
 	 */
-	public Place bump(Param... extraParams) {
+	public Place bump(Param... extraParams)
+	{
 		client.bumpPlace(this, extraParams);
 		return this;
 	}
 
 	/**
-	 * Returns an updated Place object with more details than the Place object returned in an initial query.
-	 *
-	 * @param params extra params to include in the request url
+	 * Returns an updated Place object with more details than the Place object
+	 * returned in an initial query.
+	 * 
+	 * @param params
+	 *            extra params to include in the request url
 	 * @return a new place with more details
 	 */
-	public Place getDetails(Param... params) {
+	public Place getDetails(Param... params)
+	{
 		return client.getPlace(referenceId, params);
 	}
 
 	/**
 	 * Creates a JSON object for POSTing new places to Google Places API.
-	 *
+	 * 
 	 * @return JSON object to represent place
-	 * @throws JSONException 
+	 * @throws JSONException
 	 */
-	public static JSONObject buildInput(double lat, double lng, int accuracy, String name, Collection<String> types,
-										String lang) throws JSONException {
-		return new JSONObject().put(OBJECT_LOCATION, new JSONObject().put("lat", lat).put("lng", lng))
-				.put(INTEGER_ACCURACY, accuracy).put(STRING_NAME, name).put(ARRAY_TYPES, new JSONArray(types))
-				.put(STRING_LANGUAGE, lang);
+	public static JSONObject buildInput(double lat, double lng, int accuracy, String name, Collection<String> types, String lang) throws JSONException
+	{
+		return new JSONObject().put(OBJECT_LOCATION, new JSONObject().put("lat", lat).put("lng", lng)).put(INTEGER_ACCURACY, accuracy).put(STRING_NAME, name)
+				.put(ARRAY_TYPES, new JSONArray(types)).put(STRING_LANGUAGE, lang);
 	}
 
 	/**
 	 * Parses a detailed Place object.
-	 *
-	 * @param client  api client
-	 * @param rawJson json to parse
+	 * 
+	 * @param client
+	 *            api client
+	 * @param rawJson
+	 *            json to parse
 	 * @return a detailed place
-	 * @throws JSONException 
+	 * @throws JSONException
 	 */
-	public static Place parseDetails(GooglePlaces client, String rawJson) throws JSONException {
+	public static Place parseDetails(GooglePlaces client, String rawJson) throws JSONException
+	{
 		JSONObject json = new JSONObject(rawJson);
 
 		JSONObject result = json.getJSONObject(OBJECT_RESULT);
@@ -832,7 +956,8 @@ public class Place {
 
 		// grab the price rank
 		Price price = Price.NONE;
-		if (result.has(INTEGER_PRICE_LEVEL)) {
+		if (result.has(INTEGER_PRICE_LEVEL))
+		{
 			price = Price.values()[result.getInt(INTEGER_PRICE_LEVEL)];
 		}
 
@@ -844,14 +969,17 @@ public class Place {
 		JSONObject hours = result.optJSONObject(OBJECT_HOURS);
 		Status status = Status.NONE;
 		Hours schedule = new Hours();
-		if (hours != null) {
+		if (hours != null)
+		{
 			boolean statusDefined = hours.has(BOOLEAN_OPENED);
 			status = statusDefined && hours.getBoolean(BOOLEAN_OPENED) ? Status.OPENED : Status.CLOSED;
 
 			// periods of operation
 			JSONArray jsonPeriods = hours.optJSONArray(ARRAY_PERIODS);
-			if (jsonPeriods != null) {
-				for (int i = 0; i < jsonPeriods.length(); i++) {
+			if (jsonPeriods != null)
+			{
+				for (int i = 0; i < jsonPeriods.length(); i++)
+				{
 					JSONObject jsonPeriod = jsonPeriods.getJSONObject(i);
 
 					// opening information (from)
@@ -861,7 +989,8 @@ public class Place {
 
 					// if this place is always open, break.
 					boolean alwaysOpened = openingDay == Day.SUNDAY && openingTime.equals("0000") && !jsonPeriod.has(OBJECT_CLOSE);
-					if (alwaysOpened) {
+					if (alwaysOpened)
+					{
 						schedule.setAlwaysOpened(true);
 						break;
 					}
@@ -872,8 +1001,8 @@ public class Place {
 					String closingTime = closes.getString(STRING_TIME);
 
 					// add the period to the hours
-					schedule.addPeriod(new Hours.Period().setOpeningDay(openingDay).setOpeningTime(openingTime)
-							.setClosingDay(closingDay).setClosingTime(closingTime));
+					schedule.addPeriod(new Hours.Period().setOpeningDay(openingDay).setOpeningTime(openingTime).setClosingDay(closingDay)
+							.setClosingTime(closingTime));
 				}
 			}
 		}
@@ -883,8 +1012,10 @@ public class Place {
 		// photos
 		JSONArray jsonPhotos = result.optJSONArray(ARRAY_PHOTOS);
 		List<Photo> photos = new ArrayList<Photo>();
-		if (jsonPhotos != null) {
-			for (int i = 0; i < jsonPhotos.length(); i++) {
+		if (jsonPhotos != null)
+		{
+			for (int i = 0; i < jsonPhotos.length(); i++)
+			{
 				JSONObject jsonPhoto = jsonPhotos.getJSONObject(i);
 				String photoReference = jsonPhoto.getString(STRING_PHOTO_REFERENCE);
 				int width = jsonPhoto.getInt(INTEGER_WIDTH), height = jsonPhoto.getInt(INTEGER_HEIGHT);
@@ -892,12 +1023,13 @@ public class Place {
 			}
 		}
 
-
 		// address components
 		JSONArray addrComponents = result.optJSONArray(ARRAY_ADDRESS_COMPONENTS);
 		List<AddressComponent> addressComponents = new ArrayList<AddressComponent>();
-		if (addrComponents != null) {
-			for (int i = 0; i < addrComponents.length(); i++) {
+		if (addrComponents != null)
+		{
+			for (int i = 0; i < addrComponents.length(); i++)
+			{
 				JSONObject ac = addrComponents.getJSONObject(i);
 				AddressComponent addr = new AddressComponent();
 
@@ -909,8 +1041,10 @@ public class Place {
 
 				// address components have types too
 				JSONArray types = ac.optJSONArray(ARRAY_TYPES);
-				if (types != null) {
-					for (int a = 0; a < types.length(); a++) {
+				if (types != null)
+				{
+					for (int a = 0; a < types.length(); a++)
+					{
 						addr.addType(types.getString(a));
 					}
 				}
@@ -922,24 +1056,27 @@ public class Place {
 		// events
 		JSONArray events = result.optJSONArray(ARRAY_EVENTS);
 		List<Event> eventList = new ArrayList<Event>();
-		if (events != null) {
-			for (int i = 0; i < events.length(); i++) {
+		if (events != null)
+		{
+			for (int i = 0; i < events.length(); i++)
+			{
 				JSONObject event = events.getJSONObject(i);
 				String eventId = event.optString(STRING_EVENT_ID, null);
 				long startTime = event.optLong(LONG_START_TIME, -1);
 				String summary = event.optString(STRING_SUMMARY, null);
 				String eventUrl = event.optString(STRING_URL, null);
 
-				eventList.add(new Event().setId(eventId).setSummary(summary).setUrl(eventUrl).setStartTime(startTime)
-						.setPlace(place));
+				eventList.add(new Event().setId(eventId).setSummary(summary).setUrl(eventUrl).setStartTime(startTime).setPlace(place));
 			}
 		}
 
 		// types
 		JSONArray jsonTypes = result.optJSONArray(ARRAY_TYPES);
 		List<String> types = new ArrayList<String>();
-		if (jsonTypes != null) {
-			for (int i = 0; i < jsonTypes.length(); i++) {
+		if (jsonTypes != null)
+		{
+			for (int i = 0; i < jsonTypes.length(); i++)
+			{
 				types.add(jsonTypes.getString(i));
 			}
 		}
@@ -947,8 +1084,10 @@ public class Place {
 		// reviews
 		JSONArray jsonReviews = result.optJSONArray(ARRAY_REVIEWS);
 		List<Review> reviews = new ArrayList<Review>();
-		if (jsonReviews != null) {
-			for (int i = 0; i < jsonReviews.length(); i++) {
+		if (jsonReviews != null)
+		{
+			for (int i = 0; i < jsonReviews.length(); i++)
+			{
 				JSONObject jsonReview = jsonReviews.getJSONObject(i);
 
 				String author = jsonReview.optString(STRING_AUTHOR_NAME, null);
@@ -961,8 +1100,10 @@ public class Place {
 				// aspects of the review
 				JSONArray jsonAspects = jsonReview.optJSONArray(ARRAY_ASPECTS);
 				List<Review.Aspect> aspects = new ArrayList<Aspect>();
-				if (jsonAspects != null) {
-					for (int a = 0; a < jsonAspects.length(); a++) {
+				if (jsonAspects != null)
+				{
+					for (int a = 0; a < jsonAspects.length(); a++)
+					{
 						JSONObject jsonAspect = jsonAspects.getJSONObject(a);
 						String aspectType = jsonAspect.getString(STRING_TYPE);
 						int aspectRating = jsonAspect.getInt(INTEGER_RATING);
@@ -970,26 +1111,26 @@ public class Place {
 					}
 				}
 
-				reviews.add(new Review().addAspects(aspects).setAuthor(author).setAuthorUrl(authorUrl).setLanguage(lang)
-						.setRating(reviewRating).setText(text).setTime(time));
+				reviews.add(new Review().addAspects(aspects).setAuthor(author).setAuthorUrl(authorUrl).setLanguage(lang).setRating(reviewRating).setText(text)
+						.setTime(time));
 			}
 		}
 
-		return place.setClient(client).setId(id).setPlaceId(placeId).setName(name).setAddress(address).setIconUrl(iconUrl).setPrice(price)
-				.setLatitude(lat).setLongitude(lng).addEvents(eventList).addTypes(types).setRating(rating)
-				.setReferenceId(reference).setStatus(status).setVicinity(vicinity).setPhoneNumber(phone)
-				.setInternationalPhoneNumber(internationalPhone).setGoogleUrl(url).setWebsite(website)
-				.addPhotos(photos).addAddressComponents(addressComponents).setHours(schedule).addReviews(reviews)
-				.setUtcOffset(utcOffset).setJson(result);
+		return place.setClient(client).setId(id).setPlaceId(placeId).setName(name).setAddress(address).setIconUrl(iconUrl).setPrice(price).setLatitude(lat)
+				.setLongitude(lng).addEvents(eventList).addTypes(types).setRating(rating).setReferenceId(reference).setStatus(status).setVicinity(vicinity)
+				.setPhoneNumber(phone).setInternationalPhoneNumber(internationalPhone).setGoogleUrl(url).setWebsite(website).addPhotos(photos)
+				.addAddressComponents(addressComponents).setHours(schedule).addReviews(reviews).setUtcOffset(utcOffset).setJson(result);
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return String.format("Place{id=%s,loc=%f,%f,name=%s,addr=%s,ref=%s", id, lat, lng, name, addr, referenceId);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj)
+	{
 		return obj instanceof Place && ((Place) obj).id.equals(id);
 	}
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:swipe="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/white"
@@ -87,7 +88,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="10dp"
                     android:layout_weight="1"
-                    android:text="guset" />
+                    android:text="guest" />
 
                 <ImageView
                     android:id="@+id/settingPageLoginIcon"
@@ -112,7 +113,7 @@
                 android:textStyle="bold" />
 
             <ImageView
-                android:id="@+id/imageView5"
+                android:id="@+id/horiz_sep_2"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:scaleType="fitXY"
@@ -167,7 +168,7 @@
                 android:textStyle="bold" />
 
             <ImageView
-                android:id="@+id/rating_img"
+                android:id="@+id/horiz_sep_2"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:scaleType="fitXY"
@@ -227,7 +228,47 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="500dp"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:text="Favorites"
+                    android:textStyle="bold" />
+                
+                <ImageView
+                    android:id="@+id/horiz_sep_2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/hsegmentation" />
+                
+                <com.jovi.bbs.goodcus.widgets.deleteListView.SwipeListView
+                    android:id="@+id/favorite_list"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="2.93"
+                    android:listSelector="#00000000"
+                    swipe:swipeAnimationTime="100"
+                    swipe:swipeBackView="@+id/relative_back"
+                    swipe:swipeCloseAllItemsWhenMoveList="true"
+                    swipe:swipeFrontView="@+id/relative_front"
+                    swipe:swipeMode="left"
+                    swipe:swipeOffsetLeft="500dp"
+                    swipe:swipeOffsetRight="0dp"
+                    swipe:swipeOpenOnLongPress="false" />
+
+            </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
+    
 
 </LinearLayout>

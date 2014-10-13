@@ -4,22 +4,27 @@ import static com.jovi.bbs.goodcus.net.googlePlacesApi.HttpUtil.get;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.http.client.HttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.jovi.bbs.goodcus.net.googlePlacesApi.GooglePlaces.Param;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.exception.GooglePlacesException;
 
 
 public class CustomGooglePlaces extends GooglePlaces
 {
-	public static String apiKey = "AIzaSyAdxpP8KZZnmJgDC_gKOFIpI5od_AZmDfw";
-	public Integer statusCode;
-	public String pagetoken;
+	public static final int STATUS_CODE_OVER_QUERY_LIMIT  = -1;
+	public static final int STATUS_CODE_REQUEST_DENIED    = -2;
+	public static final int STATUS_CODE_INVALIDE_REQUEST  = -3;
+	public static final int STATUS_CODE_UNKNOWN_ERROR     = -4;
+	public static final int STATUS_CODE_OK                = 1;
+	public static final int STATUS_CODE_ZERO_RESULTS      = 0;
+	public  static final String apiKey = "AIzaSyAdxpP8KZZnmJgDC_gKOFIpI5od_AZmDfw";
+	
+	private Integer statusCode;
+	private String pagetoken;
 
 	public CustomGooglePlaces()
 	{
@@ -62,7 +67,7 @@ public class CustomGooglePlaces extends GooglePlaces
 		{
 			String uri = buildUrl(METHOD_NEARBY_SEARCH, String.format("key=%s&location=%f,%f&radius=%f&sensor=%b", apiKey, lat, lng, radius, 
 					sensor), extraParams);
-			return getFirstPage(uri, METHOD_NEARBY_SEARCH, limit);
+			return getPagewisePlaces(uri, METHOD_NEARBY_SEARCH, limit);
 		} 
 		else
 		{
@@ -104,7 +109,7 @@ public class CustomGooglePlaces extends GooglePlaces
 		return places;
 	}
 
-	public List<Place> getFirstPage(String uri, String method, int limit) throws IOException, JSONException
+	public List<Place> getPagewisePlaces(String uri, String method, int limit) throws IOException, JSONException
 	{
 		limit = Math.min(limit, MAXIMUM_RESULTS); // max of 60 results possible
 		List<Place> places = new ArrayList<Place>();
@@ -129,6 +134,7 @@ public class CustomGooglePlaces extends GooglePlaces
 			throw new GooglePlacesException(e);
 		}
 	}
+	
 	
 	public Integer parseStatus(String status)
 	{
@@ -159,10 +165,9 @@ public class CustomGooglePlaces extends GooglePlaces
 		return statusCode;
 	}
 	
-	public static final int STATUS_CODE_OVER_QUERY_LIMIT  = -1;
-	public static final int STATUS_CODE_REQUEST_DENIED    = -2;
-	public static final int STATUS_CODE_INVALIDE_REQUEST  = -3;
-	public static final int STATUS_CODE_UNKNOWN_ERROR     = -4;
-	public static final int STATUS_CODE_OK                = 1;
-	public static final int STATUS_CODE_ZERO_RESULTS      = 0;
+	public String getPageToken()
+	{
+		return pagetoken;
+	}
+	
 }

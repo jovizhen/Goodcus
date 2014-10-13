@@ -2,7 +2,6 @@ package com.jovi.bbs.goodcus.fragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -15,7 +14,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.jovi.bbs.goodcus.R;
-import com.jovi.bbs.goodcus.model.SearchResult;
 import com.jovi.bbs.goodcus.net.GMapV2Direction;
 import com.jovi.bbs.goodcus.net.GetDirectionsAsyncTask;
 
@@ -23,9 +21,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.location.Address;
 import android.location.Criteria;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -37,7 +33,6 @@ import android.view.ViewGroup;
 public class MapDirectionFragment extends Fragment
 {
 	private MapFragment mMap;
-	private SearchResult result;
 	private Location currentLocation;
 	private Location destination;
 	

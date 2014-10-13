@@ -16,10 +16,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static com.jovi.bbs.goodcus.net.googlePlacesApi.GooglePlaces.ARRAY_PHOTOS;
-import static com.jovi.bbs.goodcus.net.googlePlacesApi.GooglePlaces.INTEGER_HEIGHT;
-import static com.jovi.bbs.goodcus.net.googlePlacesApi.GooglePlaces.INTEGER_WIDTH;
-import static com.jovi.bbs.goodcus.net.googlePlacesApi.GooglePlaces.STRING_PHOTO_REFERENCE;
 import static com.jovi.bbs.goodcus.net.googlePlacesApi.HttpUtil.*;
 
 /**

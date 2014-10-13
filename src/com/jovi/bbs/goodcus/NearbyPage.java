@@ -7,21 +7,27 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.TypedValue;
 
 public class NearbyPage extends FragmentActivity
 {
-	CollectionPagerAdapter mCollectionPagerAdapter;
-    ViewPager mViewPager;
-    private PagerSlidingTabStrip tabs;
-    private Fragment currentFragment;
+	ViewPager mViewPager;
+	private PagerSlidingTabStrip tabs;
+	private Fragment currentFragment;
+	private CollectionPagerAdapter mCollectionPagerAdapter;
 
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		initView();
+	}
+	
+	public void initView()
+	{
 		setContentView(R.layout.nearby_page);
 		tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 		mCollectionPagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager());
@@ -37,9 +43,8 @@ public class NearbyPage extends FragmentActivity
 		return currentFragment;
 	}
 	
-	public class CollectionPagerAdapter extends FragmentStatePagerAdapter
+	public class CollectionPagerAdapter extends FragmentPagerAdapter
 	{
-
 		public CollectionPagerAdapter(FragmentManager fm)
 		{
 			super(fm);
@@ -48,15 +53,9 @@ public class NearbyPage extends FragmentActivity
 		@Override
 		public Fragment getItem(int index)
 		{
-
 			Fragment fragment = SearchResultFragmentFactory.buildFragment(SearchResultFragmentFactory.navigation_menu[index]);
 			currentFragment = fragment;
 			return fragment;
-			// Bundle args = new Bundle();
-			// // Our object is just an integer :-P
-			// args.putInt(DemoObjectFragment.ARG_OBJECT, i + 1);
-			// fragment.setArguments(args);
-			// return fragment;
 		}
 
 		@Override
