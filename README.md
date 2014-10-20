@@ -1,13 +1,14 @@
 Goodcus
 =======
-App powered by Google place Api helps to find the place to eat, shop, drink, relax, and play
-
- Search for local businesses.
- Search for nearby restaurants, shops, and services.
- Filter search results by distance, price, and what’s open now.
- Read reviews written by a community of active, expert locals.
- Get to know a business through beautiful photos.
- Look up addresses and phone numbers, call a business
+<b>App powered by Google place Api helps to find Local business</b></br>
+<ul>
+ <li>Search for local businesses.</li>
+ <li>Search for nearby restaurants, shops, and services.</li>
+ <li>Filter search results by distance, price, and what’s open now.</li>
+ <li>Read reviews written by a community of active, expert locals.</li>
+ <li> Get to know a business through beautiful photos.</li>
+ <li>Look up addresses and phone numbers, call a business.</li>
+<ul>
 
 ![Detail page](https://github.com/jovizhen/Goodcus/blob/master/sample/detail_page.png)
 
