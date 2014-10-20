@@ -3,10 +3,10 @@
     <color name="item_header_color">#E2E7EE</color>
     <color name="tab_color_bg">#E0E0E0</color>
     <color name="white">#FFFFFF</color>
-    <color name="title_header_color">#40567E</color>
+    <color name="title_header_color">#FF8800</color>
     <color name="forum_display_item_title_color">#22229C</color>
     <color name="title_header_color_dark">#25334B</color>
-    <color name="title_header_color_light">#6E88B6</color>
+    <color name="title_header_color_light">#fcbe60</color>
     <color name="item_pressed">#E5E5E5</color>
     <color name="quick_reply_btn_pressed">#E5E5E5</color>
     <color name="gray">#808080</color>
@@ -15,8 +15,8 @@
     <color name="deepgray">#636973</color>
     <color name="red">#B22222</color>
     <color name="background_tab_pressed">#6633B5E5</color>
-    <color name="slide_tab_underline_color">#33b5e5</color>
-    <color name="slide_tab_indicator_color">#33b5e5</color>
+    <color name="slide_tab_underline_color">#33B5E5</color>
+    <color name="slide_tab_indicator_color">#33B5E5</color>
     
     <!-- UI_TABLE_VIEW -->
     <!-- LIST BORDER COLOR -->
@@ -30,5 +30,6 @@
     <!-- ITEM TEXT COLORS - STATES - PRESSED AND DEFAULT -->
     <color name="text_color_default">#000000</color>
     <color name="text_color_pressed">#ffffff</color>
+    <color name="light_gray">#CFCFCF</color>
 
 </resources>

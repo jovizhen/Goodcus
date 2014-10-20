@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 
+
 import com.google.android.gms.plus.model.people.Person;
 import com.google.gson.Gson;
 import com.jovi.bbs.goodcus.net.Api;
@@ -58,7 +59,6 @@ public class SettingPage extends Activity
 		loadModel();
 	}
 	
-
 	@Override
 	protected void onResume()
 	{

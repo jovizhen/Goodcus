@@ -21,16 +21,16 @@ public class MainActivity extends TabActivity
 
 	private long m_exitTime = 0;
 	private String[] m_tabTitle = new String[]
-	{ "附近", "搜索", "设置" };
+	{ "Nearby", "Search", "Settings" };
 	
 	private Class<?>[] m_tabIntent = new Class<?>[]
 	{ NearbyPage.class, SearchResultPage.class, SettingPage.class };
 	
 	private int[] m_tabIcon = new int[]
-	{ R.drawable.collections_view_as_grid, R.drawable.ic_action_search, R.drawable.action_settings };
+	{ R.drawable.collections_view_as_grid, R.drawable.ic_action_search, R.drawable.ic_action_settings };
 
 	private Bundle[] m_data = new Bundle[]
-	{ createBundle("附近"), createBundle("搜索"), createBundle("设置") };
+	{ createBundle("Nearby"), createBundle("Search"), createBundle("Settings") };
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -67,7 +67,7 @@ public class MainActivity extends TabActivity
 		{
 			if ((System.currentTimeMillis() - m_exitTime) > 2000)
 			{
-				Toast.makeText(this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, "Exit program", Toast.LENGTH_SHORT).show();
 				m_exitTime = System.currentTimeMillis();
 			} 
 			else

@@ -65,11 +65,12 @@
                 android:padding="10dp"/>
             
             <com.jovi.bbs.goodcus.widgets.RefreshActionBtn
-                    android:id="@+id/showThreadRefreshBtn_category"
+                    android:id="@+id/detail_info_RefreshBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/normal_action_btn"
                     android:padding="10dp"
+                    android:onClick= "onRefreshBtnClicked"
                     android:src="@drawable/navigation_refresh" />
 
         </LinearLayout>

@@ -30,7 +30,7 @@
                 android:background="@drawable/normal_action_btn"
                 android:onClick="toggleFilterPanel"
                 android:padding="10dp"
-                android:src="@drawable/ic_action_location_found" />
+                android:src="@drawable/action_settings" />
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -70,9 +70,6 @@
 		
     </RelativeLayout>
     
-        
-    
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

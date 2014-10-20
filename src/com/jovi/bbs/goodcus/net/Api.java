@@ -60,8 +60,8 @@ public class Api implements ConnectionCallbacks, OnConnectionFailedListener, Dis
 		}
 		pd.dismiss();
 		AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-		builder.setMessage("登陆失败， 再试一次？");
-		builder.setPositiveButton("确定", new OnClickListener()
+		builder.setMessage("Login failed， try again？");
+		builder.setPositiveButton("Ok", new OnClickListener()
 		{
 
 			@Override
@@ -69,7 +69,7 @@ public class Api implements ConnectionCallbacks, OnConnectionFailedListener, Dis
 			{
 				connectToGooglePlus();
 			}
-		}).setNegativeButton("取消", null);
+		}).setNegativeButton("Cancel", null);
 		builder.create().show();
 	}
 
@@ -126,13 +126,13 @@ public class Api implements ConnectionCallbacks, OnConnectionFailedListener, Dis
 
 	public void connectToGooglePlus()
 	{
-		pd = ProgressDialog.show(mActivity, null, "登录中，请稍后……", true, true);
+		pd = ProgressDialog.show(mActivity, null, "Logging in，please wait……", true, true);
 		googlePlusClient.connect();
 	}
 
 	public void disconnectFromGooglePlus()
 	{
-		pd = ProgressDialog.show(mActivity, null, "登出中，请稍后……", true, true);
+		pd = ProgressDialog.show(mActivity, null, "Logging out，please wait……", true, true);
 		googlePlusClient.disconnect();
 		onServiceDisconnected();
 	}

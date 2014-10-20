@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import com.jovi.bbs.goodcus.R;
 import com.jovi.bbs.goodcus.net.GMapV2Direction;
 import com.jovi.bbs.goodcus.net.GetDirectionsAsyncTask;
+import com.jovi.bbs.goodcus.widgets.RefreshActionBtn;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -29,25 +30,42 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 
 public class MapDirectionFragment extends Fragment
 {
 	private MapFragment mMap;
 	private Location currentLocation;
 	private Location destination;
+	private RefreshActionBtn m_refreshBtn;
 	
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+	
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState)
 	{
-		
-		View view = inflater.inflate(R.layout.fragment_map_direction, container, false);
-		
+		super.onCreate(savedInstanceState);
 		Gson gson = new Gson();
 		String jsonLocation =getArguments().getString("bussiness_location");  
 		destination =  gson.fromJson(jsonLocation, Location.class);
 		currentLocation = getCurrentLocation();
+	}
+
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+	{
+		
+		View view = inflater.inflate(R.layout.fragment_map_direction, container, false);
+		m_refreshBtn = (RefreshActionBtn) view.findViewById(R.id.mapRefreshBtn);
+		m_refreshBtn.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				m_refreshBtn.startRefresh();
+				setupMapIfNeeded();
+			}
+		});
 		setupMapIfNeeded();
-		findDirections(currentLocation.getLatitude(), currentLocation.getLongitude(),
-				destination.getLatitude(), destination.getLongitude(), GMapV2Direction.MODE_DRIVING);
 		return view;
 	}
 	
@@ -74,6 +92,8 @@ public class MapDirectionFragment extends Fragment
 		Point size = new Point();
 		display.getSize(size);
 		mMap.getMap().moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, size.x, size.y,  80));
+		findDirections(currentLocation.getLatitude(), currentLocation.getLongitude(),
+				destination.getLatitude(), destination.getLongitude(), GMapV2Direction.MODE_DRIVING);
 	}
 	
 
@@ -104,7 +124,17 @@ public class MapDirectionFragment extends Fragment
 		map.put(GetDirectionsAsyncTask.DESTINATION_LONG, String.valueOf(toPositionDoubleLong));
 		map.put(GetDirectionsAsyncTask.DIRECTIONS_MODE, mode);
 
-		GetDirectionsAsyncTask asyncTask = new GetDirectionsAsyncTask(this);
+		GetDirectionsAsyncTask asyncTask = new GetDirectionsAsyncTask(this)
+		{
+
+			@Override
+			public void onPostExecute(ArrayList<LatLng> result)
+			{
+				super.onPostExecute(result);
+				m_refreshBtn.endRefresh();
+			}
+			
+		};
 		asyncTask.execute(map);
 	}
 

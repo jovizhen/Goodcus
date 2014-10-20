@@ -8,13 +8,13 @@ import android.support.v4.app.Fragment;
 public class SearchResultFragmentFactory
 {
 	public static final SearchType RESTAURANT_CN                = new SearchType(0, "Chinese", new GooglePlaceFilter().setTypes("restaurant").setKeyword("chinese").setLanguage("zh-CN"));
-	public static final SearchType RESTAURANT_JP                = new SearchType(0, "Japanese", new GooglePlaceFilter().setTypes("restaurant").setKeyword("japanese").setLanguage("zh-CN"));
-	public static final SearchType RESTAURANT_KR                = new SearchType(0, "Korean", new GooglePlaceFilter().setTypes("restaurant").setKeyword("korean").setLanguage("zh-CN"));
-	public static final SearchType BAKERY_AND_CAFE              = new SearchType(1, "Coffe & Tea", new GooglePlaceFilter().setKeyword("cafe+bakery").setLanguage("zh-CN"));
-	public static final SearchType GROCERY_STORE_MARKET         = new SearchType(2, "Grocery", new GooglePlaceFilter().setKeyword("supermarket").setLanguage("zh-CN"));
-	public static final SearchType GYM_AND_SPA                  = new SearchType(6, "Gym/SPA",new GooglePlaceFilter().setKeyword("gym+spa").setLanguage("zh-CN")); 
-	public static final SearchType NIGHT_CLUB                   = new SearchType(7, "Nightlife", new GooglePlaceFilter().setTypes("bar").setKeyword("night").setLanguage("zh-CN")); 
-	public static final SearchType PUBLIC_UTIL                  = new SearchType(8, "Others", new GooglePlaceFilter().setLanguage("zh-CN"));
+	public static final SearchType RESTAURANT_JP                = new SearchType(1, "Japanese", new GooglePlaceFilter().setTypes("restaurant").setKeyword("japanese").setLanguage("zh-CN"));
+	public static final SearchType RESTAURANT_KR                = new SearchType(2, "Korean", new GooglePlaceFilter().setTypes("restaurant").setKeyword("korean").setLanguage("zh-CN"));
+	public static final SearchType BAKERY_AND_CAFE              = new SearchType(3, "Coffe & Tea", new GooglePlaceFilter().setKeyword("cafe+bakery").setLanguage("zh-CN"));
+	public static final SearchType GROCERY_STORE_MARKET         = new SearchType(4, "Grocery", new GooglePlaceFilter().setKeyword("supermarket").setLanguage("zh-CN"));
+	public static final SearchType GYM_AND_SPA                  = new SearchType(5, "Gym/SPA",new GooglePlaceFilter().setKeyword("gym+spa").setLanguage("zh-CN")); 
+	public static final SearchType NIGHT_CLUB                   = new SearchType(6, "Nightlife", new GooglePlaceFilter().setTypes("bar").setKeyword("night").setLanguage("zh-CN")); 
+	public static final SearchType PUBLIC_UTIL                  = new SearchType(7, "Others", new GooglePlaceFilter().setLanguage("zh-CN"));
 	
 	public static final SearchType[] navigation_menu =
 	{ RESTAURANT_CN,RESTAURANT_JP, RESTAURANT_KR,  BAKERY_AND_CAFE, GROCERY_STORE_MARKET, GYM_AND_SPA, NIGHT_CLUB, PUBLIC_UTIL};

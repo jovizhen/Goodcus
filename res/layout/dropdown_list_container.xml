@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/dropdown_textview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/dropdown_background"
+        android:clickable="true"
+        android:drawableRight="@drawable/icn_dropdown_open"
+        android:gravity="center_vertical|left"
+        android:padding="10dip"
+        android:text="Auto" />
+
+    <LinearLayout
+        android:id="@+id/dropdown_foldout_menu"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dip"
+        android:layout_below= "@+id/dropdown_textview"
+        android:background="@drawable/dropdown_background"
+        android:orientation="vertical"
+        android:padding="1dip"
+        android:visibility="gone" >
+        
+    </LinearLayout>
+
+</RelativeLayout>

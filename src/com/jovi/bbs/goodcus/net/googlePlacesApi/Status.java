@@ -3,8 +3,7 @@ package com.jovi.bbs.goodcus.net.googlePlacesApi;
 /**
  * Represents the current status of the place in time.
  */
-public enum Status {
-	OPENED,
-	CLOSED,
-	NONE
+public enum Status
+{
+	OPENED, CLOSED, NONE
 }

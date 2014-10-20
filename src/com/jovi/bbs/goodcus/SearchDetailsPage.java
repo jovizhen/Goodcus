@@ -16,6 +16,7 @@ import com.jovi.bbs.goodcus.net.googlePlacesApi.CustomGooglePlaces;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.Photo;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.Place;
 import com.jovi.bbs.goodcus.util.FavoriteDBDataSource;
+import com.jovi.bbs.goodcus.widgets.RefreshActionBtn;
 import com.jovi.bbs.goodcus.widgets.SearchDetailsView;
 import com.jovi.bbs.goodcus.widgets.tableView.UITableView;
 import com.jovi.bbs.goodcus.widgets.tableView.UITableView.ClickListener;
@@ -45,8 +46,9 @@ public class SearchDetailsPage extends Activity
 	private RelativeLayout pageHeader;
 	private SearchDetailsView detailsView;
 	private CirclePageIndicator mIndicator;
+	private RefreshActionBtn mRefreshBtn;
 
-	private ArrayList<String> m_photos = new ArrayList<String>();
+	private ArrayList<String> m_photo_reference_list = new ArrayList<String>();
 	private ReferencePagerAdapter pagerAdapter;
 	private CustomGooglePlaces googlePalcesClient;
 	private FavoriteDBDataSource favoriteDataSource;
@@ -93,8 +95,10 @@ public class SearchDetailsPage extends Activity
 	private void initView()
 	{
 		setContentView(R.layout.search_details_page);
+		mRefreshBtn = (RefreshActionBtn) findViewById(R.id.detail_info_RefreshBtn);
+		mRefreshBtn.startRefresh();
 		detailsView = (SearchDetailsView) findViewById(R.id.searchDetailsFrag);
-		pagerAdapter = new ReferencePagerAdapter(this, m_photos);
+		pagerAdapter = new ReferencePagerAdapter(this, m_photo_reference_list);
 		mViewPager = (ViewPager) findViewById(R.id.viewer);
 		mViewPager.setAdapter(pagerAdapter);
 		pageHeader = (RelativeLayout) findViewById(R.id.pagedetail_header);
@@ -113,6 +117,12 @@ public class SearchDetailsPage extends Activity
 		tableView.addBasicItem(R.drawable.ic_action_copy, "Reviews", null);
 		tableView.addBasicItem(R.drawable.ic_action_call, "Telephone", null);
 		tableView.commit();
+	}
+	
+	public void onRefreshBtnClicked(View view)
+	{
+		mRefreshBtn.startRefresh();
+		new PlaceDetailTask().execute("");
 	}
 	
 	public void onDirectionClick()
@@ -256,10 +266,12 @@ public class SearchDetailsPage extends Activity
 					{
 						refList.add(photo.getReference());
 					}
-					m_photos.addAll(refList);
+					m_photo_reference_list.clear();
+					m_photo_reference_list.addAll(refList);
 					pagerAdapter.notifyDataSetChanged();
 				}
 			});
+			mRefreshBtn.endRefresh();
 		}
 	}
 	
@@ -294,7 +306,7 @@ public class SearchDetailsPage extends Activity
 		{
 			if(index == 0)
 			{
-				onDirectionClick();;
+				onDirectionClick();
 			}
 			else if(index == 1)
 			{

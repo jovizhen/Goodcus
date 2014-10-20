@@ -37,6 +37,7 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 	
 	private ProgressBar m_pBar;
 	private XListView m_listView;
+	private RefreshActionBtn m_refreshBtn;
 
 	private ArrayList<Review> m_model = new ArrayList<Review>();
 	private ShowCommentAdapter m_adapter;
@@ -59,13 +60,15 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 		m_listView.setXListViewListener(this);
 		m_adapter = new ShowCommentAdapter();
 		m_listView.setAdapter(m_adapter);
-		RefreshActionBtn btn = (RefreshActionBtn) view.findViewById(R.id.reviewDisplayRefreshBtn);
-		btn.setOnClickListener(new OnClickListener()
+		m_refreshBtn = (RefreshActionBtn) view.findViewById(R.id.reviewRefreshBtn);
+		m_refreshBtn.setOnClickListener(new OnClickListener()
 		{
 			@Override
 			public void onClick(View v)
 			{
-				onRefresh();
+				m_refreshBtn.startRefresh();
+				m_listView.pullRefreshing();
+				loadModel();
 			}
 		});
 		m_pBar = (ProgressBar) view.findViewById(R.id.reviewDisplayProgressBar);
@@ -82,9 +85,11 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 	{
 		try
 		{
-			m_model.clear();
-			PlaceDetailTask detailTask = new PlaceDetailTask();
-			detailTask.execute("");
+			synchronized (m_model)
+			{
+				PlaceDetailTask detailTask = new PlaceDetailTask();
+				detailTask.execute("");
+			}
 		}
 		catch (Exception e)
 		{
@@ -164,6 +169,7 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 			this.queryUrl = queryUrl;
 			this.imageView = imageView;
 		}
+		
 		@Override
 		protected String doInBackground(String... params)
 		{
@@ -215,6 +221,7 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 		{
 			if(result.size()!=0)
 			{
+				m_model.clear();
 				m_model.addAll(result);
 				m_adapter.notifyDataSetChanged();
 			}
@@ -223,7 +230,7 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 				m_listView.stopRefresh();
 			}
 			m_pBar.setVisibility(View.GONE);
+			m_refreshBtn.endRefresh();
 		}
 	}
-	
 }

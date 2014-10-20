@@ -21,6 +21,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -54,6 +55,7 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 	private XListView m_listView;
 	private ImageView searchIcon;
 	private ClearableAutocompleteTextView searchBox;
+	private SharedPreferences filterPerferences;
 
 	private SearchResultListAdapter m_adapter;
 	private ArrayList<Place> m_model = new ArrayList<Place>();
@@ -94,9 +96,24 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 	public void setupSearchBox()
 	{
 		currentLocation = Utils.getCurrentLocation(this);
+		filterPerferences = getSharedPreferences("googleFilter", Context.MODE_PRIVATE);
+		
 		googlePlaceFilter = new GooglePlaceFilter();
 		googlePlaceFilter.setKeyword("restaurant");
 		googlePlaceFilter.setLanguage("zh-CN");
+		
+		if (filterPerferences.getInt("max_price", 0) != 0)
+		{
+			googlePlaceFilter.setMaxprice(filterPerferences.getInt("max_price", 0));
+		}
+		if (filterPerferences.getString("rank_by", null) != null)
+		{
+			googlePlaceFilter.setRankby(filterPerferences.getString("rank_by", null));
+		}
+		if (filterPerferences.getBoolean("open_now", true) == true)
+		{
+			googlePlaceFilter.setOpennow(true);
+		}
 
 		googlePalcesClient = new CustomGooglePlaces();
 		searchBox = (ClearableAutocompleteTextView) findViewById(R.id.search_box);
@@ -352,6 +369,8 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 	class SearchResultListAdapter extends BaseAdapter
 	{
 		GoogleImageLoader imageLoader = new GoogleImageLoader(getApplicationContext());
+		ViewHolder holder;
+		
 		@Override
 		public int getCount()
 		{
@@ -377,28 +396,41 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent)
 		{
-			
 			if (convertView == null)
 			{
 				convertView = getLayoutInflater().inflate(R.layout.search_result_item, null);
+				holder = new ViewHolder();
+				holder.name = (TextView) convertView.findViewById(R.id.business_name);
+				holder.addr = (TextView) convertView.findViewById(R.id.business_address);
+				holder.ratingbar = (RatingBar) convertView.findViewById(R.id.MyRating);
+				holder.img = (ImageViewWithCache) convertView.findViewById(R.id.headImgDetail);
+				convertView.setTag(holder);
+			}
+			else 
+			{
+				holder = (ViewHolder) convertView.getTag();
 			}
 
-			TextView name = (TextView) convertView.findViewById(R.id.business_name);
-			TextView address = (TextView) convertView.findViewById(R.id.business_address);
-			RatingBar ratingbar = (RatingBar) convertView.findViewById(R.id.MyRating);
-			ImageViewWithCache img = (ImageViewWithCache) convertView.findViewById(R.id.headImgDetail);
-			name.setText(m_model.get(position).getName());
-			address.setText(m_model.get(position).getVicinity());
+			holder.name.setText(m_model.get(position).getName());
+			holder.addr.setText(m_model.get(position).getVicinity());
+			holder.ratingbar.setRating((float) m_model.get(position).getRating());
 			if (m_model.get(position).getPhotos().size() > 0)
 			{
 				imageLoader.DisplayImage(googlePalcesClient.buildPhotoDownloadUrl(m_model.get(position).getPhotos().get(0), 100, 100), 
-						m_model.get(position).getPlaceId(),  img);
+						m_model.get(position).getPlaceId(),  holder.img);
 			}
-			ratingbar.setRating((float) m_model.get(position).getRating());
 			return convertView;
 		}
 	}
 
+	class ViewHolder 
+	{
+		TextView name;
+		TextView addr;
+		RatingBar ratingbar;
+		ImageViewWithCache img;
+	}
+	
 	class SearchResultTask extends AsyncTask<String, Void, List<Place>>
 	{
 		@Override
@@ -407,8 +439,18 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 			List<Place> placeList = new ArrayList<Place>();
 			try
 			{
-				placeList = googlePalcesClient.getNearbyPlaces(currentLocation.getLatitude(), 
-						currentLocation.getLongitude(), 10000, googlePlaceFilter);
+				long radius = filterPerferences.getLong("radius", 0);
+				if (radius == 0)
+				{
+					placeList = googlePalcesClient.getNearbyPlaces(currentLocation.getLatitude(), 
+							currentLocation.getLongitude(), 10000, googlePlaceFilter);
+				}
+				else 
+				{
+					placeList = googlePalcesClient.getNearbyPlaces(currentLocation.getLatitude(), 
+							currentLocation.getLongitude(), radius, googlePlaceFilter);
+				}
+				
 				status = googlePalcesClient.getStatusCode();
 			}
 			catch (Exception e)

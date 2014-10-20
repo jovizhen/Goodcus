@@ -155,6 +155,8 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 	class SearchResultListAdapter extends BaseAdapter
 	{
 		GoogleImageLoader imageLoader = new GoogleImageLoader(getActivity());
+		ViewHolder viewHolder;
+		
 		@Override
 		public int getCount()
 		{
@@ -184,23 +186,36 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 			{
 				LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				convertView = inflater.inflate(R.layout.search_result_item, null);
+				viewHolder = new ViewHolder();
+				viewHolder.name = (TextView) convertView.findViewById(R.id.business_name);
+				viewHolder.addr = (TextView) convertView.findViewById(R.id.business_address);
+				viewHolder.ratingbar  =  (RatingBar) convertView.findViewById(R.id.MyRating);
+				viewHolder.img = (ImageViewWithCache) convertView.findViewById(R.id.headImgDetail);
+				convertView.setTag(viewHolder);
 			}
-
-			TextView name = (TextView) convertView.findViewById(R.id.business_name);
-			TextView addr = (TextView) convertView.findViewById(R.id.business_address);
-			RatingBar ratingbar  =  (RatingBar) convertView.findViewById(R.id.MyRating);
-			ImageViewWithCache img = (ImageViewWithCache) convertView.findViewById(R.id.headImgDetail);
-
-			name.setText(m_model.get(position).getName());
-			addr.setText(m_model.get(position).getVicinity());
+			else
+			{
+				viewHolder = (ViewHolder) convertView.getTag();
+			}
+			
+			viewHolder.name.setText(m_model.get(position).getName());
+			viewHolder.addr.setText(m_model.get(position).getVicinity());
+			viewHolder.ratingbar.setRating((float) m_model.get(position).getRating());
 			if(m_model.get(position).getPhotos().size()>0)
 			{
 				imageLoader.DisplayImage(googlePalcesClient.buildPhotoDownloadUrl(m_model.get(position).getPhotos().get(0), 100, 100), 
-						m_model.get(position).getPlaceId(),  img);
+						m_model.get(position).getPlaceId(),  viewHolder.img);
 			}
-			ratingbar.setRating((float) m_model.get(position).getRating());
 			return convertView;
 		}
+	}
+	
+	class ViewHolder
+	{
+		TextView name;
+		TextView addr;
+		RatingBar ratingbar;
+		ImageViewWithCache img;
 	}
 	
 	class SearchResultTask extends AsyncTask<String, Void, List<Place>>
@@ -226,7 +241,6 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 		protected void onPostExecute(List<Place> searchResult)
 		{
 			super.onPostExecute(searchResult);
-//			m_handler.sendEmptyMessage(status);
 			switch (status)
 			{
 				case CustomGooglePlaces.STATUS_CODE_OK:
@@ -268,6 +282,5 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 		instance.searchType = searchType;
 		return instance;
 	}
-
 }
 
