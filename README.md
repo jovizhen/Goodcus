@@ -1,5 +1,7 @@
 Goodcus
 =======
+Goodcus
+=======
 <b>App powered by Google place Api helps to find Local business</b></br>
 <ul>
  <li>Search for local businesses.</li>
@@ -10,7 +12,10 @@ Goodcus
  <li>Look up addresses and phone numbers, call a business.</li>
 <ul>
 
- ![Detail page](https://github.com/jovizhen/Goodcus/blob/master/sample/detail_page.png)</br>
- ![Nearby page](https://github.com/jovizhen/Goodcus/blob/master/sample/nearby_page.png)</br>
- ![Review Page](https://github.com/jovizhen/Goodcus/blob/master/sample/review_page.png)</br>
- ![Setting page](https://github.com/jovizhen/Goodcus/blob/master/sample/setting_page.png)</br>
+![Detail page](https://github.com/jovizhen/Goodcus/blob/master/sample/detail_page.png)
+
+![Nearby page](https://github.com/jovizhen/Goodcus/blob/master/sample/nearby_page.png)
+
+![Review Page](https://github.com/jovizhen/Goodcus/blob/master/sample/review_page.png)
+
+![Setting page](https://github.com/jovizhen/Goodcus/blob/master/sample/setting_page.png)
