@@ -9,11 +9,12 @@ Goodcus
  <li> Get to know a business through beautiful photos.</li>
  <li>Look up addresses and phone numbers, call a business.</li>
 <ul>
-
+</br>
+Detail Page
 ![Detail page](https://github.com/jovizhen/Goodcus/blob/master/sample/detail_page.png)
-
+Nearby Page
 ![Nearby page](https://github.com/jovizhen/Goodcus/blob/master/sample/nearby_page.png)
-
+Review Page
 ![Review Page](https://github.com/jovizhen/Goodcus/blob/master/sample/review_page.png)
-
+Setting Page
 ![Setting page](https://github.com/jovizhen/Goodcus/blob/master/sample/setting_page.png)
