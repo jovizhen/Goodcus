@@ -7,10 +7,17 @@ public class BasicItem implements IListItem
 	private String mTitle;
 	private String mSubtitle;
 	private int mColor = -1;
+	private boolean showChevron = true;
 
 	public BasicItem(String _title)
 	{
 		this.mTitle = _title;
+	}
+	
+	public BasicItem(String _title, boolean showChevron)
+	{
+		this.mTitle = _title;
+		this.showChevron = showChevron;
 	}
 
 	public BasicItem(String _title, String _subtitle)
@@ -40,6 +47,14 @@ public class BasicItem implements IListItem
 		this.mSubtitle = _subtitle;
 	}
 
+	public BasicItem(int _drawable, String _title, String _subtitle, boolean showChevron)
+	{
+		this.mDrawable = _drawable;
+		this.mTitle = _title;
+		this.mSubtitle = _subtitle;
+		this.showChevron = showChevron;
+	}
+	
 	public BasicItem(int _drawable, String _title, String _subtitle, int _color)
 	{
 		this.mDrawable = _drawable;
@@ -100,4 +115,13 @@ public class BasicItem implements IListItem
 		mClickable = clickable;
 	}
 
+	public boolean isShowChevron()
+	{
+		return showChevron;
+	}
+
+	public void setShowChevron(boolean showChevron)
+	{
+		this.showChevron = showChevron;
+	}
 }

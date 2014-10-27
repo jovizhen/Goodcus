@@ -16,12 +16,12 @@ import android.widget.TextView;
 
 public class UITableView extends LinearLayout
 {
-	private int mIndexController = 0;
-	private LayoutInflater mInflater;
-	private LinearLayout mMainContainer;
-	private LinearLayout mListContainer;
-	private List<IListItem> mItemList;
-	private ClickListener mClickListener;
+	protected int mIndexController = 0;
+	protected LayoutInflater mInflater;
+	protected LinearLayout mMainContainer;
+	protected LinearLayout mListContainer;
+	protected List<IListItem> mItemList;
+	protected ClickListener mClickListener;
 
 	public UITableView(Context context, AttributeSet attrs)
 	{
@@ -158,7 +158,7 @@ public class UITableView extends LinearLayout
 	 * @param item
 	 * @param index
 	 */
-	private void setupBasicItem(View view, BasicItem item, int index)
+	protected void setupBasicItem(View view, BasicItem item, int index)
 	{
 		if (item.getDrawable() > -1)
 		{
@@ -263,4 +263,5 @@ public class UITableView extends LinearLayout
 	{
 		this.mClickListener = null;
 	}
+	
 }

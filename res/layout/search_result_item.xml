@@ -24,7 +24,12 @@
             android:layout_marginLeft="10dp"
             android:layout_weight="0.55"
             android:orientation="vertical" >
-
+ 			<LinearLayout
+                android:id="@+id/LinearLayout3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom" >
+            
             <TextView
                 android:id="@+id/business_name"
                 android:layout_width="fill_parent"
@@ -32,14 +37,22 @@
                 android:layout_weight="1"
                 android:minHeight="30dp"
                 android:textColor="@color/forum_display_item_title_color"
-                android:textSize="15sp"
+                android:textSize="10sp"
                 android:textStyle="bold" />
+             <ImageView
+                    android:id="@+id/bookmark"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_action_favorite"
+                    android:visibility="visible" />
+             </LinearLayout>
 
             <TextView
                 android:id="@+id/business_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:textSize="10dp" />
 
             <LinearLayout
                 android:id="@+id/LinearLayout2"
@@ -62,9 +75,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="10dp"
-                    android:text="距离: "
+                    android:text="Dist: "
                     android:textColor="@color/gray"
-                    android:textSize="10sp" />
+                    android:textSize="10dp" />
 
                 <TextView
                     android:id="@+id/distance"
@@ -73,7 +86,7 @@
                     android:layout_gravity="center_vertical"
                     android:text="0"
                     android:textColor="@color/gray"
-                    android:textSize="10sp" />
+                    android:textSize="10dp" />
 
                 <TextView
                     android:id="@+id/peiceLabel"
@@ -81,9 +94,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="10dp"
-                    android:text="价格: "
+                    android:text="price: "
                     android:textColor="@color/gray"
-                    android:textSize="10sp" />
+                    android:textSize="10dp" />
 
                 <TextView
                     android:id="@+id/replyCnt"
@@ -93,7 +106,9 @@
                     android:layout_marginRight="5dp"
                     android:text="0"
                     android:textColor="@color/gray"
-                    android:textSize="10sp" />
+                    android:textSize="10dp" />
+
+               
 
             </LinearLayout>
 

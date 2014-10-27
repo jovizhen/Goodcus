@@ -10,7 +10,8 @@
         android:layout_height="wrap_content"
         android:background="@drawable/dropdown_selector"
         android:gravity="center_vertical|left"
-        android:padding="10dip" />
+        android:padding="10dip"
+        android:textSize="10sp" />
     
     <View
         android:id="@+id/seprator"

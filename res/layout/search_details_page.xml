@@ -55,14 +55,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true" >
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:background="@drawable/normal_action_btn"
-                android:onClick="onAddToFavoriteClick"
-                android:src= "@drawable/ic_action_favorite"
-                android:padding="10dp"/>
             
             <com.jovi.bbs.goodcus.widgets.RefreshActionBtn
                     android:id="@+id/detail_info_RefreshBtn"
@@ -74,6 +66,7 @@
                     android:src="@drawable/navigation_refresh" />
 
         </LinearLayout>
+
     </RelativeLayout>
 
 	<ScrollView
@@ -93,7 +86,7 @@
             <com.jovi.bbs.goodcus.widgets.SearchDetailsView
                 android:id="@+id/searchDetailsFrag"
                 android:layout_width="match_parent"
-                android:layout_height="200dp" >
+                android:layout_height="126dp" >
             </com.jovi.bbs.goodcus.widgets.SearchDetailsView>
 
             <LinearLayout
@@ -106,7 +99,7 @@
                     android:id="@+id/business_map"
                     android:name="com.google.android.gms.maps.MapFragment"
                     android:layout_width="match_parent"
-                    android:layout_height="120dp" />
+                    android:layout_height="150dp" />
             </LinearLayout>
 
             <ImageView
@@ -122,10 +115,10 @@
                 android:layout_weight="36.16"
                 android:orientation="vertical" >
                 
-                <com.jovi.bbs.goodcus.widgets.tableView.UITableView
+                <com.jovi.bbs.goodcus.widgets.tableView.CustomUITableView
                     android:id="@+id/tableView"
                     style="@style/UITableView"
-                    android:layout_height="200dp" />
+                    android:layout_height="wrap_content" />
                 
             </LinearLayout>
             
@@ -141,7 +134,15 @@
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_weight="1" />
-                
+
+                <ImageView
+                    android:id="@+id/view_page_place_holder"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/default_user_head_img"
+                    android:visibility="gone" />
+               
                 <com.jovi.bbs.goodcus.widgets.touchGallery.CirclePageIndicator
                         android:id="@+id/indicator"
                         android:layout_width="fill_parent"
@@ -150,13 +151,15 @@
 
             </LinearLayout>
         </LinearLayout>
-
-        <FrameLayout
-            android:id="@+id/review_fragment_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-
-        </FrameLayout>
     </RelativeLayout>
 </ScrollView>
+
+	<FrameLayout
+	    android:id="@+id/review_fragment_container"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:layout_below="@+id/pagedetail_header" >
+
+	</FrameLayout>
+
 </RelativeLayout>

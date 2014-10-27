@@ -12,6 +12,8 @@ import android.os.Environment;
 public class App extends Application
 {
 	public static final String LOGIN_STATE_CHANGE_ACTION = "com.jovi.bbs.goodcus.LOGIN_STATE_CHANGE_ACTION";
+	public static final String BOOKMARK_STATE_CHANGE_ACTION = "com.jovi.bbs.goodcus.BOOKMARK_STATE_CHANGE_ACTION";
+	public static final String GEO_LOCATION_UPDATE_ACTION = "com.jovi.bbs.goodcus.GEO_LOCATION_UPDATE_ACTION";
 	private static String LOG_FILE_NAME = "goodcus.log";
 	private int m_versionCode = 0;
 	

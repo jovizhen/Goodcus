@@ -1,6 +1,7 @@
 package com.jovi.bbs.goodcus.util;
 
 import java.util.ArrayList;
+
 import com.jovi.bbs.goodcus.net.googlePlacesApi.Place;
 
 import android.content.ContentValues;
@@ -35,12 +36,8 @@ public class FavoriteDBDataSource
 
 	public void addToFavorite(Place place)
 	{
-		Cursor cursor = database.query(MySQLiteHelper.TABLE_FAVORITES, allColumns, MySQLiteHelper.COLUMN_PLACE_ID + " = '" + place.getPlaceId() + "'", null,
-				null, null, null);
-		cursor.moveToFirst();
-		if (!cursor.isAfterLast())
+		if (isFavoriteAdded(place.getPlaceId()))
 		{
-			cursor.close();
 			return;
 		}
 		ContentValues values = new ContentValues();
@@ -55,6 +52,10 @@ public class FavoriteDBDataSource
 
 	public void removeFromFavorite(Place place)
 	{
+		if (!isFavoriteAdded(place.getPlaceId()))
+		{
+			return;
+		}
 		database.delete(MySQLiteHelper.TABLE_FAVORITES, MySQLiteHelper.COLUMN_PLACE_ID + " = '" + place.getPlaceId() + "'", null);
 	}
 
@@ -72,6 +73,41 @@ public class FavoriteDBDataSource
 		return favoriteList;
 	}
 
+	public boolean isFavoriteAdded(String placeId)
+	{
+		Cursor cursor = database.query(MySQLiteHelper.TABLE_FAVORITES, allColumns, MySQLiteHelper.COLUMN_PLACE_ID + " = '" + placeId + "'", null,
+				null, null, null);
+		cursor.moveToFirst();
+		boolean isAdded = !cursor.isAfterLast();
+		cursor.close();
+		return isAdded;
+	}
+	
+	public ArrayList<String> getAllFavoritePresentInList(ArrayList<String> targetList)
+	{
+		ArrayList<String> presendList = new ArrayList<String>();
+		StringBuilder sBuilder = new StringBuilder(MySQLiteHelper.COLUMN_PLACE_ID + " IN (");
+		for (int i = 0; i < targetList.size(); i++)
+		{
+			if (i < targetList.size() - 1)
+			{
+				sBuilder.append("'").append(targetList.get(i)).append("',");
+			} else
+			{
+				sBuilder.append("'").append(targetList.get(i)).append("')");
+			}
+		}
+		
+		Cursor cursor = database.query(MySQLiteHelper.TABLE_FAVORITES, allColumns, sBuilder.toString(), null, null, null, null);
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast())
+		{
+			presendList.add(cursor.getString(0));
+			cursor.moveToNext();
+		}
+		return presendList;
+	}
+	
 	private Place cursorToPlace(Cursor cursor)
 	{
 
@@ -85,7 +121,7 @@ public class FavoriteDBDataSource
 
 	private static FavoriteDBDataSource instance;
 
-	public static FavoriteDBDataSource getInSource(Context context)
+	public static FavoriteDBDataSource getInStance(Context context)
 	{
 		if (instance == null)
 		{

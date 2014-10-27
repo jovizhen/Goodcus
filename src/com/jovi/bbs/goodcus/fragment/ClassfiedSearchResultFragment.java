@@ -4,20 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.jovi.bbs.goodcus.App;
+import com.jovi.bbs.goodcus.NearbyPage;
 import com.jovi.bbs.goodcus.R;
 import com.jovi.bbs.goodcus.SearchDetailsPage;
 import com.jovi.bbs.goodcus.fragment.SearchResultFragmentFactory.SearchType;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.CustomGooglePlaces;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.GooglePlaceFilter;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.Place;
-import com.jovi.bbs.goodcus.util.GoogleImageLoader;
-import com.jovi.bbs.goodcus.util.Utils;
-import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
+import com.jovi.bbs.goodcus.util.BookmarkReciever;
+import com.jovi.bbs.goodcus.util.CollecttionHelper;
+import com.jovi.bbs.goodcus.util.FavoriteDBDataSource;
+import com.jovi.bbs.goodcus.util.SearchResultListAdapter;
 import com.jovi.bbs.goodcus.widgets.XListView;
 import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,10 +31,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.ProgressBar;
-import android.widget.RatingBar;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -44,8 +46,11 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 	private SearchResultListAdapter m_adapter;
 	private ArrayList<Place> m_model = new ArrayList<Place>();
 	
-	private CustomGooglePlaces googlePalcesClient;
+	private CustomGooglePlaces googlePlacesClient;
 	private GooglePlaceFilter googlePlaceFilter;
+	private BookmarkReciever mBookmarkReciever; 
+	private LocationReciever mLocationReciever;
+	private FavoriteDBDataSource favoriteDataSource;
 	private Location currentLocation;
 	private SearchType searchType; 
 
@@ -56,17 +61,16 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 		configure();
 		loadModel(null);
 	}
-
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 		View view = inflater.inflate(R.layout.classfied_result_fragment, container, false);
 		m_listView = (XListView) view.findViewById(R.id.fragment_result_list);
-		m_listView.setPullLoadEnable(googlePalcesClient.getPageToken() != null);
+		m_listView.setPullLoadEnable(googlePlacesClient.getPageToken() != null);
 		m_listView.setPullRefreshEnable(true);
 		m_listView.setXListViewListener(this);
 		m_listView.setOnItemClickListener(this);
-		m_adapter = new SearchResultListAdapter();
 		m_listView.setAdapter(m_adapter);
 		m_pBar = (ProgressBar) view.findViewById(R.id.forumDisplayProgressBar);
 		if(m_model.size()!=0)
@@ -98,9 +102,22 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 	
 	private void configure()
 	{
-		googlePalcesClient = new CustomGooglePlaces();
+		googlePlacesClient = new CustomGooglePlaces();
 		googlePlaceFilter = searchType.getPlaceFilter();
-		currentLocation = Utils.getCurrentLocation(getActivity());
+		m_adapter = new SearchResultListAdapter(getActivity(), m_model,googlePlacesClient);
+		mBookmarkReciever = new BookmarkReciever(m_model, m_adapter);
+		mLocationReciever = new LocationReciever();
+		favoriteDataSource = FavoriteDBDataSource.getInStance(getActivity());
+		favoriteDataSource.open();
+		IntentFilter filter_bookmark = new IntentFilter();
+		filter_bookmark.addAction(App.BOOKMARK_STATE_CHANGE_ACTION);
+		
+		IntentFilter filter_location = new IntentFilter();
+		filter_location.addAction(App.GEO_LOCATION_UPDATE_ACTION);
+		
+		getActivity().registerReceiver(mBookmarkReciever, filter_bookmark);
+		getActivity().registerReceiver(mLocationReciever, filter_location);
+		currentLocation = ((NearbyPage)getActivity()).getCurrentLocation();
 	}
 	
 	public void loadModel(String pageToken)
@@ -126,12 +143,16 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 	{
 		if(position < 1)
 			return;
-		Place selectPlace = m_model.get(position -1);
+		openDetailPage(m_model.get(position -1));
+	}
+	
+	public void openDetailPage(Place selectedPlace)
+	{
 		Bundle data = new Bundle();
-		data.putString("placeId", selectPlace.getPlaceId());
+		data.putString("placeId", selectedPlace.getPlaceId());
 		Location location = new Location("");
-		location.setLatitude(selectPlace.getLatitude());
-		location.setLongitude(selectPlace.getLongitude());
+		location.setLatitude(selectedPlace.getLatitude());
+		location.setLongitude(selectedPlace.getLongitude());
 		Gson gson = new Gson();
 		String jsonLocation = gson.toJson(location);
 		data.putSerializable("location",  jsonLocation);
@@ -149,73 +170,7 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 	@Override
 	public void onLoadMore()
 	{
-		loadModel(googlePalcesClient.getPageToken());
-	}
-	
-	class SearchResultListAdapter extends BaseAdapter
-	{
-		GoogleImageLoader imageLoader = new GoogleImageLoader(getActivity());
-		ViewHolder viewHolder;
-		
-		@Override
-		public int getCount()
-		{
-			return (m_model == null) ? 0 : m_model.size();
-		}
-
-		@Override
-		public Object getItem(int index)
-		{
-			if (m_model.size() != 0)
-			{
-				return m_model.get(index);
-			}
-			return null;
-		}
-
-		@Override
-		public long getItemId(int arg0)
-		{
-			return 0;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent)
-		{
-			if (convertView == null)
-			{
-				LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				convertView = inflater.inflate(R.layout.search_result_item, null);
-				viewHolder = new ViewHolder();
-				viewHolder.name = (TextView) convertView.findViewById(R.id.business_name);
-				viewHolder.addr = (TextView) convertView.findViewById(R.id.business_address);
-				viewHolder.ratingbar  =  (RatingBar) convertView.findViewById(R.id.MyRating);
-				viewHolder.img = (ImageViewWithCache) convertView.findViewById(R.id.headImgDetail);
-				convertView.setTag(viewHolder);
-			}
-			else
-			{
-				viewHolder = (ViewHolder) convertView.getTag();
-			}
-			
-			viewHolder.name.setText(m_model.get(position).getName());
-			viewHolder.addr.setText(m_model.get(position).getVicinity());
-			viewHolder.ratingbar.setRating((float) m_model.get(position).getRating());
-			if(m_model.get(position).getPhotos().size()>0)
-			{
-				imageLoader.DisplayImage(googlePalcesClient.buildPhotoDownloadUrl(m_model.get(position).getPhotos().get(0), 100, 100), 
-						m_model.get(position).getPlaceId(),  viewHolder.img);
-			}
-			return convertView;
-		}
-	}
-	
-	class ViewHolder
-	{
-		TextView name;
-		TextView addr;
-		RatingBar ratingbar;
-		ImageViewWithCache img;
+		loadModel(googlePlacesClient.getPageToken());
 	}
 	
 	class SearchResultTask extends AsyncTask<String, Void, List<Place>>
@@ -226,9 +181,9 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 			List<Place> placeList = new ArrayList<Place>();
 			try
 			{
-				placeList = googlePalcesClient.getNearbyPlaces(currentLocation.getLatitude(), 
+				placeList = googlePlacesClient.getNearbyPlaces(currentLocation.getLatitude(), 
 						currentLocation.getLongitude(), 10000, googlePlaceFilter);
-				status =googlePalcesClient.getStatusCode(); 
+				status =googlePlacesClient.getStatusCode(); 
 			}
 			catch (Exception e)
 			{
@@ -244,6 +199,7 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 			switch (status)
 			{
 				case CustomGooglePlaces.STATUS_CODE_OK:
+					restoreBookmarkToSearchResults((ArrayList<Place>) searchResult);
 					m_model.addAll(searchResult);
 					m_adapter.notifyDataSetChanged();
 					break;
@@ -255,7 +211,7 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 				default:
 					break;
 			}
-			if (googlePalcesClient.getPageToken() == null)
+			if (googlePlacesClient.getPageToken() == null)
 			{
 				m_listView.setPullLoadEnable(false);
 			}
@@ -273,6 +229,32 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 				m_listView.stopRefresh();
 			}
 			m_pBar.setVisibility(View.GONE);
+		}
+		
+		private void restoreBookmarkToSearchResults(ArrayList<Place> searchResult)
+		{
+			ArrayList<String> bookmarkPresentList = favoriteDataSource.getAllFavoritePresentInList(CollecttionHelper.getPlaceIdList(searchResult));
+			for (String placeId : bookmarkPresentList)
+			{
+				Place aPlace = CollecttionHelper.findPlaceById(searchResult, placeId);
+				if (aPlace != null)
+				{
+					aPlace.setBookmark(true);
+				}
+			}
+		}
+	}
+	
+	public class LocationReciever extends BroadcastReceiver
+	{
+		@Override
+		public void onReceive(Context paramContext, Intent paramIntent)
+		{
+			Bundle dataBundle = paramIntent.getExtras();
+			currentLocation = new Location("");
+			currentLocation.setLatitude(dataBundle.getDouble("Latitude"));
+			currentLocation.setLongitude(dataBundle.getDouble("Longtitude"));
+			loadModel(null);
 		}
 	}
 	

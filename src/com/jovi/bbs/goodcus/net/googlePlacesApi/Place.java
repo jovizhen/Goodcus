@@ -44,6 +44,7 @@ public class Place
 	private int utcOffset;
 	private int accuracy;
 	private String lang;
+	private boolean bookmark;
 
 	public Place()
 	{
@@ -882,6 +883,16 @@ public class Place
 	public String getLanguage()
 	{
 		return lang;
+	}
+	
+	public boolean isBookmark()
+	{
+		return bookmark;
+	}
+	
+	public void setBookmark(boolean bookmark)
+	{
+		this.bookmark = bookmark;
 	}
 
 	/**

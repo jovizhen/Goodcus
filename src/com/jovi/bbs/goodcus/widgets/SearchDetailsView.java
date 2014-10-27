@@ -14,7 +14,6 @@ import android.widget.TextView;
 public class SearchDetailsView extends LinearLayout
 {
 	LinearLayout mContainer;
-	ImageViewWithCache headImgDetail;
 	TextView businessName;
 	TextView bussinessAddr;
 	RatingBar ratingImg;
@@ -24,7 +23,6 @@ public class SearchDetailsView extends LinearLayout
 	{
 		super(context);
 		mContainer = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.search_detail_view, this);
-		headImgDetail = (ImageViewWithCache) findViewById(R.id.headImgDetail);
 		businessName = (TextView) findViewById(R.id.business_name);
 		bussinessAddr = (TextView) findViewById(R.id.business_addr);
 		ratingImg = (RatingBar) findViewById(R.id.MyRating2);
@@ -38,7 +36,6 @@ public class SearchDetailsView extends LinearLayout
 		super(context, attributeSet);
 		mContainer = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.search_detail_view, this);
 		
-		headImgDetail = (ImageViewWithCache) findViewById(R.id.headImgDetail);
 		businessName = (TextView) findViewById(R.id.business_name);
 		bussinessAddr = (TextView) findViewById(R.id.business_addr);
 		ratingImg = (RatingBar) findViewById(R.id.MyRating2);
@@ -50,11 +47,6 @@ public class SearchDetailsView extends LinearLayout
 	public LinearLayout getmContainer()
 	{
 		return mContainer;
-	}
-
-	public ImageViewWithCache getHeadImgDetail()
-	{
-		return headImgDetail;
 	}
 
 	public TextView getBusinessName()

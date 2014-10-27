@@ -9,17 +9,26 @@
         android:layout_height="48dp"
         android:background="@color/title_header_color" >
 
+ 		<ImageView
+ 		    android:id="@+id/imageView_appicon"
+ 		    android:layout_width="wrap_content"
+ 		    android:layout_height="wrap_content"
+ 		    android:layout_marginTop="5dp"
+ 		    android:layout_toRightOf="@+id/imageView_appicon"
+ 		    android:src="@drawable/app_icon" />
+
         <TextView
             android:id="@+id/title_category"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/imageView_appicon"
             android:paddingBottom="10dp"
             android:paddingTop="10dp"
             android:text="Nearby"
             android:textColor="@color/white"
             android:textSize="18sp" />
+
 		<LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

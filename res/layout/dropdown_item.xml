@@ -7,7 +7,8 @@
     android:paddingLeft="4dp"
     android:paddingRight="8dp"
     android:singleLine="true"
+    android:text="11sp"
     android:textAppearance="?android:attr/textAppearanceLargePopupMenu"
     android:textColor="@android:color/darker_gray"
-    android:textSize="16sp" />
+    android:textSize="10sp" />
 

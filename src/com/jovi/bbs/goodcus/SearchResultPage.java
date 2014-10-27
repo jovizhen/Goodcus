@@ -9,18 +9,23 @@ import com.jovi.bbs.goodcus.net.googlePlacesApi.CustomGooglePlaces;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.GooglePlaceFilter;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.Place;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.Prediction;
-import com.jovi.bbs.goodcus.util.GoogleImageLoader;
+import com.jovi.bbs.goodcus.util.BookmarkReciever;
+import com.jovi.bbs.goodcus.util.CollecttionHelper;
+import com.jovi.bbs.goodcus.util.FavoriteDBDataSource;
+import com.jovi.bbs.goodcus.util.LocationChangeHandler;
+import com.jovi.bbs.goodcus.util.SearchResultListAdapter;
 import com.jovi.bbs.goodcus.util.Utils;
 import com.jovi.bbs.goodcus.widgets.ClearableAutocompleteTextView;
 import com.jovi.bbs.goodcus.widgets.ClearableAutocompleteTextView.OnClearListener;
-import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
 import com.jovi.bbs.goodcus.widgets.XListView;
 import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -40,7 +45,6 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
@@ -55,11 +59,15 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 	private XListView m_listView;
 	private ImageView searchIcon;
 	private ClearableAutocompleteTextView searchBox;
-	private SharedPreferences filterPerferences;
 
 	private SearchResultListAdapter m_adapter;
 	private ArrayList<Place> m_model = new ArrayList<Place>();
-
+	private FavoriteDBDataSource favoriteDataSource;
+	private BookmarkReciever mBookmarkReciever; 
+	private LocationReciever mLocationReciever;
+	private LocationChangeHandler locationChangeHandler;
+	
+	private SharedPreferences filterPerferences;
 	private GooglePlaceFilter googlePlaceFilter;
 	private CustomGooglePlaces googlePalcesClient;
 
@@ -67,10 +75,44 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+		configure();
 		initView();
 		loadModel(null);
 	}
 
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		favoriteDataSource.open();
+	}
+
+	@Override
+	protected void onPause()
+	{
+		super.onPause();
+		favoriteDataSource.close();
+	}
+
+	public void configure()
+	{
+		favoriteDataSource = FavoriteDBDataSource.getInStance(this);
+		favoriteDataSource.open();
+		googlePalcesClient = new CustomGooglePlaces();
+		m_adapter = new SearchResultListAdapter(this, m_model, googlePalcesClient);
+		mBookmarkReciever = new BookmarkReciever(m_model, m_adapter);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(App.BOOKMARK_STATE_CHANGE_ACTION);
+		registerReceiver(mBookmarkReciever, filter);
+		mLocationReciever = new LocationReciever();
+		IntentFilter filter_location = new IntentFilter();
+		filter_location.addAction(App.GEO_LOCATION_UPDATE_ACTION);
+		registerReceiver(mLocationReciever, filter_location);
+		
+		locationChangeHandler = new LocationChangeHandler(this);
+		currentLocation = Utils.getCurrentLocation(this, locationChangeHandler);
+	}
+	
 	public void initView()
 	{
 		setContentView(R.layout.search_result_page);
@@ -89,18 +131,15 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 		m_listView.setPullRefreshEnable(true);
 		m_listView.setXListViewListener(this);
 		m_listView.setOnItemClickListener(this);
-		m_adapter = new SearchResultListAdapter();
 		m_listView.setAdapter(m_adapter);
 	}
 
 	public void setupSearchBox()
 	{
-		currentLocation = Utils.getCurrentLocation(this);
 		filterPerferences = getSharedPreferences("googleFilter", Context.MODE_PRIVATE);
-		
 		googlePlaceFilter = new GooglePlaceFilter();
 		googlePlaceFilter.setKeyword("restaurant");
-		googlePlaceFilter.setLanguage("zh-CN");
+		googlePlaceFilter.setLanguage("en");
 		
 		if (filterPerferences.getInt("max_price", 0) != 0)
 		{
@@ -115,7 +154,6 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 			googlePlaceFilter.setOpennow(true);
 		}
 
-		googlePalcesClient = new CustomGooglePlaces();
 		searchBox = (ClearableAutocompleteTextView) findViewById(R.id.search_box);
 		final AutocompleteAdapter adapter = new AutocompleteAdapter();
 		searchBox.setAdapter(adapter);
@@ -198,12 +236,16 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 	{
 		if (position < 1)
 			return;
-		Place selectPlace = m_model.get(position - 1);
+		openDetailPage(m_model.get(position - 1));
+	}
+	
+	public void openDetailPage(Place selectedPlace)
+	{
 		Bundle data = new Bundle();
-		data.putString("placeId", selectPlace.getPlaceId());
+		data.putString("placeId", selectedPlace.getPlaceId());
 		Location location = new Location("");
-		location.setLatitude(selectPlace.getLatitude());
-		location.setLongitude(selectPlace.getLongitude());
+		location.setLatitude(selectedPlace.getLatitude());
+		location.setLongitude(selectedPlace.getLongitude());
 		Gson gson = new Gson();
 		String jsonLocation = gson.toJson(location);
 		data.putSerializable("location", jsonLocation);
@@ -365,72 +407,20 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 			return filter;
 		}
 	}
-
-	class SearchResultListAdapter extends BaseAdapter
-	{
-		GoogleImageLoader imageLoader = new GoogleImageLoader(getApplicationContext());
-		ViewHolder holder;
-		
-		@Override
-		public int getCount()
-		{
-			return (m_model == null) ? 0 : m_model.size();
-		}
-
-		@Override
-		public Object getItem(int index)
-		{
-			if (m_model.size() != 0)
-			{
-				return m_model.get(index);
-			}
-			return null;
-		}
-
-		@Override
-		public long getItemId(int arg0)
-		{
-			return 0;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent)
-		{
-			if (convertView == null)
-			{
-				convertView = getLayoutInflater().inflate(R.layout.search_result_item, null);
-				holder = new ViewHolder();
-				holder.name = (TextView) convertView.findViewById(R.id.business_name);
-				holder.addr = (TextView) convertView.findViewById(R.id.business_address);
-				holder.ratingbar = (RatingBar) convertView.findViewById(R.id.MyRating);
-				holder.img = (ImageViewWithCache) convertView.findViewById(R.id.headImgDetail);
-				convertView.setTag(holder);
-			}
-			else 
-			{
-				holder = (ViewHolder) convertView.getTag();
-			}
-
-			holder.name.setText(m_model.get(position).getName());
-			holder.addr.setText(m_model.get(position).getVicinity());
-			holder.ratingbar.setRating((float) m_model.get(position).getRating());
-			if (m_model.get(position).getPhotos().size() > 0)
-			{
-				imageLoader.DisplayImage(googlePalcesClient.buildPhotoDownloadUrl(m_model.get(position).getPhotos().get(0), 100, 100), 
-						m_model.get(position).getPlaceId(),  holder.img);
-			}
-			return convertView;
-		}
-	}
-
-	class ViewHolder 
-	{
-		TextView name;
-		TextView addr;
-		RatingBar ratingbar;
-		ImageViewWithCache img;
-	}
 	
+	public class LocationReciever extends BroadcastReceiver
+	{
+
+		@Override
+		public void onReceive(Context paramContext, Intent paramIntent)
+		{
+			Bundle dataBundle = paramIntent.getExtras();
+			currentLocation = new Location("");
+			currentLocation.setLatitude(dataBundle.getDouble("Latitude"));
+			currentLocation.setLongitude(dataBundle.getDouble("Longtitude"));
+		}
+	}
+
 	class SearchResultTask extends AsyncTask<String, Void, List<Place>>
 	{
 		@Override
@@ -468,6 +458,7 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 			switch (status)
 			{
 				case CustomGooglePlaces.STATUS_CODE_OK:
+					restoreBookmarkToSearchResults((ArrayList<Place>) searchResult);
 					m_model.addAll(searchResult);
 					m_adapter.notifyDataSetChanged();
 					break;
@@ -497,6 +488,19 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 				m_listView.stopRefresh();
 			}
 			m_pBar.setVisibility(View.GONE);
+		}
+		
+		private void restoreBookmarkToSearchResults(ArrayList<Place> searchResult)
+		{
+			ArrayList<String> bookmarkPresentList = favoriteDataSource.getAllFavoritePresentInList(CollecttionHelper.getPlaceIdList(searchResult));
+			for (String placeId : bookmarkPresentList)
+			{
+				Place aPlace = CollecttionHelper.findPlaceById(searchResult, placeId);
+				if (aPlace != null)
+				{
+					aPlace.setBookmark(true);
+				}
+			}
 		}
 	}
 }

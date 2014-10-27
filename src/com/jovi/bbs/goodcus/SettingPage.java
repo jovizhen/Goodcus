@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 
 
+
 import com.google.android.gms.plus.model.people.Person;
 import com.google.gson.Gson;
 import com.jovi.bbs.goodcus.net.Api;
@@ -76,7 +77,7 @@ public class SettingPage extends Activity
 	
 	public void configure()
 	{
-		favoritorDataSource = FavoriteDBDataSource.getInSource(this);
+		favoritorDataSource = FavoriteDBDataSource.getInStance(this);
 		favoritorDataSource.open();
 		api = Api.getInstance();
 		m_recv = new Recv();
@@ -248,6 +249,12 @@ public class SettingPage extends Activity
 				public void onClick(View v)
 				{
 					favoritorDataSource.removeFromFavorite(m_model.get(index));
+					Bundle dataBundle = new Bundle();
+					dataBundle.putString("placeId", m_model.get(index).getPlaceId());
+					dataBundle.putBoolean("isBookmarked", false);
+					Intent intent = new Intent(App.BOOKMARK_STATE_CHANGE_ACTION);
+					intent.putExtras(dataBundle);
+					sendBroadcast(intent);
 					m_model.remove(index);
 					notifyDataSetChanged();
 				}
