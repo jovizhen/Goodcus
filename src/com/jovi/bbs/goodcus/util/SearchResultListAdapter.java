@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.content.Context;
+import android.location.Location;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,12 +25,14 @@ public class SearchResultListAdapter extends BaseAdapter
 	private ArrayList<Place> m_model;
 	private CustomGooglePlaces googlePlacesClient;
 	private Activity hostActivity;
+	private Location currentLocation;
 	
-	public SearchResultListAdapter(Activity hostActivity, ArrayList<Place>m_model, CustomGooglePlaces googlePlacesClient)
+	public SearchResultListAdapter(Activity hostActivity, ArrayList<Place>m_model, CustomGooglePlaces googlePlacesClient, Location currentLocation)
 	{
 		this.hostActivity = hostActivity;
 		this.m_model = m_model;
 		this.googlePlacesClient = googlePlacesClient;
+		this.currentLocation = currentLocation;
 		imageLoader = new GoogleImageLoader(hostActivity);
 	}
 	
@@ -68,6 +71,8 @@ public class SearchResultListAdapter extends BaseAdapter
 			viewHolder.ratingbar  =  (RatingBar) convertView.findViewById(R.id.MyRating);
 			viewHolder.img = (ImageViewWithCache) convertView.findViewById(R.id.headImgDetail);
 			viewHolder.bookmark = (ImageView) convertView.findViewById(R.id.bookmark);
+			viewHolder.businessType = (TextView) convertView.findViewById(R.id.business_type);
+			viewHolder.distance = (TextView) convertView.findViewById(R.id.distance);
 			convertView.setTag(viewHolder);
 		}
 		else
@@ -78,13 +83,23 @@ public class SearchResultListAdapter extends BaseAdapter
 		viewHolder.name.setText(m_model.get(position).getName());
 		viewHolder.addr.setText(m_model.get(position).getVicinity());
 		viewHolder.ratingbar.setRating((float) m_model.get(position).getRating());
+		viewHolder.businessType.setText(m_model.get(position).getTypes().toString());
 		if(m_model.get(position).getPhotos().size()>0)
 		{
 			imageLoader.DisplayImage(googlePlacesClient.buildPhotoDownloadUrl(m_model.get(position).getPhotos().get(0), 100, 100), 
 					m_model.get(position).getPlaceId(),  viewHolder.img);
 		}
 		viewHolder.bookmark.setVisibility(m_model.get(position).isBookmark() ? View.VISIBLE : View.GONE);
+		Location placeLocation = new Location("");
+		placeLocation.setLatitude(m_model.get(position).getLatitude());
+		placeLocation.setLongitude(m_model.get(position).getLongitude());
+		viewHolder.distance.setText(Utils.computeDistance(currentLocation, placeLocation));
 		return convertView;
+	}
+	
+	public void setCurrentLocation(Location currentLocation)
+	{
+		this.currentLocation = currentLocation;
 	}
 	
 	class ViewHolder
@@ -94,5 +109,7 @@ public class SearchResultListAdapter extends BaseAdapter
 		RatingBar ratingbar;
 		ImageViewWithCache img;
 		ImageView bookmark;
+		TextView businessType;
+		TextView distance;
 	}
 }

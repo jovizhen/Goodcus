@@ -15,7 +15,6 @@ import com.jovi.bbs.goodcus.net.googlePlacesApi.CustomGooglePlaces;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.Photo;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.Place;
 import com.jovi.bbs.goodcus.util.FavoriteDBDataSource;
-import com.jovi.bbs.goodcus.widgets.RefreshActionBtn;
 import com.jovi.bbs.goodcus.widgets.SearchDetailsView;
 import com.jovi.bbs.goodcus.widgets.tableView.CustomUITableView;
 import com.jovi.bbs.goodcus.widgets.tableView.CustomUITableView.CustomItemClickListener;
@@ -27,6 +26,7 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,7 +47,6 @@ public class SearchDetailsPage extends Activity
 	private RelativeLayout pageHeader;
 	private SearchDetailsView detailsView;
 	private CirclePageIndicator mIndicator;
-	private RefreshActionBtn mRefreshBtn;
 
 	private ArrayList<String> m_photo_reference_list = new ArrayList<String>();
 	private ReferencePagerAdapter pagerAdapter;
@@ -58,6 +57,7 @@ public class SearchDetailsPage extends Activity
 	private Place place;
 	private GoogleMap mMap;
 	private Location location;
+	private Location currentLocation;
 	private Handler m_handler = new Handler();
 	
 	@Override
@@ -88,16 +88,16 @@ public class SearchDetailsPage extends Activity
 		Gson gson = new Gson();
 		placeId =  this.getIntent().getExtras().getString("placeId");
 		String jsonLocation = this.getIntent().getExtras().getString("location");
+		String jsonCurrentLocation = this.getIntent().getExtras().getString("currentLocation");
 		location = gson.fromJson(jsonLocation, Location.class);
+		currentLocation = gson.fromJson(jsonCurrentLocation, Location.class);
 		favoriteDataSource = FavoriteDBDataSource.getInStance(this);
 		favoriteDataSource.open();
 	}
 	
 	private void initView()
 	{
-		setContentView(R.layout.search_details_page);
-		mRefreshBtn = (RefreshActionBtn) findViewById(R.id.detail_info_RefreshBtn);
-		mRefreshBtn.startRefresh();
+		setContentView(R.layout.activity_search_details_page);
 		detailsView = (SearchDetailsView) findViewById(R.id.searchDetailsFrag);
 		pagerAdapter = new ReferencePagerAdapter(this, m_photo_reference_list);
 		viewPagerHolder = (ImageView) findViewById(R.id.view_page_place_holder);
@@ -118,6 +118,7 @@ public class SearchDetailsPage extends Activity
 		tableView.setCustomListener(listener);
 		tableView.addBasicItem(R.drawable.ic_action_directions, "Direction", null);
 		tableView.addBasicItem(R.drawable.ic_action_copy, "Reviews", null);
+		tableView.addBasicItem(R.drawable.ic_action_web_site, "Website", null);
 		tableView.addBasicItem(R.drawable.ic_action_call, "Telephone", null, false);
 		boolean isBookmarked = favoriteDataSource.isFavoriteAdded(placeId);
 		tableView.addBasicItem(isBookmarked? R.drawable.ic_bookmarked: R.drawable.ic_bookmark, 
@@ -125,14 +126,11 @@ public class SearchDetailsPage extends Activity
 		tableView.commit();
 	}
 	
-	public void onRefreshBtnClicked(View view)
-	{
-		mRefreshBtn.startRefresh();
-		new PlaceDetailTask().execute("");
-	}
-	
 	public void onDirectionClick()
 	{
+		if(place == null)
+			return;
+		
 		Fragment f = getFragmentManager().findFragmentByTag(MAP_DIRECTION_FRAGMENT);
 		if(f!=null)
 		{
@@ -176,6 +174,8 @@ public class SearchDetailsPage extends Activity
 	
 	public void onBrowseReviewClick()
 	{
+		if(place == null)
+			return;
 		Fragment f = getFragmentManager().findFragmentByTag(MAP_DIRECTION_FRAGMENT);
 		if(f!=null)
 		{
@@ -198,6 +198,17 @@ public class SearchDetailsPage extends Activity
 		}
 	}
 	
+	public void onWebsiteClick()
+	{
+		if(place == null)
+			return;
+		String webLink = place.getWebsite() != null? place.getWebsite():place.getGoogleUrl();
+		if(webLink == null)
+			return;
+		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(webLink));
+		startActivity(browserIntent);
+	}
+	
 	public void onPhoneClick()
 	{
 	}
@@ -209,6 +220,9 @@ public class SearchDetailsPage extends Activity
 	
 	public void onBookmarkClick(View view)
 	{
+		if(place == null)
+			return;
+		
 		ImageView icon = (ImageView) view.findViewById(R.id.image);
 		TextView textView = (TextView) view.findViewById(R.id.title);
 		if("Bookmark".equals(textView.getText()))
@@ -271,12 +285,9 @@ public class SearchDetailsPage extends Activity
 		
 		protected void onPostExecute(String result)
 		{
-			detailsView.getBusinessName().setText(place.getName());
-			detailsView.getBussinessAddr().setText(place.getAddress());
-			detailsView.getRatingImg().setRating((float) place.getRating());
+			detailsView.loadPlaceDetails(place, currentLocation, location);
 			m_handler.post(new Runnable()
 			{
-				
 				@Override
 				public void run()
 				{
@@ -295,7 +306,6 @@ public class SearchDetailsPage extends Activity
 					pagerAdapter.notifyDataSetChanged();
 				}
 			});
-			mRefreshBtn.endRefresh();
 		}
 	}
 	
@@ -315,9 +325,13 @@ public class SearchDetailsPage extends Activity
 			}
 			else if(index == 2)
 			{
-				onPhoneClick();
+				onWebsiteClick();
 			}
 			else if(index == 3)
+			{
+				onPhoneClick();
+			}
+			else if(index == 4)
 			{
 				onBookmarkClick(view);
 			}

@@ -1,3 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
+    <issue id="DefaultLocale">
+        <ignore path="src/com/jovi/bbs/goodcus/net/googlePlacesApi/CustomGooglePlaces.java" />
+    </issue>
+    <issue id="UselessParent">
+        <ignore path="res/layout/splash.xml" />
+    </issue>
 </lint>

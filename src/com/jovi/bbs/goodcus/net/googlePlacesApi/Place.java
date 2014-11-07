@@ -1,17 +1,15 @@
 package com.jovi.bbs.goodcus.net.googlePlacesApi;
 
+import android.annotation.SuppressLint;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.Review.Aspect;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import static com.jovi.bbs.goodcus.net.googlePlacesApi.GooglePlaces.*;
 
 /**
@@ -983,7 +981,7 @@ public class Place
 		if (hours != null)
 		{
 			boolean statusDefined = hours.has(BOOLEAN_OPENED);
-			status = statusDefined && hours.getBoolean(BOOLEAN_OPENED) ? Status.OPENED : Status.CLOSED;
+			status = statusDefined && hours.getBoolean(BOOLEAN_OPENED) ? Status.OPEN : Status.CLOSED;
 
 			// periods of operation
 			JSONArray jsonPeriods = hours.optJSONArray(ARRAY_PERIODS);
@@ -1059,7 +1057,6 @@ public class Place
 						addr.addType(types.getString(a));
 					}
 				}
-
 				addressComponents.add(addr);
 			}
 		}
@@ -1133,7 +1130,7 @@ public class Place
 				.addAddressComponents(addressComponents).setHours(schedule).addReviews(reviews).setUtcOffset(utcOffset).setJson(result);
 	}
 
-	@Override
+	@SuppressLint("DefaultLocale") @Override
 	public String toString()
 	{
 		return String.format("Place{id=%s,loc=%f,%f,name=%s,addr=%s,ref=%s", id, lat, lng, name, addr, referenceId);

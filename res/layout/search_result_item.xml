@@ -35,9 +35,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:minHeight="30dp"
                 android:textColor="@color/forum_display_item_title_color"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:textStyle="bold" />
              <ImageView
                     android:id="@+id/bookmark"
@@ -51,14 +50,21 @@
                 android:id="@+id/business_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="10dp" />
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/business_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/gray"
+                android:textSize="11sp" />
 
             <LinearLayout
                 android:id="@+id/LinearLayout2"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom" >
+                android:layout_gravity="bottom"
+                android:layout_marginTop="5dp" >
 
                 <RatingBar
     				android:id="@+id/MyRating"
@@ -85,27 +91,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="0"
-                    android:textColor="@color/gray"
-                    android:textSize="10dp" />
-
-                <TextView
-                    android:id="@+id/peiceLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="10dp"
-                    android:text="price: "
-                    android:textColor="@color/gray"
-                    android:textSize="10dp" />
-
-                <TextView
-                    android:id="@+id/replyCnt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginRight="5dp"
-                    android:text="0"
-                    android:textColor="@color/gray"
+                    android:textColor="@color/green"
                     android:textSize="10dp" />
 
                

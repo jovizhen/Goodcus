@@ -1221,7 +1221,7 @@ public class GooglePlaces
 			if (hoursDefined)
 			{
 				boolean opened = hours.getBoolean(BOOLEAN_OPENED);
-				status = opened ? Status.OPENED : Status.CLOSED;
+				status = opened ? Status.OPEN : Status.CLOSED;
 			}
 
 			// get the price level for the place, fail-safe if not defined

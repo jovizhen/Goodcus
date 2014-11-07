@@ -5,5 +5,5 @@ package com.jovi.bbs.goodcus.net.googlePlacesApi;
  */
 public enum Status
 {
-	OPENED, CLOSED, NONE
+	OPEN, CLOSED, NONE
 }

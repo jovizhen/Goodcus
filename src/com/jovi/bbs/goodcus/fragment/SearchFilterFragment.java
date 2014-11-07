@@ -1,6 +1,7 @@
 package com.jovi.bbs.goodcus.fragment;
 
 import com.jovi.bbs.goodcus.R;
+import com.jovi.bbs.goodcus.net.googlePlacesApi.GooglePlaceFilter;
 import com.jovi.bbs.goodcus.widgets.tableView.DropdownView;
 import com.jovi.bbs.goodcus.widgets.tableView.DropdownView.ClickListener;
 
@@ -21,7 +22,6 @@ public class SearchFilterFragment extends Fragment
 {
 	private DropdownView priceDropdown;
 	private DropdownView distanceDropdown;
-	private DropdownView sortDropdown;
 	private SharedPreferences sharedPreferences;
 	
 	@Override
@@ -47,8 +47,8 @@ public class SearchFilterFragment extends Fragment
 		priceDropdown.addDropdownItem("$$$");
 		priceDropdown.addDropdownItem("$$$$");
 		priceDropdown.commit();
-		int maxPrice = sharedPreferences.getInt("max_price", 0);
-		if(maxPrice == 0)
+		int maxPrice = sharedPreferences.getInt("max_price", GooglePlaceFilter.DEFAULT_MAX_PRICE);
+		if(maxPrice == GooglePlaceFilter.DEFAULT_MAX_PRICE)
 		{
 			priceDropdown.selectItemByTitle("Auto");
 		}
@@ -77,7 +77,7 @@ public class SearchFilterFragment extends Fragment
 				String key = "max_price";
 				if(priceDropdown.getSelectedString().equals("Auto"))
 				{
-					editor.putInt(key, 0);
+					editor.putInt(key, GooglePlaceFilter.DEFAULT_MAX_PRICE);
 				}
 				else if(priceDropdown.getSelectedString().equals("$"))
 				{
@@ -101,25 +101,25 @@ public class SearchFilterFragment extends Fragment
 
 		distanceDropdown = (DropdownView) parentView.findViewById(R.id.distanceDropdown);
 		distanceDropdown.addDropdownItem("5 miles");
-		distanceDropdown.addDropdownItem("10 miles");
-		distanceDropdown.addDropdownItem("20 miles");
+		distanceDropdown.addDropdownItem("15 miles");
+		distanceDropdown.addDropdownItem("30 miles");
 		distanceDropdown.commit();
-		long radius = sharedPreferences.getLong("radius", 0);
-		if(radius==0)
+		long radius = sharedPreferences.getLong("radius", GooglePlaceFilter.DEFAULT_SEARCH_RADIUS);
+		if (radius == GooglePlaceFilter.DEFAULT_SEARCH_RADIUS)
 		{
 			distanceDropdown.selectItemByTitle("Auto");
 		}
-		else if(radius==8000)
+		else if(radius==5*1.6*1000)
 		{
 			distanceDropdown.selectItemByTitle("5 miles");
 		}
-		else if(radius==16000)
+		else if(radius==15*1.6*1000)
 		{
-			distanceDropdown.selectItemByTitle("10 miles");
+			distanceDropdown.selectItemByTitle("15 miles");
 		}
-		else if(radius==32000)
+		else if(radius==30*1.6*1000)
 		{
-			distanceDropdown.selectItemByTitle("20 miles");
+			distanceDropdown.selectItemByTitle("30 miles");
 		}
 		
 		distanceDropdown.setClickListener(new ClickListener()
@@ -131,59 +131,19 @@ public class SearchFilterFragment extends Fragment
 				String key = "radius";
 				if(distanceDropdown.getSelectedString().equals("Auto"))
 				{
-					editor.putLong(key, 0);
+					editor.putLong(key, GooglePlaceFilter.DEFAULT_SEARCH_RADIUS);
 				}
 				if(distanceDropdown.getSelectedString().equals("5 miles"))
 				{
 					editor.putLong(key, 8000);
 				}
-				else if(distanceDropdown.getSelectedString().equals("10 miles"))
+				else if(distanceDropdown.getSelectedString().equals("15 miles"))
 				{
-					editor.putLong(key, 16000);
+					editor.putLong(key, 24000);
 				}
-				else if(distanceDropdown.getSelectedString().equals("20 miles"))
+				else if(distanceDropdown.getSelectedString().equals("30 miles"))
 				{
-					editor.putLong(key, 32000);
-				}
-				editor.commit();
-			}
-		});
-		
-		sortDropdown = (DropdownView) parentView.findViewById(R.id.sortDropdown);
-		sortDropdown.addDropdownItem("Distance");
-		sortDropdown.addDropdownItem("Best match");
-		sortDropdown.commit();
-		String rankBy = sharedPreferences.getString("rank_by", "Auto");
-		if(rankBy.equals("Auto"))
-		{
-			sortDropdown.selectItemByTitle("Auto");
-		}
-		else if(rankBy.equals("distance"))
-		{
-			sortDropdown.selectItemByTitle("Distance");
-		}
-		else if(rankBy.equals("prominence"))
-		{
-			sortDropdown.selectItemByTitle("Best match");
-		}
-		sortDropdown.setClickListener(new ClickListener()
-		{
-			@Override
-			public void onClick(int index)
-			{
-				Editor editor = sharedPreferences.edit();
-				String key = "rank_by";
-				if(sortDropdown.getSelectedString().equals("Auto"))
-				{
-					editor.putString(key, null);
-				}
-				else if(sortDropdown.getSelectedString().equals("Distance"))
-				{
-					editor.putString(key, "distance");
-				}
-				else if(sortDropdown.getSelectedString().equals("Best match"))
-				{
-					editor.putString(key, "prominence");
+					editor.putLong(key, 48000);
 				}
 				editor.commit();
 			}
@@ -193,7 +153,7 @@ public class SearchFilterFragment extends Fragment
 	private void setupToggleMenu(View parentView)
 	{
 		ToggleButton tgBtn = (ToggleButton) parentView.findViewById(R.id.toggleButton);
-		tgBtn.setChecked(sharedPreferences.getBoolean("open_now", false));
+		tgBtn.setChecked(sharedPreferences.getBoolean("open_now", GooglePlaceFilter.DEFAULT_OPEN_NOW));
 		tgBtn.setOnCheckedChangeListener(new OnCheckedChangeListener()
 		{
 			@Override

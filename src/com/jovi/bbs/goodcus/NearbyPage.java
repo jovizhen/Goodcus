@@ -68,7 +68,7 @@ public class NearbyPage extends FragmentActivity
 	
 	public void initView()
 	{
-		setContentView(R.layout.nearby_page);
+		setContentView(R.layout.activity_nearby_page);
 		tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
 		mCollectionPagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager());
 		mViewPager = (ViewPager) findViewById(R.id.pager);

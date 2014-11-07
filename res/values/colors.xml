@@ -14,6 +14,9 @@
     <color name="canvas">#DEE3E7</color>
     <color name="deepgray">#636973</color>
     <color name="red">#B22222</color>
+    <color name="green">#669900</color>
+    <color name="blue">#0C19DB</color>
+    
     <color name="background_tab_pressed">#6633B5E5</color>
     <color name="slide_tab_underline_color">#33B5E5</color>
     <color name="slide_tab_indicator_color">#33B5E5</color>

@@ -6,7 +6,10 @@ import com.jovi.bbs.goodcus.net.googlePlacesApi.GooglePlaces.Param;
 
 public class GooglePlaceFilter
 {
-
+	public static final long  DEFAULT_SEARCH_RADIUS = 50000;
+	public static final Integer DEFAULT_MAX_PRICE = -1;
+	public static final Boolean DEFAULT_OPEN_NOW = false;
+	public static final String  DEFAULT_RANK_BY = "default";
 	ArrayList<Param> paramList = new ArrayList<Param>();
 	
 	//This must be specified as comma delimited "latitude,longitude"
@@ -55,9 +58,18 @@ public class GooglePlaceFilter
 		return location;
 	}
 	
-	public void setLocation(String location)
+	public GooglePlaceFilter setLocation(String location)
 	{
 		this.location = location;
+		Param param = searchParamByName("location");
+		if (param == null)
+		{
+			paramList.add(Param.name("location").value(location));
+		} else
+		{
+			param.setValue(location);
+		}
+		return this;
 	}
 	
 	public Double getLat()
@@ -85,9 +97,18 @@ public class GooglePlaceFilter
 		return radius;
 	}
 	
-	public void setRadius(Double radius)
+	public GooglePlaceFilter setRadius(Double radius)
 	{
 		this.radius = radius;
+		Param param = searchParamByName("radius");
+		if (param == null)
+		{
+			paramList.add(Param.name("radius").value(radius));
+		} else
+		{
+			param.setValue(radius.toString());
+		}
+		return this;
 	}
 	
 	
@@ -100,14 +121,25 @@ public class GooglePlaceFilter
 	{
 		this.opennow = opennow;
 		Param param = searchParamByName("opennow");
-		if(param == null)
+		if(opennow.equals(DEFAULT_OPEN_NOW))
 		{
-			paramList.add(Param.name("opennow").value(opennow));
+			if(param!=null)
+			{
+				paramList.remove(param);
+			}
 		}
-		else
+		else 
 		{
-			param.setValue(opennow.toString());
+			if(param == null)
+			{
+				paramList.add(Param.name("opennow").value(opennow));
+			}
+			else
+			{
+				param.setValue(opennow.toString());
+			}
 		}
+	
 		return this;
 	}
 
@@ -259,14 +291,25 @@ public class GooglePlaceFilter
 	{
 		this.maxprice = maxprice;
 		Param param = searchParamByName("maxprice");
-		if(param == null)
+		if(maxprice.equals(DEFAULT_MAX_PRICE))
 		{
-			paramList.add(Param.name("maxprice").value(maxprice));
+			if(param != null)
+			{
+				paramList.remove(param);
+			}
 		}
 		else
 		{
-			param.setValue(maxprice.toString());
+			if(param == null)
+			{
+				paramList.add(Param.name("maxprice").value(maxprice));
+			}
+			else
+			{
+				param.setValue(maxprice.toString());
+			}
 		}
+		
 		return this;
 	}
 	

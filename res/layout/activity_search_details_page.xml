@@ -50,23 +50,6 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true" >
-            
-            <com.jovi.bbs.goodcus.widgets.RefreshActionBtn
-                    android:id="@+id/detail_info_RefreshBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/normal_action_btn"
-                    android:padding="10dp"
-                    android:onClick= "onRefreshBtnClicked"
-                    android:src="@drawable/navigation_refresh" />
-
-        </LinearLayout>
-
     </RelativeLayout>
 
 	<ScrollView
@@ -86,7 +69,7 @@
             <com.jovi.bbs.goodcus.widgets.SearchDetailsView
                 android:id="@+id/searchDetailsFrag"
                 android:layout_width="match_parent"
-                android:layout_height="126dp" >
+                android:layout_height="wrap_content" >
             </com.jovi.bbs.goodcus.widgets.SearchDetailsView>
 
             <LinearLayout

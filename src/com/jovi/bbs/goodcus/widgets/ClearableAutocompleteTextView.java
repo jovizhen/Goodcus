@@ -31,7 +31,7 @@ public class ClearableAutocompleteTextView extends AutoCompleteTextView
 	private OnClearListener onClearListener = defaultClearListener;
 	// The image we defined for the clear button
 	public Drawable imgClearButton = getResources().getDrawable(R.drawable.ic_action_cancel_dark);
-	public Drawable imgSearchIcon  = getResources().getDrawable(R.drawable.ic_action_search_dark);
+//	public Drawable imgSearchIcon  = getResources().getDrawable(R.drawable.ic_action_search_dark);
 
 	public ClearableAutocompleteTextView(Context context)
 	{
@@ -53,7 +53,7 @@ public class ClearableAutocompleteTextView extends AutoCompleteTextView
 
 	public void init()
 	{
-		this.setCompoundDrawablesWithIntrinsicBounds(imgSearchIcon, null, imgClearButton, null);
+		this.setCompoundDrawablesWithIntrinsicBounds(null, null, imgClearButton, null);
 		// if the clear button is pressed, fire up the handler. Otherwise do
 		// nothing
 		this.setOnTouchListener(new OnTouchListener()
@@ -131,11 +131,11 @@ public class ClearableAutocompleteTextView extends AutoCompleteTextView
 
 	public void hideClearButton()
 	{
-		this.setCompoundDrawables(imgSearchIcon, null, null, null);
+		this.setCompoundDrawables(null, null, null, null);
 	}
 
 	public void showClearButton()
 	{
-		this.setCompoundDrawablesWithIntrinsicBounds(imgSearchIcon, null, imgClearButton, null);
+		this.setCompoundDrawablesWithIntrinsicBounds(null, null, imgClearButton, null);
 	}
 }

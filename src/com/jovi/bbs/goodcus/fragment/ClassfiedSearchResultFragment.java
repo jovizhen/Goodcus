@@ -65,7 +65,7 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		View view = inflater.inflate(R.layout.classfied_result_fragment, container, false);
+		View view = inflater.inflate(R.layout.fragment_classfied_result, container, false);
 		m_listView = (XListView) view.findViewById(R.id.fragment_result_list);
 		m_listView.setPullLoadEnable(googlePlacesClient.getPageToken() != null);
 		m_listView.setPullRefreshEnable(true);
@@ -104,7 +104,8 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 	{
 		googlePlacesClient = new CustomGooglePlaces();
 		googlePlaceFilter = searchType.getPlaceFilter();
-		m_adapter = new SearchResultListAdapter(getActivity(), m_model,googlePlacesClient);
+		currentLocation = ((NearbyPage)getActivity()).getCurrentLocation();
+		m_adapter = new SearchResultListAdapter(getActivity(), m_model,googlePlacesClient, currentLocation);
 		mBookmarkReciever = new BookmarkReciever(m_model, m_adapter);
 		mLocationReciever = new LocationReciever();
 		favoriteDataSource = FavoriteDBDataSource.getInStance(getActivity());
@@ -117,7 +118,6 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 		
 		getActivity().registerReceiver(mBookmarkReciever, filter_bookmark);
 		getActivity().registerReceiver(mLocationReciever, filter_location);
-		currentLocation = ((NearbyPage)getActivity()).getCurrentLocation();
 	}
 	
 	public void loadModel(String pageToken)
@@ -156,6 +156,8 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 		Gson gson = new Gson();
 		String jsonLocation = gson.toJson(location);
 		data.putSerializable("location",  jsonLocation);
+		String jsonCurrentLocation = gson.toJson(currentLocation);
+		data.putSerializable("currentLocation", jsonCurrentLocation);
 		Intent intent = new Intent(getActivity(), SearchDetailsPage.class);
 		intent.putExtras(data);
 		this.startActivity(intent);
@@ -179,16 +181,8 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 		protected List<Place> doInBackground(String... urls)
 		{
 			List<Place> placeList = new ArrayList<Place>();
-			try
-			{
-				placeList = googlePlacesClient.getNearbyPlaces(currentLocation.getLatitude(), 
-						currentLocation.getLongitude(), 10000, googlePlaceFilter);
-				status =googlePlacesClient.getStatusCode(); 
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
+			placeList = googlePlacesClient.getNearbyPlaces(currentLocation.getLatitude(), currentLocation.getLongitude(), 10000, googlePlaceFilter);
+			status = googlePlacesClient.getStatusCode();
 			return placeList;
 		}
 		
@@ -254,7 +248,11 @@ public class ClassfiedSearchResultFragment extends Fragment implements IXListVie
 			currentLocation = new Location("");
 			currentLocation.setLatitude(dataBundle.getDouble("Latitude"));
 			currentLocation.setLongitude(dataBundle.getDouble("Longtitude"));
-			loadModel(null);
+			m_adapter.setCurrentLocation(currentLocation);
+			if(m_model.size()==0)
+			{
+				loadModel(null);
+			}
 		}
 	}
 	

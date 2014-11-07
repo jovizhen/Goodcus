@@ -2,6 +2,7 @@ package com.jovi.bbs.goodcus.util;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.DecimalFormat;
 
 import android.content.Context;
 import android.location.Criteria;
@@ -35,5 +36,21 @@ public class Utils
 		String bestProvider = locationManager.getBestProvider(criteria, false);
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5 * 60 * 1000, 20, locationListener);
 		return locationManager.getLastKnownLocation(bestProvider);
+	}
+	
+	public static String computeDistance(Location from, Location to)
+	{
+		if (from == null || to == null)
+			return "0 miles";
+
+		double earthRadius = 6371; // kilometers
+		double dLat = Math.toRadians(from.getLatitude() - to.getLatitude());
+		double dLng = Math.toRadians(from.getLongitude() - to.getLongitude());
+		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(to.getLatitude())) * Math.cos(Math.toRadians(from.getLatitude()))
+				* Math.sin(dLng / 2) * Math.sin(dLng / 2);
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		float dist = (float) (earthRadius * c / 1.6);
+		DecimalFormat df = new DecimalFormat("#.0");
+		return df.format(dist) + " miles";
 	}
 }

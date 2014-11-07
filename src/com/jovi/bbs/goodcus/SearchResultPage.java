@@ -1,6 +1,8 @@
 package com.jovi.bbs.goodcus;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -43,6 +45,7 @@ import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TextView;
@@ -52,13 +55,16 @@ import android.widget.Toast;
 public class SearchResultPage extends Activity implements IXListViewListener, OnItemClickListener
 {
 	private static final String SEARCH_FILTER_FRAGMENT_TAG = "search_filter_fragment";
+	
 	private int status;
+	private String keyword;
 	private Location currentLocation;
 
 	private ProgressBar m_pBar;
 	private XListView m_listView;
 	private ImageView searchIcon;
 	private ClearableAutocompleteTextView searchBox;
+	private LinearLayout searchGroup;
 
 	private SearchResultListAdapter m_adapter;
 	private ArrayList<Place> m_model = new ArrayList<Place>();
@@ -66,6 +72,7 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 	private BookmarkReciever mBookmarkReciever; 
 	private LocationReciever mLocationReciever;
 	private LocationChangeHandler locationChangeHandler;
+	private AutocompleteAdapter autocompleteAdapter;
 	
 	private SharedPreferences filterPerferences;
 	private GooglePlaceFilter googlePlaceFilter;
@@ -77,7 +84,7 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 		super.onCreate(savedInstanceState);
 		configure();
 		initView();
-		loadModel(null);
+		loadModel(null, keyword);
 	}
 
 	@Override
@@ -98,8 +105,10 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 	{
 		favoriteDataSource = FavoriteDBDataSource.getInStance(this);
 		favoriteDataSource.open();
+		locationChangeHandler = new LocationChangeHandler(this);
+		currentLocation = Utils.getCurrentLocation(this, locationChangeHandler);
 		googlePalcesClient = new CustomGooglePlaces();
-		m_adapter = new SearchResultListAdapter(this, m_model, googlePalcesClient);
+		m_adapter = new SearchResultListAdapter(this, m_model, googlePalcesClient, currentLocation);
 		mBookmarkReciever = new BookmarkReciever(m_model, m_adapter);
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(App.BOOKMARK_STATE_CHANGE_ACTION);
@@ -108,17 +117,15 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 		IntentFilter filter_location = new IntentFilter();
 		filter_location.addAction(App.GEO_LOCATION_UPDATE_ACTION);
 		registerReceiver(mLocationReciever, filter_location);
-		
-		locationChangeHandler = new LocationChangeHandler(this);
-		currentLocation = Utils.getCurrentLocation(this, locationChangeHandler);
 	}
 	
 	public void initView()
 	{
-		setContentView(R.layout.search_result_page);
+		setContentView(R.layout.activity_search_result_page);
 		m_listView = (XListView) this.findViewById(R.id.result_list);
 		searchBox = (ClearableAutocompleteTextView) findViewById(R.id.search_box);
-		searchBox.setVisibility(View.GONE);
+		searchGroup = (LinearLayout) findViewById(R.id.search_box_group);
+		searchGroup.setVisibility(View.GONE);
 		searchIcon = (ImageView) findViewById(R.id.search_icon);
 		m_pBar = (ProgressBar) this.findViewById(R.id.forumDisplayProgressBar);
 		setupListView();
@@ -138,26 +145,11 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 	{
 		filterPerferences = getSharedPreferences("googleFilter", Context.MODE_PRIVATE);
 		googlePlaceFilter = new GooglePlaceFilter();
-		googlePlaceFilter.setKeyword("restaurant");
 		googlePlaceFilter.setLanguage("en");
-		
-		if (filterPerferences.getInt("max_price", 0) != 0)
-		{
-			googlePlaceFilter.setMaxprice(filterPerferences.getInt("max_price", 0));
-		}
-		if (filterPerferences.getString("rank_by", null) != null)
-		{
-			googlePlaceFilter.setRankby(filterPerferences.getString("rank_by", null));
-		}
-		if (filterPerferences.getBoolean("open_now", true) == true)
-		{
-			googlePlaceFilter.setOpennow(true);
-		}
-
+		keyword = "resturant";
 		searchBox = (ClearableAutocompleteTextView) findViewById(R.id.search_box);
-		final AutocompleteAdapter adapter = new AutocompleteAdapter();
-		searchBox.setAdapter(adapter);
-
+		autocompleteAdapter = new AutocompleteAdapter();
+		searchBox.setAdapter(autocompleteAdapter);
 		searchIcon.setOnClickListener(new View.OnClickListener()
 		{
 			@Override
@@ -181,31 +173,21 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 			{
-				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-				imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
-				String keyString = (String) adapter.getItem(position);
-				googlePlaceFilter.setKeyword(keyString);
-				m_pBar.setVisibility(View.VISIBLE);
-				loadModel(null);
+				keyword = (String) autocompleteAdapter.getItem(position);
+				performSearch(keyword);
 			}
 		});
 
-		// fire google place search query when press "done/search"
+		// fire google place search query when press "Done/Search/Next"
 		searchBox.setOnEditorActionListener(new OnEditorActionListener()
 		{
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
 			{
-				if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_SEARCH)
+				if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_SEARCH||actionId==EditorInfo.IME_ACTION_NEXT)
 				{
-					String keyString = searchBox.getText().toString();
-					InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-					imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
-					adapter.resultList.clear();
-					adapter.notifyDataSetChanged();
-					googlePlaceFilter.setKeyword(keyString);
-					m_pBar.setVisibility(View.VISIBLE);
-					loadModel(null);
+					keyword = searchBox.getText().toString();
+					performSearch(keyword);
 					return true;
 				}
 				return false;
@@ -213,8 +195,10 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 		});
 	}
 
-	public void loadModel(String pageToken)
+	public void loadModel(String pageToken, String keyword)
 	{
+		if(keyword == null)
+			return;
 		if(currentLocation != null)
 		{
 			if(pageToken != null)
@@ -226,19 +210,12 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 				googlePlaceFilter.setPagetoken(null);
 				m_model.clear();
 			}
+			updateFilters();
 			SearchResultTask searchTask = new SearchResultTask();
-			searchTask.execute("");
+			searchTask.execute(keyword);
 		}
 	}
 
-	@Override
-	public void onItemClick(AdapterView<?> arg0, View v, int position, long id)
-	{
-		if (position < 1)
-			return;
-		openDetailPage(m_model.get(position - 1));
-	}
-	
 	public void openDetailPage(Place selectedPlace)
 	{
 		Bundle data = new Bundle();
@@ -249,31 +226,69 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 		Gson gson = new Gson();
 		String jsonLocation = gson.toJson(location);
 		data.putSerializable("location", jsonLocation);
+		String jsonCurrentLocation = gson.toJson(currentLocation);
+		data.putSerializable("currentLocation", jsonCurrentLocation);
 		Intent intent = new Intent(this, SearchDetailsPage.class);
 		intent.putExtras(data);
 		this.startActivity(intent);
 	}
-
+	
+	public void updateFilters()
+	{
+		filterPerferences = getSharedPreferences("googleFilter", Context.MODE_PRIVATE);
+		googlePlaceFilter = new GooglePlaceFilter();
+		googlePlaceFilter.setLanguage("en");
+		googlePlaceFilter.setLocation(currentLocation.getLatitude()+","+currentLocation.getLongitude());
+		googlePlaceFilter.setMaxprice(filterPerferences.getInt("max_price", GooglePlaceFilter.DEFAULT_MAX_PRICE));
+		googlePlaceFilter.setRadius((double) filterPerferences.getLong("radius", GooglePlaceFilter.DEFAULT_SEARCH_RADIUS));
+		googlePlaceFilter.setOpennow(filterPerferences.getBoolean("open_now", GooglePlaceFilter.DEFAULT_OPEN_NOW));
+	}
+	
+	
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View v, int position, long id)
+	{
+		if (position < 1)
+			return;
+		openDetailPage(m_model.get(position - 1));
+	}
+	
 	public void forceRefresh()
 	{
-		loadModel(null);
+		loadModel(null, keyword);
 	}
 
 	@Override
 	public void onRefresh()
 	{
-		loadModel(null);
+		loadModel(null, keyword);
 	}
 
 	public void onBackBtnClick(View v)
 	{
 		this.finish();
 	}
+	
+	public void onSearchBtnClicked(View v)
+	{
+		keyword = searchBox.getText().toString();
+		performSearch(keyword);
+	}
 
+	private void performSearch(String keyword)
+	{
+		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
+		autocompleteAdapter.resultList.clear();
+		autocompleteAdapter.notifyDataSetChanged();
+		m_pBar.setVisibility(View.VISIBLE);
+		loadModel(null, keyword);
+	}
+	
 	@Override
 	public void onLoadMore()
 	{
-		loadModel(googlePalcesClient.getPageToken());
+		loadModel(googlePalcesClient.getPageToken(), keyword);
 	}
 	
 	public void onCancelFilterSaveBtnClick(View v)
@@ -311,7 +326,7 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 		{
 			// hide search box and show search icon
 			searchBox.setText("");
-			searchBox.setVisibility(View.GONE);
+			searchGroup.setVisibility(View.GONE);
 			searchIcon.setVisibility(View.VISIBLE);
 			// hide the keyboard
 			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -321,11 +336,11 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 		{
 			// hide search icon and show search box
 			searchIcon.setVisibility(View.GONE);
-			searchBox.setVisibility(View.VISIBLE);
+			searchGroup.setVisibility(View.VISIBLE);
 			// add FANCY animation
 			Animation a = AnimationUtils.loadAnimation(this, R.animator.push_left_in);
-			searchBox.setVisibility(View.VISIBLE);
-			searchBox.findViewById(R.id.search_box).startAnimation(a);
+			searchGroup.setVisibility(View.VISIBLE);
+			searchGroup.findViewById(R.id.search_box_group).startAnimation(a);
 			searchBox.requestFocus();
 			// show the keyboard
 			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -380,23 +395,26 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 					if (constraint != null && googlePalcesClient != null)
 					{
 						List<Prediction> predictionList = googlePalcesClient.getPlacePredictions(constraint.toString());
-						resultList.clear();
+						HashSet<String> resultSet = new HashSet<String>();
 						for (Prediction pred : predictionList)
 						{
-							resultList.add(pred.getDescription());
+							resultSet.add(simplifyDescription(pred.getDescription()));
 						}
 						// Assign the data to the FilterResults
-						filterResults.values = resultList;
-						filterResults.count = resultList.size();
+						filterResults.values = resultSet;
+						filterResults.count = resultSet.size();
 					}
 					return filterResults;
 				}
 
+				@SuppressWarnings("unchecked")
 				@Override
 				protected void publishResults(CharSequence constraint, FilterResults results)
 				{
 					if (results != null && results.count > 0)
 					{
+						resultList.clear();
+						resultList.addAll((Collection<String>) results.values);
 						notifyDataSetChanged();
 					} else
 					{
@@ -405,6 +423,16 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 				}
 			};
 			return filter;
+		}
+
+		public String simplifyDescription(String description)
+		{
+			String[] stringArray = description.split(",");
+			if (stringArray.length >= 2)
+			{
+				return stringArray[0] + "," + stringArray[1].trim();
+			}
+			return stringArray[0].trim();
 		}
 	}
 	
@@ -418,6 +446,7 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 			currentLocation = new Location("");
 			currentLocation.setLatitude(dataBundle.getDouble("Latitude"));
 			currentLocation.setLongitude(dataBundle.getDouble("Longtitude"));
+			m_adapter.setCurrentLocation(currentLocation);
 		}
 	}
 
@@ -427,26 +456,8 @@ public class SearchResultPage extends Activity implements IXListViewListener, On
 		protected List<Place> doInBackground(String... urls)
 		{
 			List<Place> placeList = new ArrayList<Place>();
-			try
-			{
-				long radius = filterPerferences.getLong("radius", 0);
-				if (radius == 0)
-				{
-					placeList = googlePalcesClient.getNearbyPlaces(currentLocation.getLatitude(), 
-							currentLocation.getLongitude(), 10000, googlePlaceFilter);
-				}
-				else 
-				{
-					placeList = googlePalcesClient.getNearbyPlaces(currentLocation.getLatitude(), 
-							currentLocation.getLongitude(), radius, googlePlaceFilter);
-				}
-				
-				status = googlePalcesClient.getStatusCode();
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
+			placeList = googlePalcesClient.getPlacesByQuery(urls[0], googlePlaceFilter);
+			status = googlePalcesClient.getStatusCode();
 			return placeList;
 		}
 

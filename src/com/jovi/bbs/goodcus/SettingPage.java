@@ -7,12 +7,16 @@ import java.util.ArrayList;
 
 
 
+
+
 import com.google.android.gms.plus.model.people.Person;
 import com.google.gson.Gson;
 import com.jovi.bbs.goodcus.net.Api;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.Place;
 import com.jovi.bbs.goodcus.util.FavoriteDBDataSource;
 import com.jovi.bbs.goodcus.util.GoogleImageLoader;
+import com.jovi.bbs.goodcus.util.LocationChangeHandler;
+import com.jovi.bbs.goodcus.util.Utils;
 import com.jovi.bbs.goodcus.widgets.ImageViewWithCache;
 import com.jovi.bbs.goodcus.widgets.deleteListView.BaseSwipeListViewListener;
 import com.jovi.bbs.goodcus.widgets.deleteListView.SwipeListView;
@@ -48,6 +52,8 @@ public class SettingPage extends Activity
 	private FavoriteListAdapter m_adapter;
 	private FavoriteDBDataSource favoritorDataSource;
 	
+	private LocationChangeHandler locationChangeHandler;
+	private Location currentLocation;
 	private Recv m_recv = null;
 	private Api api;
 
@@ -79,6 +85,8 @@ public class SettingPage extends Activity
 	{
 		favoritorDataSource = FavoriteDBDataSource.getInStance(this);
 		favoritorDataSource.open();
+		locationChangeHandler = new LocationChangeHandler(this);
+		currentLocation = Utils.getCurrentLocation(this, locationChangeHandler);
 		api = Api.getInstance();
 		m_recv = new Recv();
 		IntentFilter filter = new IntentFilter();
@@ -88,7 +96,7 @@ public class SettingPage extends Activity
 	
 	public void initView()
 	{
-		setContentView(R.layout.setting_page);
+		setContentView(R.layout.activity_setting_page);
 		m_version = (TextView) this.findViewById(R.id.settingAppVersion);
 		PackageInfo pinfo = null;
 		try
@@ -119,6 +127,8 @@ public class SettingPage extends Activity
 				Gson gson = new Gson();
 				String jsonLocation = gson.toJson(location);
 				data.putSerializable("location", jsonLocation);
+				String jsonCurrentLocation = gson.toJson(currentLocation);
+				data.putSerializable("currentLocation", jsonCurrentLocation);
 				Intent intent = new Intent(SettingPage.this, SearchDetailsPage.class);
 				intent.putExtras(data);
 				startActivity(intent);
@@ -190,7 +200,7 @@ public class SettingPage extends Activity
 		public void onLogoutState()
 		{
 			m_loginUserHeadImg.setImageResource(R.drawable.default_user_head_img);
-			m_loginUserName.setText("游客");
+			m_loginUserName.setText("Guest");
 			m_loginIcon.setImageResource(R.drawable.social_add_person_dark);
 		}
 	}
