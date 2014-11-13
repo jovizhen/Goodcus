@@ -1,340 +1,132 @@
 package com.jovi.bbs.goodcus;
 
-import java.util.ArrayList;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
+import com.jovi.bbs.goodcus.fragment.DetailFragmentNavigationListener;
 import com.jovi.bbs.goodcus.fragment.MapDirectionFragment;
 import com.jovi.bbs.goodcus.fragment.ReviewListFragment;
-import com.jovi.bbs.goodcus.net.googlePlacesApi.CustomGooglePlaces;
-import com.jovi.bbs.goodcus.net.googlePlacesApi.Photo;
-import com.jovi.bbs.goodcus.net.googlePlacesApi.Place;
-import com.jovi.bbs.goodcus.util.FavoriteDBDataSource;
-import com.jovi.bbs.goodcus.widgets.SearchDetailsView;
-import com.jovi.bbs.goodcus.widgets.tableView.CustomUITableView;
-import com.jovi.bbs.goodcus.widgets.tableView.CustomUITableView.CustomItemClickListener;
-import com.jovi.bbs.goodcus.widgets.touchGallery.CirclePageIndicator;
-import com.jovi.bbs.goodcus.widgets.touchGallery.ReferencePagerAdapter;
+import com.jovi.bbs.goodcus.fragment.SearchDetailFragment;
+import com.jovi.bbs.goodcus.widgets.ViewPagerWithSwipingControl;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.content.Intent;
 import android.location.Location;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.view.ViewPager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.PagerAdapter;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
-public class SearchDetailsPage extends Activity 
+public class SearchDetailsPage extends FragmentActivity implements DetailFragmentNavigationListener
 {
-	protected static final String TAG = "Search Details Page";
-	private   static final String MAP_DIRECTION_FRAGMENT  = "map_direction_fragment";
+	private static final int NUM_PAGES = 3;
+	public static final int FRAGMENT_TAG_DETAIL_INFO   = 0;
+	public static final int FRAGMENT_TAG_DETAIL_MAP    = 1;
+	public static final int FRAGMENT_TAG_DETAIL_REVIEW = 2;
 
-	private ViewPager mViewPager;
-	private ImageView viewPagerHolder;
-	private CustomUITableView tableView;
-	private RelativeLayout pageHeader;
-	private SearchDetailsView detailsView;
-	private CirclePageIndicator mIndicator;
+    private ViewPagerWithSwipingControl mPager;
+    private PagerAdapter mPagerAdapter;
 
-	private ArrayList<String> m_photo_reference_list = new ArrayList<String>();
-	private ReferencePagerAdapter pagerAdapter;
-	private CustomGooglePlaces googlePalcesClient;
-	private FavoriteDBDataSource favoriteDataSource;
-	
-	private String placeId;
-	private Place place;
-	private GoogleMap mMap;
-	private Location location;
-	private Location currentLocation;
-	private Handler m_handler = new Handler();
-	
+	private PlaceValueHolder placeValueHolder;
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		configure();
 		initView();
-		new PlaceDetailTask().execute("");
-	}
-	
-	protected void onResume()
-	{
-		favoriteDataSource.open();
-		super.onResume();
 	}
 
-	@Override
-	protected void onPause()
+	public void configure()
 	{
-		favoriteDataSource.close();
-		super.onPause();
-	}
-	
-	private void configure()
-	{
-		googlePalcesClient = new CustomGooglePlaces();
 		Gson gson = new Gson();
-		placeId =  this.getIntent().getExtras().getString("placeId");
-		String jsonLocation = this.getIntent().getExtras().getString("location");
-		String jsonCurrentLocation = this.getIntent().getExtras().getString("currentLocation");
-		location = gson.fromJson(jsonLocation, Location.class);
-		currentLocation = gson.fromJson(jsonCurrentLocation, Location.class);
-		favoriteDataSource = FavoriteDBDataSource.getInStance(this);
-		favoriteDataSource.open();
+		String placeId =  this.getIntent().getExtras().getString("placeId");
+		String jsonLocation =  this.getIntent().getExtras().getString("location");
+		String jsonCurrentLocation =  this.getIntent().getExtras().getString("currentLocation");
+		Location location = gson.fromJson(jsonLocation, Location.class);
+		Location currentLocation = gson.fromJson(jsonCurrentLocation, Location.class);
+		placeValueHolder = new PlaceValueHolder(placeId, location, currentLocation);
 	}
 	
-	private void initView()
+	public void initView()
 	{
 		setContentView(R.layout.activity_search_details_page);
-		detailsView = (SearchDetailsView) findViewById(R.id.searchDetailsFrag);
-		pagerAdapter = new ReferencePagerAdapter(this, m_photo_reference_list);
-		viewPagerHolder = (ImageView) findViewById(R.id.view_page_place_holder);
-		mViewPager = (ViewPager) findViewById(R.id.viewer);
-		mViewPager.setAdapter(pagerAdapter);
-		
-		pageHeader = (RelativeLayout) findViewById(R.id.pagedetail_header);
-		mIndicator = (CirclePageIndicator)findViewById(R.id.indicator);
-		mIndicator.setViewPager(mViewPager);
-		tableView = (CustomUITableView) findViewById(R.id.tableView);
-		setUpMapIfNeeded();
-		createMenuList();
+		mPager = (ViewPagerWithSwipingControl) findViewById(R.id.detail_pager);
+		mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+		mPager.setAdapter(mPagerAdapter);
+		mPager.setPagingSwipingEnabled(false);
 	}
 	
-	private void createMenuList() 
-	{
-		MenuItemClickListener listener = new MenuItemClickListener();
-		tableView.setCustomListener(listener);
-		tableView.addBasicItem(R.drawable.ic_action_directions, "Direction", null);
-		tableView.addBasicItem(R.drawable.ic_action_copy, "Reviews", null);
-		tableView.addBasicItem(R.drawable.ic_action_web_site, "Website", null);
-		tableView.addBasicItem(R.drawable.ic_action_call, "Telephone", null, false);
-		boolean isBookmarked = favoriteDataSource.isFavoriteAdded(placeId);
-		tableView.addBasicItem(isBookmarked? R.drawable.ic_bookmarked: R.drawable.ic_bookmark, 
-				isBookmarked? "Bookmarked":"Bookmark", null, false);
-		tableView.commit();
-	}
-	
-	public void onDirectionClick()
-	{
-		if(place == null)
-			return;
-		
-		Fragment f = getFragmentManager().findFragmentByTag(MAP_DIRECTION_FRAGMENT);
-		if(f!=null)
-		{
-			getFragmentManager().popBackStack();
-            pageHeader.setVisibility(View.VISIBLE);
-            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-            fragmentTransaction.remove(((MapDirectionFragment)f).getMap());
-            fragmentTransaction.commit();
-		}
-		else
-		{
-			Location location = new Location("");
-			location.setLatitude(place.getLatitude());
-			location.setLongitude(place.getLongitude());
-			Gson gson = new Gson();
-			String jsonLocation = gson.toJson(location);
-			
-			Bundle data = new Bundle();
-			data.putSerializable("bussiness_location", jsonLocation);
-			getFragmentManager().beginTransaction().
-			setCustomAnimations(R.animator.slide_from_right, 
-					R.animator.slide_to_right, 
-					R.animator.slide_from_right, 
-					R.animator.slide_to_right)
-				.add(R.id.review_fragment_container, MapDirectionFragment
-						.instantiate(this, MapDirectionFragment.class.getName(), data)
-						,MAP_DIRECTION_FRAGMENT).addToBackStack(null).commit();
-			pageHeader.setVisibility(View.GONE);
-		}
-	}
 	
 	public void onBackBtnClick(View v)
 	{
 		this.finish();
 	}
 	
-	public void onDirectionBackBtnClick(View v)
+	private class ScreenSlidePagerAdapter extends FragmentPagerAdapter
 	{
-		onDirectionClick(); 
-	}
-	
-	public void onBrowseReviewClick()
-	{
-		if(place == null)
-			return;
-		Fragment f = getFragmentManager().findFragmentByTag(MAP_DIRECTION_FRAGMENT);
-		if(f!=null)
+		public ScreenSlidePagerAdapter(FragmentManager fm)
 		{
-			getFragmentManager().popBackStack();
-            pageHeader.setVisibility(View.VISIBLE);
+			super(fm);
 		}
-		else 
-		{
-			Bundle data = new Bundle();
-			data.putString("place_id", place.getPlaceId());
-			getFragmentManager().beginTransaction().
-			setCustomAnimations(R.animator.slide_from_right, 
-					R.animator.slide_to_right, 
-					R.animator.slide_from_right, 
-					R.animator.slide_to_right)
-				.add(R.id.review_fragment_container, ReviewListFragment
-						.instantiate(this, ReviewListFragment.class.getName(), data)
-						,MAP_DIRECTION_FRAGMENT).addToBackStack(null).commit();
-			pageHeader.setVisibility(View.GONE);
-		}
-	}
-	
-	public void onWebsiteClick()
-	{
-		if(place == null)
-			return;
-		String webLink = place.getWebsite() != null? place.getWebsite():place.getGoogleUrl();
-		if(webLink == null)
-			return;
-		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(webLink));
-		startActivity(browserIntent);
-	}
-	
-	public void onPhoneClick()
-	{
-	}
-	
-	public void onReviewBackBtnClick(View v)
-	{
-		onBrowseReviewClick();
-	}
-	
-	public void onBookmarkClick(View view)
-	{
-		if(place == null)
-			return;
-		
-		ImageView icon = (ImageView) view.findViewById(R.id.image);
-		TextView textView = (TextView) view.findViewById(R.id.title);
-		if("Bookmark".equals(textView.getText()))
-		{
-			favoriteDataSource.addToFavorite(place);
-			icon.setImageResource(R.drawable.ic_bookmarked);
-			textView.setText("Bookmarked");
-			
-			Intent intent = new Intent(App.BOOKMARK_STATE_CHANGE_ACTION);
-			Bundle data = new Bundle();
-			data.putBoolean("isBookmarked", true);
-			data.putString("placeId", placeId);
-			intent.putExtras(data);
-			sendBroadcast(intent);
-		}
-		else if("Bookmarked".equals(textView.getText()))
-		{
-			favoriteDataSource.removeFromFavorite(place);
-			icon.setImageResource(R.drawable.ic_bookmark);
-			textView.setText("Bookmark");
-			
-			Intent intent = new Intent(App.BOOKMARK_STATE_CHANGE_ACTION);
-			Bundle data = new Bundle();
-			data.putBoolean("isBookmarked", false);
-			data.putString("placeId", placeId);
-			intent.putExtras(data);
-			sendBroadcast(intent);
-		}
-	}
-	
-	private void setUpMapIfNeeded()
-	{
-		if (mMap == null)
-		{
-			mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.business_map)).getMap();
-			mMap.setPadding(0, 10, 0, 10);
-			try
-			{
-				double lat = location.getLatitude();
-				double lont = location.getLongitude();
-				Marker mMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lont)).title("You are here!"));
-				mMarker.setDraggable(true);
-				mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lont), 14.00f));
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-		}
-	} 
-	
-	class PlaceDetailTask extends AsyncTask<String, Void, String>
-	{
+
 		@Override
-		protected String doInBackground(String... arg0)
+		public Fragment getItem(int position)
 		{
-			place = googlePalcesClient.getPlace(placeId);
+			if(position == FRAGMENT_TAG_DETAIL_INFO)
+			{
+				return SearchDetailFragment.newInstance(placeValueHolder);
+			}
+			else if(position == FRAGMENT_TAG_DETAIL_MAP)
+			{
+				return MapDirectionFragment.newInstance(placeValueHolder);
+			}
+			else if(position == FRAGMENT_TAG_DETAIL_REVIEW)
+			{
+				return ReviewListFragment.newInstance(placeValueHolder);
+			}
 			return null;
 		}
-		
-		protected void onPostExecute(String result)
+
+		@Override
+		public int getCount()
 		{
-			detailsView.loadPlaceDetails(place, currentLocation, location);
-			m_handler.post(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					ArrayList<String> refList = new ArrayList<String>();
-					for(Photo photo :place.getPhotos())
-					{
-						refList.add(photo.getReference());
-					}
-					if(refList.size()==0)
-					{
-						mViewPager.setVisibility(View.GONE);
-						viewPagerHolder.setVisibility(View.VISIBLE);
-					}
-					m_photo_reference_list.clear();
-					m_photo_reference_list.addAll(refList);
-					pagerAdapter.notifyDataSetChanged();
-				}
-			});
+			return NUM_PAGES;
 		}
 	}
-	
-	private class MenuItemClickListener implements CustomItemClickListener
+    
+	@Override
+	public void onNavigateInvoked(int fragmentTag)
 	{
-		@Override
-		public void onClick(View view)
+		mPager.setCurrentItem(fragmentTag);
+	}
+	
+	public class PlaceValueHolder
+	{
+		private String placeId;
+	    private Location location;
+		private Location currentLocation;
+		
+		public PlaceValueHolder(String placeId, Location location, Location currentLocation)
 		{
-			int index = (Integer) view.getTag();
-			if(index == 0)
-			{
-				onDirectionClick();
-			}
-			else if(index == 1)
-			{
-				onBrowseReviewClick();
-			}
-			else if(index == 2)
-			{
-				onWebsiteClick();
-			}
-			else if(index == 3)
-			{
-				onPhoneClick();
-			}
-			else if(index == 4)
-			{
-				onBookmarkClick(view);
-			}
+			this.placeId = placeId;
+			this.location = location;
+			this.currentLocation = currentLocation;
+		}
+
+		public String getPlaceId()
+		{
+			return placeId;
+		}
+
+		public Location getLocation()
+		{
+			return location;
+		}
+
+		public Location getCurrentLocation()
+		{
+			return currentLocation;
 		}
 	}
 }

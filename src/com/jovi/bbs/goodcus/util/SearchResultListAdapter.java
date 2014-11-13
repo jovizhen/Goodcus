@@ -81,7 +81,7 @@ public class SearchResultListAdapter extends BaseAdapter
 		}
 		
 		viewHolder.name.setText(m_model.get(position).getName());
-		viewHolder.addr.setText(m_model.get(position).getVicinity());
+		viewHolder.addr.setText(getAddress(m_model.get(position)));
 		viewHolder.ratingbar.setRating((float) m_model.get(position).getRating());
 		viewHolder.businessType.setText(m_model.get(position).getTypes().toString());
 		if(m_model.get(position).getPhotos().size()>0)
@@ -100,6 +100,35 @@ public class SearchResultListAdapter extends BaseAdapter
 	public void setCurrentLocation(Location currentLocation)
 	{
 		this.currentLocation = currentLocation;
+	}
+	
+	private String getAddress(Place place)
+	{
+		if(place.getVicinity()!=null)
+		{
+			return place.getVicinity();
+		}
+		
+		else if(place.getAddress()!=null)
+		{
+			String[] addressComponents = place.getAddress().split(",");
+			if (addressComponents.length > 2)
+			{
+				StringBuffer address = new StringBuffer();
+				for (int i = 0; i < addressComponents.length - 2; i++)
+				{
+					if (i != addressComponents.length - 3)
+					{
+						address.append(addressComponents[i]).append(",");
+					} else
+					{
+						address.append(addressComponents[i]);
+					}
+				}
+				return address.toString();
+			}
+		}
+		return null;
 	}
 	
 	class ViewHolder

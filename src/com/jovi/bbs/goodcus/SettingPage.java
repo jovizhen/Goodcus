@@ -254,7 +254,6 @@ public class SettingPage extends Activity
 			imageLoader.DisplayImage(null, m_model.get(position).getPlaceId(),  img);
 			del_btn.setOnClickListener(new OnClickListener()
 			{
-				
 				@Override
 				public void onClick(View v)
 				{

@@ -42,7 +42,6 @@ public class NearbyPage extends FragmentActivity
 	protected void onPause()
 	{
 		super.onPause();
-		FavoriteDBDataSource.getInStance(this).close();
 	}
 
 	@Override
@@ -62,8 +61,6 @@ public class NearbyPage extends FragmentActivity
 		
 		locationChangeHandler = new LocationChangeHandler(this);
 		currentLocation = Utils.getCurrentLocation(this, locationChangeHandler);
-		
-		
 	}
 	
 	public void initView()

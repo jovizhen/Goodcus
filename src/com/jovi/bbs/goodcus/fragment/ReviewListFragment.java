@@ -9,6 +9,8 @@ import java.util.List;
 import org.json.JSONObject;
 
 import com.jovi.bbs.goodcus.R;
+import com.jovi.bbs.goodcus.SearchDetailsPage;
+import com.jovi.bbs.goodcus.SearchDetailsPage.PlaceValueHolder;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.CustomGooglePlaces;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.Place;
 import com.jovi.bbs.goodcus.net.googlePlacesApi.Review;
@@ -18,14 +20,16 @@ import com.jovi.bbs.goodcus.widgets.RefreshActionBtn;
 import com.jovi.bbs.goodcus.widgets.XListView;
 import com.jovi.bbs.goodcus.widgets.XListView.IXListViewListener;
 
-import android.app.Fragment;
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -34,14 +38,17 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 {
 	protected static final String TAG = "bussiness_review_page";
 	private String placeId;
+	private PlaceValueHolder valueHolder;
 	
 	private ProgressBar m_pBar;
 	private XListView m_listView;
 	private RefreshActionBtn m_refreshBtn;
+	private ImageButton backButton;
 
 	private ArrayList<Review> m_model = new ArrayList<Review>();
 	private ShowCommentAdapter m_adapter;
 	public CustomGooglePlaces googlePalcesClient;
+	private DetailFragmentNavigationListener navigationListener;
 	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -49,6 +56,13 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 		configure();
 		loadModel();
 		return view;
+	}
+	
+	@Override
+	public void onAttach(Activity activity)
+	{
+		super.onAttach(activity);
+		setNavigateListener((DetailFragmentNavigationListener) activity);
 	}
 	
 	private View initView(LayoutInflater inflater, ViewGroup container)
@@ -71,6 +85,15 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 				loadModel();
 			}
 		});
+		backButton = (ImageButton) view.findViewById(R.id.reivewDisplayBackBtn);
+		backButton.setOnClickListener(new OnClickListener()
+		{
+			@Override
+			public void onClick(View v)
+			{
+				navigateTo(SearchDetailsPage.FRAGMENT_TAG_DETAIL_INFO);
+			}
+		});
 		m_pBar = (ProgressBar) view.findViewById(R.id.reviewDisplayProgressBar);
 		return view;
 	}
@@ -78,7 +101,20 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 	private void configure()
 	{
 		googlePalcesClient = new CustomGooglePlaces();
-		placeId = getArguments().getString("place_id");
+		placeId = valueHolder.getPlaceId();
+	}
+	
+	private void navigateTo(int fragmentTag)
+	{
+		if (navigationListener != null)
+		{
+			navigationListener.onNavigateInvoked(fragmentTag);
+		}
+	}
+	
+	private void setNavigateListener(DetailFragmentNavigationListener listener)
+	{
+		this.navigationListener = listener;
 	}
 	
 	private void loadModel() 
@@ -232,5 +268,12 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 			m_pBar.setVisibility(View.GONE);
 			m_refreshBtn.endRefresh();
 		}
+	}
+	
+	public static ReviewListFragment newInstance(PlaceValueHolder valueHolder)
+	{
+		ReviewListFragment instance = new ReviewListFragment();
+		instance.valueHolder = valueHolder;
+		return instance;
 	}
 }
