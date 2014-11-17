@@ -50,7 +50,7 @@ public class SearchDetailFragment extends Fragment
 	private ReferencePagerAdapter pagerAdapter;
 	private CustomGooglePlaces googlePalcesClient;
 	private FavoriteDBDataSource favoriteDataSource;
-	private DetailFragmentNavigationListener navigationListener;
+	private FragmentNavigationListener navigationListener;
 	
 	private String placeId;
 	private Place place;
@@ -92,7 +92,7 @@ public class SearchDetailFragment extends Fragment
 	public void onAttach(Activity activity)
 	{
 		super.onAttach(activity);
-		setNavigateListener((DetailFragmentNavigationListener) activity);
+		setNavigateListener((FragmentNavigationListener) activity);
 	}
 
 	private void configure()
@@ -166,7 +166,7 @@ public class SearchDetailFragment extends Fragment
 		}
 	}
 	
-	private void setNavigateListener(DetailFragmentNavigationListener listener)
+	private void setNavigateListener(FragmentNavigationListener listener)
 	{
 		this.navigationListener = listener;
 	}

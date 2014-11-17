@@ -48,7 +48,7 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 	private ArrayList<Review> m_model = new ArrayList<Review>();
 	private ShowCommentAdapter m_adapter;
 	public CustomGooglePlaces googlePalcesClient;
-	private DetailFragmentNavigationListener navigationListener;
+	private FragmentNavigationListener navigationListener;
 	
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
@@ -62,7 +62,7 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 	public void onAttach(Activity activity)
 	{
 		super.onAttach(activity);
-		setNavigateListener((DetailFragmentNavigationListener) activity);
+		setNavigateListener((FragmentNavigationListener) activity);
 	}
 	
 	private View initView(LayoutInflater inflater, ViewGroup container)
@@ -112,7 +112,7 @@ public class ReviewListFragment extends Fragment implements IXListViewListener
 		}
 	}
 	
-	private void setNavigateListener(DetailFragmentNavigationListener listener)
+	private void setNavigateListener(FragmentNavigationListener listener)
 	{
 		this.navigationListener = listener;
 	}

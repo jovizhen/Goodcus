@@ -1,6 +1,6 @@
 package com.jovi.bbs.goodcus.fragment;
 
-public interface DetailFragmentNavigationListener
+public interface FragmentNavigationListener
 {
 	public void onNavigateInvoked(int fragmentTag);
 }

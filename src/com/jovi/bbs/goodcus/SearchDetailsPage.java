@@ -2,7 +2,7 @@ package com.jovi.bbs.goodcus;
 
 
 import com.google.gson.Gson;
-import com.jovi.bbs.goodcus.fragment.DetailFragmentNavigationListener;
+import com.jovi.bbs.goodcus.fragment.FragmentNavigationListener;
 import com.jovi.bbs.goodcus.fragment.MapDirectionFragment;
 import com.jovi.bbs.goodcus.fragment.ReviewListFragment;
 import com.jovi.bbs.goodcus.fragment.SearchDetailFragment;
@@ -17,7 +17,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.view.View;
 
-public class SearchDetailsPage extends FragmentActivity implements DetailFragmentNavigationListener
+public class SearchDetailsPage extends FragmentActivity implements FragmentNavigationListener
 {
 	private static final int NUM_PAGES = 3;
 	public static final int FRAGMENT_TAG_DETAIL_INFO   = 0;
@@ -54,7 +54,7 @@ public class SearchDetailsPage extends FragmentActivity implements DetailFragmen
 		mPager = (ViewPagerWithSwipingControl) findViewById(R.id.detail_pager);
 		mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
 		mPager.setAdapter(mPagerAdapter);
-		mPager.setPagingSwipingEnabled(false);
+		mPager.setPageSwipingEnabled(false);
 	}
 	
 	

@@ -34,7 +34,7 @@ public class ViewPagerWithSwipingControl extends ViewPager
         return false;
     }
  
-    public void setPagingSwipingEnabled(boolean enabled) {
+    public void setPageSwipingEnabled(boolean enabled) {
         this.swipingEnabled = enabled;
     }
 

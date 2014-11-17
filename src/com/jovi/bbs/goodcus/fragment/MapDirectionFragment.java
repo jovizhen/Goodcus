@@ -43,7 +43,7 @@ public class MapDirectionFragment extends Fragment
 	private Location destination;
 	private RefreshActionBtn m_refreshBtn;
 	private ImageButton backButton;
-	private DetailFragmentNavigationListener navigationListener;
+	private FragmentNavigationListener navigationListener;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -84,7 +84,7 @@ public class MapDirectionFragment extends Fragment
 	public void onAttach(Activity activity)
 	{
 		super.onAttach(activity);
-		setNavigateListener((DetailFragmentNavigationListener) activity);
+		setNavigateListener((FragmentNavigationListener) activity);
 	}
 	
 	private void setupMapIfNeeded()
@@ -136,7 +136,7 @@ public class MapDirectionFragment extends Fragment
 		}
 	}
 	
-	private void setNavigateListener(DetailFragmentNavigationListener listener)
+	private void setNavigateListener(FragmentNavigationListener listener)
 	{
 		this.navigationListener = listener;
 	}
